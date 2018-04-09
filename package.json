@@ -1,7 +1,7 @@
 {
   "name": "@efraespada/turbine",
   "version": "0.0.2",
-  "description": "Handler for JSON database",
+  "description": "W",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

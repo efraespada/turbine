@@ -1,3 +1,5 @@
+[ ![@efraespada/turbine](https://d25lcipzij17d.cloudfront.net/badge.svg?id=js&type=6&v=0.0.2&x2=0)](https://www.npmjs.com/package/@efraespada/turbine)
+
 # Turbine
 Turbine allows different node processes to work with the same JSON database. It works as a service receiving requests and returning, storing or querying data as quick as possible.
 
@@ -19,7 +21,7 @@ Additionally, both servers work with pre-loaded data.
 | POST  | 2.5 s. | 2.1 s. | x1000
 | QUERY  | 46.9 s. | 2.1 s. | x1000
 
-For more details, check [Benchmark](https://github.com/rotorlab/server-node/tree/master/benchmark) section.
+For more details, check [benchmark](https://github.com/rotorlab/server-node/tree/master/benchmark) page.
 
 ### Installation
 ```bash
