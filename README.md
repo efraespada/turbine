@@ -34,7 +34,7 @@ The idea is to start a server (in Process A) and all processes (Process A, Clust
 
 #### prepare Turbine
 ```javascript
-const Turbine = require('@rotor-server/turbine');
+const Turbine = require('@efraespada/turbine');
 let turbine = new Turbine({
     "turbine_port": 4004,
     "turbine_ip": "http://localhost",
