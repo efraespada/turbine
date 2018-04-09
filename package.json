@@ -1,0 +1,32 @@
+{
+  "name": "@efraespada/turbine",
+  "version": "0.0.1",
+  "description": "Handler for JSON database",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rotorlab/server-node/turbine/"
+  },
+  "author": "Efraín Espada",
+  "license": "ISC",
+  "dependencies": {
+    "forever-monitor": "^1.7.1",
+    "Interval": "^1.0.7",
+    "body-parser": "^1.18.2",
+    "boxen": "^1.3.0",
+    "connect-timeout": "^1.9.0",
+    "express": "^4.16.3",
+    "logjsx": "0.0.2",
+    "node-json-db": "^0.7.5",
+    "recursive-iterator": "^3.3.0",
+    "request": "^2.85.0",
+    "request-promise": "^4.2.2",
+    "set-in": "^2.0.0",
+    "single-line-log": "^1.1.2",
+    "sync-node": "^1.3.1",
+    "unset": "0.0.2"
+  }
+}
