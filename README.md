@@ -92,7 +92,7 @@ const numCPUs = require('os').cpus().length;
 const express = require('express');
 const bodyParser = require('body-parser');
 const timeout = require('connect-timeout');
-const Turbine = require('@rotor-server/turbine');
+const Turbine = require('@efraespada/turbine');
 
 let turbine = new Turbine({
     "turbine_port": 4004,
