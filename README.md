@@ -1,5 +1,7 @@
+[ ![@efraespada/turbine](https://d25lcipzij17d.cloudfront.net/badge.svg?id=js&type=6&v=0.0.2&x2=0)](https://www.npmjs.com/package/@efraespada/turbine)
+
 # Turbine
-Turbine allows different processes to work with the same JSON database. It works as a service receiving requests and returning, storing or querying data as quick as possible.
+Turbine allows different node processes to work with the same JSON database. It works as a service receiving requests and returning, storing or querying data as quick as possible.
 
 ### The problem
 I have multiple clusters working with the same data. For them it isn't an effort to read from a JSON database and work with data. The problem appears when those clusters **try** to store data on database at the same time.
@@ -19,20 +21,20 @@ Additionally, both servers work with pre-loaded data.
 | POST  | 2.5 s. | 2.1 s. | x1000
 | QUERY  | 46.9 s. | 2.1 s. | x1000
 
-For more details, check [Benchmark](https://github.com/rotorlab/server-node/tree/master/benchmark) section.
+For more details, check [benchmark](https://github.com/rotorlab/server-node/tree/master/benchmark) page.
 
 ### Installation
 ```bash
-npm install @rotor-server/turbine --save
+npm install @efraespada/turbine --save
 ```
 
 ### Usage
 The idea is to start a server (in Process A) and all processes (Process A, Cluster A, Cluster B, Process B, Process C) are able to ask for data.
-<p align="center"><img width="60%" vspace="20" src="https://raw.githubusercontent.com/rotorlab/server-node/master/images/TurbineSchema.png"></p>
+<p align="center"><img width="55%" vspace="20" src="https://raw.githubusercontent.com/rotorlab/server-node/master/images/TurbineSchema.png"></p>
 
 #### prepare Turbine
 ```javascript
-const Turbine = require('@rotor-server/turbine');
+const Turbine = require('@efraespada/turbine');
 let turbine = new Turbine({
     "turbine_port": 4004,
     "turbine_ip": "http://localhost",
@@ -90,7 +92,7 @@ const numCPUs = require('os').cpus().length;
 const express = require('express');
 const bodyParser = require('body-parser');
 const timeout = require('connect-timeout');
-const Turbine = require('@rotor-server/turbine');
+const Turbine = require('@efraespada/turbine');
 
 let turbine = new Turbine({
     "turbine_port": 4004,
@@ -142,9 +144,12 @@ if (cluster.isMaster) {
 
 ```
 
+### In progress
+- huge databases, multiple json files
+
 License
 -------
-    Copyright 2018 RotorLab Organization
+    Copyright 2018 Efraín Espada
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
