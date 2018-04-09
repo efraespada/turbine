@@ -30,7 +30,7 @@ npm install @efraespada/turbine --save
 
 ### Usage
 The idea is to start a server (in Process A) and all processes (Process A, Cluster A, Cluster B, Process B, Process C) are able to ask for data.
-<p align="center"><img width="60%" vspace="20" src="https://raw.githubusercontent.com/rotorlab/server-node/master/images/TurbineSchema.png"></p>
+<p align="center"><img width="55%" vspace="20" src="https://raw.githubusercontent.com/rotorlab/server-node/master/images/TurbineSchema.png"></p>
 
 #### prepare Turbine
 ```javascript
