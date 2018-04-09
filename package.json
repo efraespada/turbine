@@ -1,7 +1,7 @@
 {
   "name": "@efraespada/turbine",
   "version": "0.0.2",
-  "description": "W",
+  "description": "Turbine allows different node processes to work with the same JSON database",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
