@@ -1,5 +1,5 @@
 # Turbine
-Turbine allows different processes to work with the same JSON database. It works as a service receiving requests and returning, storing or querying data as quick as possible.
+Turbine allows different node processes to work with the same JSON database. It works as a service receiving requests and returning, storing or querying data as quick as possible.
 
 ### The problem
 I have multiple clusters working with the same data. For them it isn't an effort to read from a JSON database and work with data. The problem appears when those clusters **try** to store data on database at the same time.
@@ -23,7 +23,7 @@ For more details, check [Benchmark](https://github.com/rotorlab/server-node/tree
 
 ### Installation
 ```bash
-npm install @rotor-server/turbine --save
+npm install @efraespada/turbine --save
 ```
 
 ### Usage
@@ -144,7 +144,7 @@ if (cluster.isMaster) {
 
 License
 -------
-    Copyright 2018 RotorLab Organization
+    Copyright 2018 Efraín Espada
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

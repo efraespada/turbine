@@ -1,6 +1,6 @@
 {
   "name": "@efraespada/turbine",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Handler for JSON database",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rotorlab/server-node/turbine/"
+    "url": "https://github.com/efraespada/turbine"
   },
   "author": "Efraín Espada",
   "license": "ISC",
