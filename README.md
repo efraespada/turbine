@@ -144,6 +144,9 @@ if (cluster.isMaster) {
 
 ```
 
+### In progress
+- huge databases, multiple json files
+
 License
 -------
     Copyright 2018 Efraín Espada
