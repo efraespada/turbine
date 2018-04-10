@@ -1,6 +1,7 @@
 const JsonDB = require('node-json-db');
 const express = require('express');
 const fs = require('fs');
+const path = require('path');
 const Interval = require('Interval');
 const setIn = require('set-in');
 const unset = require('unset');
@@ -21,6 +22,7 @@ String.prototype.replaceAll = function (search, replacement) {
     return target.replace(new RegExp(search, 'g'), replacement);
 };
 
+const DATABASE_FOLDER = "data/";
 const expectedDBNEnvVar = "DATABASE_NAME";
 const expectedTPORTEnvVar = "TURBINE_PORT";
 const expectedModeEnvVar = "MODE";
@@ -46,7 +48,50 @@ process.argv.forEach(function (val, index, array) {
     }
 });
 
-console.log(boxen('turbine', {padding: 2, borderColor: "cyan",borderStyle: 'round'}));
+let databaseFolder = DATABASE_FOLDER + db_name;
+let databaseIsNew = false;
+
+let meta = {
+    createDir: function (dirPath) {
+        if (!fs.existsSync(dirPath)) {
+            databaseIsNew = true;
+            try {
+                fs.mkdirSync(dirPath);
+            } catch (e) {
+                this.createDir(path.dirname(dirPath));
+                this.createDir(dirPath);
+            }
+        }
+    },
+    createCollection: function (folder) {
+        fs.readdir(folder, function(err, items) {
+            if (items.length === 0) {
+                fs.writeFile(folder + '/col_0.json', "{}", (err) => {
+                    if (err) throw err;
+                    console.log("collection 0 created");
+                });
+            } else {
+                for (let item in items) {
+                    console.log(items[item]);
+                }
+            }
+        });
+    },
+    loadCollection: function (folder) {
+
+    }
+};
+
+
+/**
+ * check if database folder exists
+ */
+meta.createDir(databaseFolder);
+if (databaseIsNew) {
+    meta.createCollection(databaseFolder)
+}
+
+console.log(boxen('turbine', {padding: 2, borderColor: "cyan", borderStyle: 'round'}));
 console.log("starting ..");
 let initOn = new Date().getTime();
 const SLASH = "/";
@@ -88,6 +133,7 @@ let indexed = 0;
 let processed = 0;
 
 let action = {
+
     /**
      * Returns an object from a instance for the given path (value)
      * @param database
@@ -122,8 +168,8 @@ let action = {
         }
     },
 
-    reindexVal: function(object, path) {
-        for(let {parent, node, key, path, deep} of new RecursiveIterator(object)) {
+    reindexVal: function (object, path) {
+        for (let {parent, node, key, path, deep} of new RecursiveIterator(object)) {
             if (typeof node !== "object") {
                 if (dataVal[node] === undefined) {
                     dataVal[node] = [];
@@ -136,7 +182,7 @@ let action = {
         console.log(".")
     },
 
-    updateValDB: function(database, value, object) {
+    updateValDB: function (database, value, object) {
         // remove previous values
         let obj = action.getObject(database, value);
         action.recursiveUnset(obj, value);
@@ -145,8 +191,8 @@ let action = {
         action.recursiveSet(object, value);
     },
 
-    recursiveUnset: function(object, pa) {
-        for(let {parent, node, key, path, deep} of new RecursiveIterator(object)) {
+    recursiveUnset: function (object, pa) {
+        for (let {parent, node, key, path, deep} of new RecursiveIterator(object)) {
             if (typeof node !== "object") {
                 if (dataVal[node] === undefined) {
                     dataVal[node] = [];
@@ -159,8 +205,8 @@ let action = {
         }
     },
 
-    recursiveSet: function(object, pa) {
-        for(let {parent, node, key, path, deep} of new RecursiveIterator(object)) {
+    recursiveSet: function (object, pa) {
+        for (let {parent, node, key, path, deep} of new RecursiveIterator(object)) {
             if (typeof node !== "object") {
                 if (dataVal[node] === undefined) {
                     dataVal[node] = [];
@@ -276,7 +322,7 @@ let action = {
         }
     },
 
-    validateObject: function(object, query) {
+    validateObject: function (object, query) {
         if (object === undefined) {
             return false
         }
@@ -292,7 +338,7 @@ let action = {
         return valid
     },
 
-    containsObject: function(array, toCheck) {
+    containsObject: function (array, toCheck) {
         if (array === null || array.length === 0) {
             return false
         } else if (toCheck === undefined) {
@@ -389,6 +435,6 @@ router.post('/', function (req, res) {
 });
 
 app.use('/', router);
-app.listen(turbine_port, function() {
-    console.log("started on " + turbine_port  + " (" + ((new Date().getTime() - initOn)/1000) + " secs)");
+app.listen(turbine_port, function () {
+    console.log("started on " + turbine_port + " (" + ((new Date().getTime() - initOn) / 1000) + " secs)");
 });
