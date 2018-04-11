@@ -84,13 +84,14 @@ function DatabasesManager(configuration) {
                 if (this.databases[database][item] === undefined) {
                     this.databases[database][item] = {}
                 }
-                this.databases[database][item].database = new JsonDB(this.getCollectionName(items[i]), true, true);
+                let dataPath = folder + SLASH + this.getCollectionName(items[i]);
+                this.databases[database][item].database = new JsonDB(dataPath, true, true);
                 this.databases[database][item].data = this.databases[database][item].database.getData(SLASH);
                 if (this.databases[database][item].values === undefined) {
                     this.databases[database][item].values = {};
                 }
+                console.log("Indexing " + database);
                 this.reindexValues(this.databases[database][item]);
-                console.log(items[item]);
             }
         }
     };
@@ -102,11 +103,11 @@ function DatabasesManager(configuration) {
                     params.values[node] = [];
                 }
                 this.indexed++;
-                log('Indexed ' + this.indexed);
+                log('i: ' + this.indexed);
                 params.values[node].push("/" + path.join("/"));
             }
         }
-        console.log(".")
+        console.log("\n🎉")
     };
 
     this.getCollectionNumber = function (item) {

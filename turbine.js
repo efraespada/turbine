@@ -49,12 +49,15 @@ process.argv.forEach(function (val, index, array) {
     }
 });
 
-let databaseFolder = DATABASE_FOLDER + db_name;
-let databaseIsNew = false;
-
 let config = {
     databases: ["database", "paths"]
 };
+
+/**
+ * check if given databases has own folder and collections, if not they are created.
+ * also loads databases as associative arrays
+ * @type {DatabasesManager}
+ */
 let databaseManager = new DatabasesManager(config);
 
 console.log(boxen('turbine', {padding: 2, borderColor: "cyan", borderStyle: 'round'}));
