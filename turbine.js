@@ -11,6 +11,7 @@ const SN = require('sync-node');
 const boxen = require('boxen');
 const log = require('single-line-log').stdout;
 const RecursiveIterator = require('recursive-iterator');
+const DatabasesManager = require('./model/databasesManager.js');
 const logjs = require('logjsx');
 const logger = new logjs();
 logger.init({
@@ -51,45 +52,10 @@ process.argv.forEach(function (val, index, array) {
 let databaseFolder = DATABASE_FOLDER + db_name;
 let databaseIsNew = false;
 
-let meta = {
-    createDir: function (dirPath) {
-        if (!fs.existsSync(dirPath)) {
-            databaseIsNew = true;
-            try {
-                fs.mkdirSync(dirPath);
-            } catch (e) {
-                this.createDir(path.dirname(dirPath));
-                this.createDir(dirPath);
-            }
-        }
-    },
-    createCollection: function (folder) {
-        fs.readdir(folder, function(err, items) {
-            if (items.length === 0) {
-                fs.writeFile(folder + '/col_0.json', "{}", (err) => {
-                    if (err) throw err;
-                    console.log("collection 0 created");
-                });
-            } else {
-                for (let item in items) {
-                    console.log(items[item]);
-                }
-            }
-        });
-    },
-    loadCollection: function (folder) {
-
-    }
+let config = {
+    databases: ["database", "paths"]
 };
-
-
-/**
- * check if database folder exists
- */
-meta.createDir(databaseFolder);
-if (databaseIsNew) {
-    meta.createCollection(databaseFolder)
-}
+let databaseManager = new DatabasesManager(config);
 
 console.log(boxen('turbine', {padding: 2, borderColor: "cyan", borderStyle: 'round'}));
 console.log("starting ..");
@@ -108,7 +74,7 @@ let paths = null;
 let data = null;
 if (mode !== "simple") {
     try {
-        paths = dbPath.getData(SLASH);
+        // paths = dbPath.getData(SLASH);
     } catch (e) {
         paths = {};
         fs.writeFile('paths.json', "{}", (err) => {
@@ -118,7 +84,7 @@ if (mode !== "simple") {
     }
 }
 try {
-    data = dbData.getData(SLASH);
+    //data = dbData.getData(SLASH);
 } catch (e) {
     data = {};
     fs.writeFile(db_name + '.json', "{}", (err) => {
