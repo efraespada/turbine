@@ -3,9 +3,14 @@ const path = require('path');
 const setIn = require('set-in');
 const unset = require('unset');
 const JsonDB = require('node-json-db');
+const Utils = require('./utils.js');
 const log = require('single-line-log').stdout;
+const Utils = require('./utils.js');
+const Database = require('./database.js');
+const Collections = require('./collection.js');
 const RecursiveIterator = require('recursive-iterator');
 
+const utils = new Utils();
 const SLASH = "/";
 
 String.prototype.replaceAll = function (search, replacement) {
@@ -19,6 +24,7 @@ function DatabasesManager(configuration) {
     this.databases = {};
     this.indexed = 0;
     this.processed = 0;
+    this.collection = new Collections(this.databases);
     this.configuration = configuration;
 
     this.createDir = async function (dirPath) {
@@ -74,28 +80,19 @@ function DatabasesManager(configuration) {
     };
 
     this.loadCollectionsOn = async function (database) {
-        let folder = "data/" + database;
-        let items = await fs.readdirSync(folder);
-        if (items.length === 0) {
-            throw new Error("no collections found in " + folder);
+        if (this.databases[database] === undefined) {
+            let folder = "data/" + database;
+            let items = await fs.readdirSync(folder);
+            if (items.length === 0) {
+                throw new Error("no collections found in " + folder);
+            } else {
+                this.databases[database] = new Database(database);
+                for (let i in items) {
+                    this.databases[database].addCollection(this.getCollectionName(items[i]));
+                }
+            }
         } else {
-            if (this.databases[database] === undefined) {
-                this.databases[database] = {}
-            }
-            for (let i in items) {
-                let item = this.getCollectionNumber(items[i]);
-                if (this.databases[database][item] === undefined) {
-                    this.databases[database][item] = {}
-                }
-                let dataPath = folder + SLASH + this.getCollectionName(items[i]);
-                this.databases[database][item].database = new JsonDB(dataPath, true, true);
-                this.databases[database][item].data = this.databases[database][item].database.getData(SLASH);
-                if (this.databases[database][item].values === undefined) {
-                    this.databases[database][item].values = {};
-                }
-                console.log("Indexing " + database);
-                this.reindexValues(this.databases[database][item]);
-            }
+            console.error("database already loaded")
         }
     };
 
@@ -103,72 +100,28 @@ function DatabasesManager(configuration) {
         this.processed++;
         if (value.startsWith(SLASH) && value.length > SLASH.length) {
             let branchs = value.split(SLASH);
-            let collections = Object.keys(this.databases[database]);
-            let objects = {
-                parts: []
-            };
+            let collections = this.databases[database].collectionKeys();
+            let parts = [];
             for (let c in collections) {
-                let object = this.databases[database][collections[c]].data;
+                let object = this.databases[database].collection(collections[c]).data;
                 for (let b in branchs) {
-                    let branch = branchs[b];
-                    if (branch.length === 0) {
-                        continue;
+                    if (branchs[b].length > 0 && object[branchs[b]] !== undefined) {
+                        object = object[branchs[b]];
                     }
-                    if (object[branch] === undefined || object[branch] === null) {
-                        object[branch] = {};
-                    }
-                    object = object[branch];
                 }
-                objects.parts.push(object);
+                parts.push(object);
             }
-            return this.mergeObjects(objects)
+            return parts.length === 0 ? {} : utils.mergeObjects({parts: parts});
         } else if (value.startsWith(SLASH) && value.length === SLASH.length) {
-            let collections = Object.keys(this.databases[database]);
-            let objects = {
-                parts: []
-            };
+            let collections = this.databases[database].collectionKeys();
+            let parts = [];
             for (let c in collections) {
-                objects.parts.push(this.databases[database][collections[c]].data);
+                parts.push(this.databases[database].collection(collections[c]).data);
             }
-            return this.mergeObjects(objects);
+            return parts.length === 0 ? {} : utils.mergeObjects({parts: parts});
         } else {
             return null
         }
-    };
-
-    this.mergeObjects = function(objects) {
-        let object = {};
-        if (objects.parts !== undefined && objects.parts.length > 1) {
-            for (let p in objects.parts) {
-                if (typeof objects.parts[p] === "object") {
-                    let keys = Object.keys(objects.parts[p]);
-                    for (let k in keys) {
-                        if (object[keys[k]] === undefined) {
-                            object[keys[k]] = objects.parts[p][keys[k]]
-                        }
-                    }
-                }
-            }
-            return object;
-        } else if (objects.parts !== undefined && objects.parts.length === 1) {
-            return objects.parts[0];
-        } else {
-            return null;
-        }
-    };
-
-    this.reindexValues = function (params) {
-        for (let {parent, node, key, path, deep} of new RecursiveIterator(params.data)) {
-            if (typeof node !== "object") {
-                if (params.values[node] === undefined) {
-                    params.values[node] = [];
-                }
-                this.indexed++;
-                log('i: ' + this.indexed);
-                params.values[node].push("/" + path.join("/"));
-            }
-        }
-        console.log("\n🎉")
     };
 
     /**
@@ -185,33 +138,26 @@ function DatabasesManager(configuration) {
         } else if (value.startsWith(SLASH) && value.length > SLASH.length) {
             let result = [];
             let branchs = value.split(SLASH);
-            let collections = Object.keys(this.databases[database]);
+            let collections = this.databases[database].collectionKeys();
             for (let c in collections) {
-                let object = this.databases[database][collections[c]].data;
+                let object = this.databases[database].collection(collections[c]).data;
                 for (let b in branchs) {
-                    let branch = branchs[b];
-                    if (branch.length === 0) {
-                        continue;
-                    }
-                    if (branch === "*") {
+                    if (branchs[b] === "*") {
                         let keys = Object.keys(query);
                         for (let k in keys) {
                             let key = keys[k];
-                            if (this.databases[database][collections[c]].values[query[key]] !== undefined) {
-                                for (let p in this.databases[database][collections[c]].values[query[key]]) {
-                                    if (this.databases[database][collections[c]].values[query[key]][p].indexOf(value.replace(/\*/g, '')) > -1) {
-                                        let valid = this.databases[database][collections[c]].values[query[key]][p].replaceAll("/" + key, "");
+                            if (this.databases[database].collection(collections[c]).values[query[key]] !== undefined) {
+                                for (let p in this.databases[database].collection(collections[c]).values[query[key]]) {
+                                    if (this.databases[database].collection(collections[c]).values[query[key]][p].indexOf(value.replace(/\*/g, '')) > -1) {
+                                        let valid = this.databases[database].collection(collections[c]).values[query[key]][p].replaceAll("/" + key, "");
                                         result.push(action.getObject(database, valid));
                                     }
                                 }
                             }
                         }
                         break;
-                    } else {
-                        if (object[branch] === undefined || object[branch] === null) {
-                            object[branch] = {};
-                        }
-                        object = object[branch];
+                    } else if (branchs[b].length > 0 && object[branchs[b]] !== undefined) {
+                        object = object[branchs[b]];
                     }
                 }
             }
@@ -248,10 +194,10 @@ function DatabasesManager(configuration) {
         }
         // TODO update this
         action.updateValDB(database, value, store);
-        if (store == null || JSON.stringify(store) === "{}") {
-            let collections = Object.keys(this.databases[database]);
+        if (store == null || store === {}) {
+            let collections = this.databases[database].collectionKeys();
             for (let c in collections) {
-                this.databases[database][collections[c]].data = unset(this.databases[database][collections[c]].data, [value])
+                this.databases[database].collection(collections[c]).data = unset(this.databases[database].collection(collections[c]).data, [value])
             }
         } else if (value.startsWith(SLASH) && value.length > SLASH.length) {
             let branchsVal = value.split(SLASH);
