@@ -4,6 +4,7 @@ const JsonDB = require('node-json-db');
 const SLASH = "/";
 
 const utils = new Utils();
+const MAX_SIZE = 300000;
 
 function Database(name) {
 
@@ -33,6 +34,32 @@ function Database(name) {
         }
     };
 
+    this.setData = function(collection, data) {
+        this.database[collection].data = data;
+    };
+
+    this.getData = function(collection) {
+        return this.database[collection].data;
+    };
+
+    this.enoughtSpace = function(collection) {
+        return JSON.stringify(this.database[collection].data).length < MAX_SIZE;
+    };
+
+    this.hasObject = function(collection, path) {
+        let c = JSON.stringify(this.database[collection].data);
+        let values = path.split(SLASH);
+        let valid = true;
+        for (let v in values) {
+            if (values[v].length === 0) continue;
+            if (c.indexOf("\"" + values[v] + "\":") === -1) {
+                valid = false;
+                break;
+            }
+        }
+        return valid;
+    };
+
     this.reindexValues = function (params) {
         for (let {parent, node, key, path, deep} of new RecursiveIterator(params.data)) {
             if (typeof node !== "object") {
@@ -47,8 +74,27 @@ function Database(name) {
         console.log("\n🎉")
     };
 
-    this.getCollectionToInsert = function() {
-
+    this.getCollectionToInsert = function(path) {
+        let collections = this.collectionKeys();
+        let suggested = [];
+        for (let c in collections) {
+            if (this.hasObject(collections[c], path)) {
+                suggested = collections[c];
+                break;
+            }
+        }
+        if (suggested !== null) {
+            return suggested;
+        }
+        let length = null;
+        for (let c in collections) {
+            let size = JSON.stringify(this.database[collections[c]].data).length;
+            if ((length === null || length > size) && size < MAX_SIZE) {
+                length = size;
+                suggested = collections[c];
+            }
+        }
+        return suggested
     }
 }
 

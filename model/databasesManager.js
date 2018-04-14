@@ -48,7 +48,6 @@ function DatabasesManager(configuration) {
             await this.createCollectionOn(folder + database)
         }
         await this.loadCollectionsOn(database);
-
     };
 
     this.loadDatabases = async function () {
@@ -64,13 +63,11 @@ function DatabasesManager(configuration) {
     this.createCollectionOn = async function (folder) {
         let items = await fs.readdirSync(folder);
         if (items.length === 0) {
-            fs.writeFile(folder + '/col_0.json', "{}", (err) => {
-                if (err) throw err;
-            });
+            await fs.writeFileSync(folder + '/col_0.json', "{}");
+            return "0";
         } else {
-            for (let item in items) {
-                console.log(items[item]);
-            }
+            await fs.writeFileSync(folder + '/col_' + items.length + '.json', "{}");
+            return items.length + "";
         }
     };
 
@@ -184,7 +181,7 @@ function DatabasesManager(configuration) {
      * @param object -> object to store
      * @returns {*}
      */
-    this.saveObject = function (database, value, object) {
+    this.saveObject = async function (database, value, object) {
         this.processed++;
         let store = null;
         if (typeof object === "string") {
@@ -200,6 +197,10 @@ function DatabasesManager(configuration) {
                 this.databases[database].collection(collections[c]).data = unset(this.databases[database].collection(collections[c]).data, [value])
             }
         } else if (value.startsWith(SLASH) && value.length > SLASH.length) {
+            let collection = this.databases[database].getCollectionToInsert(value);
+            if (collection === null) {
+                collection = await this.createCollectionOn("data/" + database)
+            }
             let branchsVal = value.split(SLASH);
             let branchs = [];
             for (let b in branchsVal) {
@@ -207,18 +208,49 @@ function DatabasesManager(configuration) {
                     branchs.push(branchsVal[b]);
                 }
             }
-            // TODO check if exist and if not, insert in best collection
-            if (database !== null && database === "paths") {
-                paths = setIn(paths, branchs, store);
-            } else {
-                data = setIn(data, branchs, store);
-            }
+            this.databases[database].setData(collection, setIn(this.databases[database].getData(collection), branchs, store));
+        } else if (value === SLASH) {
+            // TODO reset database
+            console.error("in progress: " + value)
+        }
+    };
 
-        } else if (value.startsWith(SLASH) && value.length === SLASH.length) {
-            let collections = Object.keys(this.databases[database]);
-            for (let c in collections) {
-                // TODO insert on existing or insert in best collection
-                this.databases[database][collections[c]].data = store;
+    // TODO use collections
+    this.updateValDB = function (database, value, object) {
+        // remove previous values
+        let obj = this.getObject(database, value);
+        this.recursiveUnset(obj, value);
+
+        // store new values
+        this.recursiveSet(object, value);
+    };
+
+    // TODO use collections
+    this.recursiveUnset = function (object, pa) {
+        for (let {parent, node, key, path, deep} of new RecursiveIterator(object)) {
+            if (typeof node !== "object") {
+                if (dataVal[node] === undefined) {
+                    dataVal[node] = [];
+                }
+                let toRemove = pa + "/" + path.join("/");
+                if (dataVal[node].indexOf(toRemove) > -1) {
+                    dataVal[node].slice(dataVal[node].indexOf(toRemove), 1)
+                }
+            }
+        }
+    };
+
+    // TODO use collections
+    this.recursiveSet = function (object, pa) {
+        for (let {parent, node, key, path, deep} of new RecursiveIterator(object)) {
+            if (typeof node !== "object") {
+                if (dataVal[node] === undefined) {
+                    dataVal[node] = [];
+                }
+                let toAdd = pa + "/" + path.join("/");
+                if (dataVal[node].indexOf(toAdd) === -1) {
+                    dataVal[node].push(toAdd)
+                }
             }
         }
     };

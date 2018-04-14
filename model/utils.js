@@ -35,6 +35,10 @@ function Utils() {
                     for (let k in keys) {
                         if (object[keys[k]] === undefined) {
                             object[keys[k]] = objects.parts[p][keys[k]]
+                        } else if (typeof object[keys[k]] === "object" && typeof objects.parts[p][keys[k]] === "object") {
+                            object[keys[k]] = this.mergeObjects({parts:[object[keys[k]],objects.parts[p][keys[k]]]})
+                        } else {
+                            console.error("conflicts with type: " + (typeof objects.parts[p][keys[k]]));
                         }
                     }
                 }
