@@ -2,7 +2,7 @@ const RecursiveIterator = require('recursive-iterator');
 const log = require('single-line-log').stdout;
 const JsonDB = require('node-json-db');
 const SLASH = "/";
-const MAX_SIZE = 1000;
+const MAX_SIZE = 3000;
 
 function Database(params) {
 
@@ -75,14 +75,13 @@ function Database(params) {
 
     this.getCollectionToInsert = function(path) {
         let collections = this.collectionKeys();
-        let suggested = [];
+        let suggested = null;
         for (let c in collections) {
             if (this.hasObject(collections[c], path)) {
                 suggested = collections[c];
                 break;
             }
         }
-        console.log("suggested: " + suggested);
 
         if (suggested !== null) {
             return suggested;
@@ -90,7 +89,6 @@ function Database(params) {
         let length = null;
         for (let c in collections) {
             let size = this.utils.sizeOf(this.database[collections[c]].data);
-            console.log("size: " + size);
             if ((length === null || length > size) && size < MAX_SIZE) {
                 length = size;
                 suggested = collections[c];

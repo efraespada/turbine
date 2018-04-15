@@ -44,7 +44,8 @@ queue.pushJob(function(){
 });
 
 for (let i = 0; i < numReq; i++) {
-    let userToCheck = "/users/" + randomString();
+    // let userToCheck = "/users/" + randomString();
+    let userToCheck = "/users/hfg";
     let data = {
         method: "get",
         database: "database",

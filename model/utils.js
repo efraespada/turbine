@@ -1,3 +1,4 @@
+const RecursiveIterator = require('recursive-iterator');
 
 function Utils() {
 
@@ -52,33 +53,11 @@ function Utils() {
     };
 
     this.sizeOf = function(obj){
-        let prim = {obj: obj, size: 0};
-        this.sizeOfPrim(prim);
-        return prim.size;
-    };
-
-    this.sizeOfPrim = function(param){
-        let clone, i;
-
-        if (typeof param.obj !== 'object' || !param.obj)
-            return param.obj;
-
-        if ('[object Array]' === Object.prototype.toString.apply(param.obj)) {
-            clone = [];
-            let len = param.obj.length;
-            param.size += len;
-            for (i = 0; i < len; i++)
-                clone[i] = this.sizeOfPrim({obj: param.obj[i], size: param.size});
-            return clone;
+        let size = 0;
+        for (let {parent, node, key, path, deep} of new RecursiveIterator(obj)) {
+            size++
         }
-
-        clone = {};
-        for (i in param.obj)
-            if (param.obj.hasOwnProperty(i)) {
-                param.size += 1;
-                clone[i] = this.sizeOfPrim({obj: param.obj[i], size: param.size});
-            }
-        return clone;
+        return size;
     };
 
     this.containsObject = function (array, toCheck) {

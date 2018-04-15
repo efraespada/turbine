@@ -25,6 +25,7 @@ function DatabasesManager(configuration) {
 
     let interval = 5; // secs
     let _this = this;
+    this.initOn = new Date().getTime();
     this.databases = {};
     this.indexed = 0;
     this.processed = 0;
@@ -102,7 +103,6 @@ function DatabasesManager(configuration) {
             let branchs = value.split(SLASH);
             let collections = this.databases[database].collectionKeys();
             let parts = [];
-            console.log("collection: " + collection);
             if (collection === undefined || collection.length === 0) {
                 for (let c in collections) {
                     let object = this.databases[database].collection(collections[c]).data;
@@ -211,7 +211,6 @@ function DatabasesManager(configuration) {
             }
         } else if (value.startsWith(SLASH) && value.length > SLASH.length) {
             let collection = this.databases[database].getCollectionToInsert(value);
-            console.log("collection to insert: " + collection);
             if (collection === null) {
                 collection = await this.createCollectionOn("data/" + database)
             }
@@ -260,12 +259,12 @@ function DatabasesManager(configuration) {
     this.recursiveUnset = function (database, collection, pa, object) {
         for (let {parent, node, key, path, deep} of new RecursiveIterator(object)) {
             if (typeof node !== "object") {
-                if (this.databases[database][collection].values[node] === undefined) {
-                    this.databases[database][collection].values[node] = [];
+                if (this.databases[database].collection(collection).values[node] === undefined) {
+                    this.databases[database].collection(collection).values[node] = [];
                 }
                 let toRemove = pa + "/" + path.join("/");
-                if (this.databases[database][collection].values[node].indexOf(toRemove) > -1) {
-                    this.databases[database][collection].values[node].slice(this.databases[database][collection].values[node].indexOf(toRemove), 1)
+                if (this.databases[database].collection(collection).values[node].indexOf(toRemove) > -1) {
+                    this.databases[database].collection(collection).values[node].slice(this.databases[database].collection(collection).values[node].indexOf(toRemove), 1)
                 }
             }
         }
@@ -281,12 +280,12 @@ function DatabasesManager(configuration) {
     this.recursiveSet = function (database, collection, pa, object) {
         for (let {parent, node, key, path, deep} of new RecursiveIterator(object)) {
             if (typeof node !== "object") {
-                if (this.databases[database][collection].values[node] === undefined) {
-                    this.databases[database][collection].values[node] = [];
+                if (this.databases[database].collection(collection).values[node] === undefined) {
+                    this.databases[database].collection(collection).values[node] = [];
                 }
                 let toAdd = pa + "/" + path.join("/");
-                if (this.databases[database][collection].values[node].indexOf(toAdd) === -1) {
-                    this.databases[database][collection].values[node].push(toAdd)
+                if (this.databases[database].collection(collection).values[node].indexOf(toAdd) === -1) {
+                    this.databases[database].collection(collection).values[node].push(toAdd)
                 }
             }
         }
@@ -308,7 +307,7 @@ function DatabasesManager(configuration) {
 
     // init databases
     this.loadDatabases().then(function () {
-        console.log("manager ready")
+        console.log("manager ready in " + ((new Date().getTime() - _this.initOn)/1000) +  " secs");
         Interval.run(function () {
             queue.pushJob(function () {
                 _this.save().then(function() {

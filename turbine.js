@@ -1,16 +1,8 @@
-const JsonDB = require('node-json-db');
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const Interval = require('Interval');
-const setIn = require('set-in');
-const unset = require('unset');
 const bodyParser = require('body-parser');
 const timeout = require('connect-timeout');
 const SN = require('sync-node');
 const boxen = require('boxen');
-const log = require('single-line-log').stdout;
-const RecursiveIterator = require('recursive-iterator');
 const DatabasesManager = require('./model/databasesManager.js');
 const logjs = require('logjsx');
 const logger = new logjs();
@@ -62,59 +54,8 @@ let databaseManager = new DatabasesManager(config);
 
 console.log(boxen('turbine', {padding: 2, borderColor: "cyan", borderStyle: 'round'}));
 console.log("starting ..");
-let initOn = new Date().getTime();
-const SLASH = "/";
 const router = express.Router();
 const queue = SN.createQueue();
-
-const dbPath = new JsonDB("paths", true, true);
-const dbData = new JsonDB(db_name, true, true);
-
-/**
- * instanced objects: data - paths
- */
-let paths = null;
-let data = null;
-if (mode !== "simple") {
-    try {
-        // paths = dbPath.getData(SLASH);
-    } catch (e) {
-        paths = {};
-        fs.writeFile('paths.json', "{}", (err) => {
-            if (err) throw err;
-            console.log("Database paths created");
-        });
-    }
-}
-try {
-    //data = dbData.getData(SLASH);
-} catch (e) {
-    data = {};
-    fs.writeFile(db_name + '.json', "{}", (err) => {
-        if (err) throw err;
-        console.log("Database " + db_name + " created");
-    });
-}
-
-
-
-/**
- * backup every 5 seconds
- */
-let time = 5;
-Interval.run(function () {
-    queue.pushJob(function () {
-        return new Promise(function (resolve, reject) {
-            databaseManager.save().then(function() {
-                resolve();
-            }).catch(function (e) {
-                reject()
-            });
-
-        });
-    })
-}, time * 1000);
-
 
 const app = express();
 app.use(bodyParser.urlencoded({extended: true}));
@@ -142,5 +83,5 @@ router.post('/', function (req, res) {
 });
 app.use('/', router);
 app.listen(turbine_port, function () {
-    console.log("started on " + turbine_port + " (" + ((new Date().getTime() - initOn) / 1000) + " secs)");
+    console.log("started on " + turbine_port);
 });
