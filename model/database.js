@@ -2,7 +2,7 @@ const RecursiveIterator = require('recursive-iterator');
 const log = require('single-line-log').stdout;
 const JsonDB = require('node-json-db');
 const SLASH = "/";
-const MAX_SIZE = 3000;
+const MAX_SIZE = 30000;
 
 function Database(params) {
 
@@ -62,6 +62,9 @@ function Database(params) {
     this.reindexValues = function (params) {
         for (let {parent, node, key, path, deep} of new RecursiveIterator(params.data)) {
             if (typeof node !== "object") {
+                if (typeof node === "string") {
+                    node = node.toLowerCase();
+                }
                 if (params.values[node] === undefined) {
                     params.values[node] = [];
                 }
@@ -70,7 +73,7 @@ function Database(params) {
                 params.values[node].push("/" + path.join("/"));
             }
         }
-        console.log("\n🎉")
+        console.log((this.indexed > 0 ? "\n" : "") + "🎉")
     };
 
     this.getCollectionToInsert = function(path) {
@@ -82,7 +85,6 @@ function Database(params) {
                 break;
             }
         }
-
         if (suggested !== null) {
             return suggested;
         }

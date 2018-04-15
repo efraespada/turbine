@@ -6,7 +6,6 @@ const JsonDB = require('node-json-db');
 const log = require('single-line-log').stdout;
 const Utils = require('./utils.js');
 const Database = require('./database.js');
-const Collections = require('./collection.js');
 const RecursiveIterator = require('recursive-iterator');
 const Interval = require('Interval');
 const SN = require('sync-node');
@@ -66,31 +65,41 @@ function DatabasesManager(configuration) {
 
     this.createCollectionOn = async function (folder) {
         let items = await fs.readdirSync(folder);
-        if (items.length === 0) {
+        if (await this.isEmpty(folder)) {
             await fs.writeFileSync(folder + '/col_0.json', "{}");
             return "0";
-        } else {
+        } else if (items.length < 8) {
             await fs.writeFileSync(folder + '/col_' + items.length + '.json', "{}");
             return items.length + "";
+        } else {
+            throw new Error("limit cols exceeded");
         }
     };
 
     this.isEmpty = async function (folder) {
         let items = await fs.readdirSync(folder);
-        return items.length === 0;
+        for (let i in items) {
+            if (items[i].indexOf("col_") > -1) {
+                return false;
+            }
+        }
+        return true;
     };
 
     this.loadCollectionsOn = async function (database) {
         if (this.databases[database] === undefined) {
             let folder = "data/" + database;
             let items = await fs.readdirSync(folder);
-            if (items.length === 0) {
-                throw new Error("no collections found in " + folder);
-            } else {
-                this.databases[database] = new Database({name: database, utils: utils});
-                for (let i in items) {
+            this.databases[database] = new Database({name: database, utils: utils});
+            let cols = false;
+            for (let i in items) {
+                if (items[i].indexOf("col_") > -1) {
                     this.databases[database].addCollection(utils.getCollectionName(items[i]));
+                    cols = true;
                 }
+            }
+            if (!cols) {
+                throw new Error("no collections found in " + folder);
             }
         } else {
             console.error("database already loaded")
@@ -103,19 +112,37 @@ function DatabasesManager(configuration) {
             let branchs = value.split(SLASH);
             let collections = this.databases[database].collectionKeys();
             let parts = [];
+            //console.log("get object collection: " + collection);
             if (collection === undefined || collection.length === 0) {
                 for (let c in collections) {
                     let object = this.databases[database].collection(collections[c]).data;
+                    let found = false;
                     for (let b in branchs) {
                         if (branchs[b].length > 0 && object[branchs[b]] !== undefined) {
                             object = object[branchs[b]];
+                            if (b == (branchs.length - 1)) {
+                                found = true;
+                            }
                         }
                     }
-                    parts.push(object);
+                    if (found) {
+                        parts.push(object);
+                    }
                 }
             } else {
                 let object = this.databases[database].collection(collection).data;
-                parts.push(object);
+                let found = false;
+                for (let b in branchs) {
+                    if (branchs[b].length > 0 && object[branchs[b]] !== undefined) {
+                        object = object[branchs[b]];
+                        if (b == (branchs.length - 1)) {
+                            found = true;
+                        }
+                    }
+                }
+                if (found) {
+                    parts.push(object);
+                }
             }
             return parts.length === 0 ? {} : utils.mergeObjects({parts: parts});
         } else if (value.startsWith(SLASH) && value.length === SLASH.length) {
@@ -156,7 +183,12 @@ function DatabasesManager(configuration) {
                         let keys = Object.keys(query);
                         for (let k in keys) {
                             let key = keys[k];
+                            if (typeof query[key] === "string") {
+                                query[key] = query[key].toLowerCase();
+                            }
+                            // console.log("json: " + JSON.stringify(this.databases[database].collection(collections[c]).values));
                             if (this.databases[database].collection(collections[c]).values[query[key]] !== undefined) {
+                                console.log("checking value: " + query[key]);
                                 for (let p in this.databases[database].collection(collections[c]).values[query[key]]) {
                                     if (this.databases[database].collection(collections[c]).values[query[key]][p].indexOf(value.replace(/\*/g, '')) > -1) {
                                         let valid = this.databases[database].collection(collections[c]).values[query[key]][p].replaceAll("/" + key, "");
@@ -171,6 +203,7 @@ function DatabasesManager(configuration) {
                     }
                 }
             }
+            console.log("result: " + result.length);
             let res = [];
             for (let obj in result) {
                 if (utils.validateObject(result[obj], query)) {
@@ -213,6 +246,7 @@ function DatabasesManager(configuration) {
             let collection = this.databases[database].getCollectionToInsert(value);
             if (collection === null) {
                 collection = await this.createCollectionOn("data/" + database)
+                this.databases[database].addCollection("col_" + collection);
             }
             this.updateValueMap(database, collection, value, store);
             let branchsVal = value.split(SLASH);
@@ -293,7 +327,12 @@ function DatabasesManager(configuration) {
 
     this.save =  async function() {
         if (this.processed > 0) {
-            log((this.processed / interval) + " op/sec");
+            // operations per second
+            let ops = this.processed / interval;
+
+            // seconds per opertion
+            let s = 1 / ops;
+            log(ops.toFixed(2) + " op/sec -> " + s.toFixed(3) + " sec/op");
             this.processed = 0;
         } else {
             log("0 op/sec");

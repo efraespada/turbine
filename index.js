@@ -2,36 +2,35 @@ const forever = require('forever-monitor');
 const rp = require('request-promise');
 const logjs = require('logjsx');
 const logger = new logjs();
+logger.init({
+    level: "DEBUG"
+});
 
-function Turbine(callback) {
+function Turbine(config) {
 
-    this.callback = callback;
+    this.config = config;
     this.turbine_ip = "http://localhost";
     this.turbine_port = 7285;
-    this.db_name = "database";
+    this.db_names = [];
     this.uid = "turbine";
-    this.turbine_mode = "simple";
     this.log_dir = "";
     this.debug = false;
 
-    if (this.callback.config !== undefined) {
-        if (this.callback.config.db_name !== undefined && this.callback.config.db_name.length > 0) {
-            this.db_name = this.callback.config.db_name;
+    if (this.config !== undefined) {
+        if (this.config.db_names !== undefined && this.config.db_names.length > 0) {
+            this.db_names = this.config.db_names;
         }
-        if (this.callback.config.turbine_port !== undefined && this.callback.config.turbine_port > 0) {
-            this.turbine_port = this.callback.config.turbine_port;
+        if (this.config.turbine_port !== undefined && this.config.turbine_port > 0) {
+            this.turbine_port = this.config.turbine_port;
         }
-        if (this.callback.config.turbine_ip !== undefined) {
-            this.turbine_ip = this.callback.config.turbine_ip;
+        if (this.config.turbine_ip !== undefined) {
+            this.turbine_ip = this.config.turbine_ip;
         }
-        if (this.callback.config.debug !== undefined && this.callback.config.debug) {
-            this.debug = this.callback.config.debug;
+        if (this.config.debug !== undefined && this.config.debug) {
+            this.debug = this.config.debug;
         }
-        if (this.callback.config.log_dir !== undefined && this.callback.config.log_dir) {
-            this.log_dir = this.callback.config.log_dir;
-        }
-        if (this.callback.config.turbine_mode !== undefined && this.callback.config.turbine_mode) {
-            this.turbine_mode = this.callback.config.turbine_mode;
+        if (this.config.log_dir !== undefined && this.config.log_dir) {
+            this.log_dir = this.config.log_dir;
         }
     }
 
@@ -43,7 +42,6 @@ function Turbine(callback) {
 
     /**
      * Initializes Turbine process
-     * @param callback
      */
     this.server = function () {
 
@@ -59,7 +57,7 @@ function Turbine(callback) {
 
             sourceDir: __dirname,
 
-            args: ['DATABASE_NAME=' + this.db_name, 'TURBINE_PORT=' + this.turbine_port, 'MODE=' + this.turbine_mode, 'DEBUG=' + this.debug.toString()],
+            args: ['DATABASE_NAME=' + this.db_names, 'TURBINE_PORT=' + this.turbine_port, 'DEBUG=' + this.debug.toString()],
 
             watch: false,
             watchIgnoreDotFiles: null,

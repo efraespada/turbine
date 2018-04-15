@@ -1,5 +1,5 @@
 const Turbine = require('./index.js');
-let turbine = new Turbine({config: require("./config.json")});
+let turbine = new Turbine(require("./config.json"));
 turbine.server();
 
 /*

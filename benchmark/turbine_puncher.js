@@ -10,6 +10,24 @@ const url = "http://localhost:4005/";
 const numReq = 1000;
 const EMPTY_OBJECT = {};
 
+const Turbine = require('../index.js');
+let turbine = new Turbine({
+    "turbine_port": 4005,
+    "turbine_ip": "http://localhost",
+    "db_names": ["database","paths"],
+    "debug": true
+});
+
+
+function randomString() {
+    let text = "";
+    let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (let i = 0; i < 3; i++)
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
+
 function ask(url, data) {
     return new Promise(function(resolve, reject) {
         let options = {
@@ -27,15 +45,28 @@ function ask(url, data) {
             });
     });
 }
+/*
 
-function randomString() {
-    let text = "";
-    let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (let i = 0; i < 3; i++)
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
+async function post(i) {
+    if (i < numReq) {
+        await turbine.post("database", "/users/" + randomString(), {name: "jeje"});
+        await post(i + 1)
+    }
 }
+
+async function test() {
+    let started = new Date();
+    await post(0);
+    let duration = new Date() - started;
+    logger.debug("setting " + numReq + " times -> finished in: " + (duration/1000) + " secs");
+    started = new Date();
+}
+
+test().then(function() {
+   console.log("finish!");
+});
+*/
+
 
 let started = new Date().getTime();
 
@@ -44,8 +75,8 @@ queue.pushJob(function(){
 });
 
 for (let i = 0; i < numReq; i++) {
-    // let userToCheck = "/users/" + randomString();
-    let userToCheck = "/users/hfg";
+    let userToCheck = "/users/" + randomString();
+    // let userToCheck = "/users/fUI";
     let data = {
         method: "get",
         database: "database",
@@ -59,6 +90,7 @@ for (let i = 0; i < numReq; i++) {
                 } else if (JSON.stringify(user) === JSON.stringify(EMPTY_OBJECT)) {
                     resolve()
                 } else {
+                    logger.debug("found: " + JSON.stringify(user));
                     resolve()
                 }
             })
@@ -73,7 +105,7 @@ queue.pushJob(function(){
     logger.debug("getting " + numReq + " times -> finished in: " + (duration/1000) + " secs");
 });
 
-
+/*
 queue.pushJob(function(){
     started = new Date().getTime();
     logger.debug("setting " + numReq + " times");
@@ -81,6 +113,7 @@ queue.pushJob(function(){
 
 for (let i = 0; i < numReq; i++) {
     let userToCheck = "/users/" + randomString();
+    // let userToCheck = "/users/fUI";
     queue.pushJob(function() {
         return new Promise(function (resolve, reject) {
             let user = {};
@@ -105,7 +138,7 @@ queue.pushJob(function(){
     let duration = new Date().getTime() - started;
     logger.debug("setting " + numReq + " times -> finished in: " + (duration/1000) + " secs");
 });
-
+*/
 
 queue.pushJob(function(){
     started = new Date().getTime();
@@ -119,8 +152,9 @@ for (let i = 0; i < numReq; i++) {
         database: "database",
         path: userToCheck,
         query: {
-            name: "cFu",
-            age: 45
+            name: "cfU",
+            friends: ["mark", "tom"]
+
         }
     };
 
@@ -133,6 +167,7 @@ for (let i = 0; i < numReq; i++) {
                 } else if (JSON.stringify(res) === JSON.stringify(EMPTY_OBJECT)) {
                     resolve()
                 } else {
+                    logger.debug("found: " + JSON.stringify(res));
                     resolve()
                 }
             })
@@ -146,3 +181,4 @@ queue.pushJob(function(){
     let duration = new Date().getTime() - started;
     logger.debug("querying " + numReq + " times -> finished in: " + (duration/1000) + " secs");
 });
+

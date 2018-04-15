@@ -81,6 +81,10 @@ function Utils() {
         return isContained
     };
 
+    this.sameArray = function(arr1, arr2) {
+        return !(arr1.length != arr2.length || arr1.some((v) => arr2.indexOf(v) < 0));
+    };
+
     this.validateObject = function (object, query) {
         if (object === undefined) {
             return false
@@ -89,9 +93,28 @@ function Utils() {
         let valid = true;
         for (let f in fields) {
             let field = fields[f];
-            if (object[field] === undefined || object[field] !== query[field]) {
-                valid = false;
-                break;
+            if (typeof object[field] === "object") {
+                if ('[object Array]' === Object.prototype.toString.apply(object[field])) {
+                    if (object[field] === undefined || !this.sameArray(object[field], query[field])) {
+                        valid = false;
+                        break;
+                    }
+                } else {
+                    if (object[field] === undefined || object[field] !== query[field]) {
+                        valid = false;
+                        break;
+                    }
+                }
+            } else if (typeof object[field] === "string") {
+                if (object[field] === undefined || object[field].toLowerCase() !== query[field].toLowerCase()) {
+                    valid = false;
+                    break;
+                }
+            } else if (typeof object[field] === "number") {
+                if (object[field] === undefined || object[field] != query[field]) {
+                    valid = false;
+                    break;
+                }
             }
         }
         return valid
