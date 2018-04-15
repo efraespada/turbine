@@ -7,7 +7,7 @@ logger.init({
     level: "DEBUG"
 });
 const url = "http://localhost:4005/";
-const numReq = 5000;
+const numReq = 1000;
 const EMPTY_OBJECT = {};
 
 function ask(url, data) {
@@ -47,6 +47,7 @@ for (let i = 0; i < numReq; i++) {
     let userToCheck = "/users/" + randomString();
     let data = {
         method: "get",
+        database: "database",
         path: userToCheck
     };
     queue.pushJob(function(){
@@ -86,6 +87,7 @@ for (let i = 0; i < numReq; i++) {
 
             let write = {
                 method: "post",
+                database: "database",
                 path: userToCheck,
                 value: user
             };
@@ -113,6 +115,7 @@ for (let i = 0; i < numReq; i++) {
     let userToCheck = "/users/*";
     let data = {
         method: "query",
+        database: "database",
         path: userToCheck,
         query: {
             name: "cFu",

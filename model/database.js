@@ -1,14 +1,13 @@
 const RecursiveIterator = require('recursive-iterator');
-const Utils = require('./utils.js');
+const log = require('single-line-log').stdout;
 const JsonDB = require('node-json-db');
 const SLASH = "/";
+const MAX_SIZE = 1000;
 
-const utils = new Utils();
-const MAX_SIZE = 300000;
+function Database(params) {
 
-function Database(name) {
-
-    this.name = name;
+    this.name = params.name;
+    this.utils = params.utils || new Utils();
     this.database = {};
     this.indexed = 0;
 
@@ -21,7 +20,7 @@ function Database(name) {
     };
 
     this.addCollection = function(collectionName) {
-        let collectionNumber = utils.getCollectionNumber(collectionName);
+        let collectionNumber = this.utils.getCollectionNumber(collectionName);
         if (this.database[collectionNumber] === undefined) {
             this.database[collectionNumber] = {};
             this.database[collectionNumber].jsondb = new JsonDB("data/" + this.name + SLASH + collectionName, true, true);
@@ -83,18 +82,35 @@ function Database(name) {
                 break;
             }
         }
+        console.log("suggested: " + suggested);
+
         if (suggested !== null) {
             return suggested;
         }
         let length = null;
         for (let c in collections) {
-            let size = JSON.stringify(this.database[collections[c]].data).length;
+            let size = this.utils.sizeOf(this.database[collections[c]].data);
+            console.log("size: " + size);
             if ((length === null || length > size) && size < MAX_SIZE) {
                 length = size;
                 suggested = collections[c];
             }
         }
         return suggested
+    };
+
+    /**
+     * Saves every collection's content in its JSON file
+     */
+    this.save = function() {
+        try {
+            let collections = this.collectionKeys();
+            for (let c in collections) {
+                this.database[collections[c]].jsondb.push(SLASH, this.database[collections[c]].data)
+            }
+        } catch (e) {
+            console.error("error on data backup " + this.name + ": " + e)
+        }
     }
 }
 

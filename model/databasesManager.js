@@ -3,12 +3,14 @@ const path = require('path');
 const setIn = require('set-in');
 const unset = require('unset');
 const JsonDB = require('node-json-db');
-const Utils = require('./utils.js');
 const log = require('single-line-log').stdout;
 const Utils = require('./utils.js');
 const Database = require('./database.js');
 const Collections = require('./collection.js');
 const RecursiveIterator = require('recursive-iterator');
+const Interval = require('Interval');
+const SN = require('sync-node');
+const queue = SN.createQueue();
 
 const utils = new Utils();
 const SLASH = "/";
@@ -21,10 +23,11 @@ String.prototype.replaceAll = function (search, replacement) {
 
 function DatabasesManager(configuration) {
 
+    let interval = 5; // secs
+    let _this = this;
     this.databases = {};
     this.indexed = 0;
     this.processed = 0;
-    this.collection = new Collections(this.databases);
     this.configuration = configuration;
 
     this.createDir = async function (dirPath) {
@@ -83,9 +86,9 @@ function DatabasesManager(configuration) {
             if (items.length === 0) {
                 throw new Error("no collections found in " + folder);
             } else {
-                this.databases[database] = new Database(database);
+                this.databases[database] = new Database({name: database, utils: utils});
                 for (let i in items) {
-                    this.databases[database].addCollection(this.getCollectionName(items[i]));
+                    this.databases[database].addCollection(utils.getCollectionName(items[i]));
                 }
             }
         } else {
@@ -93,27 +96,37 @@ function DatabasesManager(configuration) {
         }
     };
 
-    this.getObject = function (database, value) {
+    this.getObject = function (database, value, collection) {
         this.processed++;
         if (value.startsWith(SLASH) && value.length > SLASH.length) {
             let branchs = value.split(SLASH);
             let collections = this.databases[database].collectionKeys();
             let parts = [];
-            for (let c in collections) {
-                let object = this.databases[database].collection(collections[c]).data;
-                for (let b in branchs) {
-                    if (branchs[b].length > 0 && object[branchs[b]] !== undefined) {
-                        object = object[branchs[b]];
+            console.log("collection: " + collection);
+            if (collection === undefined || collection.length === 0) {
+                for (let c in collections) {
+                    let object = this.databases[database].collection(collections[c]).data;
+                    for (let b in branchs) {
+                        if (branchs[b].length > 0 && object[branchs[b]] !== undefined) {
+                            object = object[branchs[b]];
+                        }
                     }
+                    parts.push(object);
                 }
+            } else {
+                let object = this.databases[database].collection(collection).data;
                 parts.push(object);
             }
             return parts.length === 0 ? {} : utils.mergeObjects({parts: parts});
         } else if (value.startsWith(SLASH) && value.length === SLASH.length) {
             let collections = this.databases[database].collectionKeys();
             let parts = [];
-            for (let c in collections) {
-                parts.push(this.databases[database].collection(collections[c]).data);
+            if (collection === undefined) {
+                for (let c in collections) {
+                    parts.push(this.databases[database].collection(collections[c]).data);
+                }
+            } else {
+                parts.push(this.databases[database].collection(collection).data);
             }
             return parts.length === 0 ? {} : utils.mergeObjects({parts: parts});
         } else {
@@ -147,7 +160,7 @@ function DatabasesManager(configuration) {
                                 for (let p in this.databases[database].collection(collections[c]).values[query[key]]) {
                                     if (this.databases[database].collection(collections[c]).values[query[key]][p].indexOf(value.replace(/\*/g, '')) > -1) {
                                         let valid = this.databases[database].collection(collections[c]).values[query[key]][p].replaceAll("/" + key, "");
-                                        result.push(action.getObject(database, valid));
+                                        result.push(this.getObject(database, valid));
                                     }
                                 }
                             }
@@ -160,8 +173,8 @@ function DatabasesManager(configuration) {
             }
             let res = [];
             for (let obj in result) {
-                if (action.validateObject(result[obj], query)) {
-                    if (!action.containsObject(res, result[obj])) {
+                if (utils.validateObject(result[obj], query)) {
+                    if (!utils.containsObject(res, result[obj])) {
                         res.push(result[obj])
                     }
                 }
@@ -190,17 +203,19 @@ function DatabasesManager(configuration) {
             store = object;
         }
         // TODO update this
-        action.updateValDB(database, value, store);
         if (store == null || store === {}) {
             let collections = this.databases[database].collectionKeys();
             for (let c in collections) {
+                this.updateValueMap(database, collections[c], value, store);
                 this.databases[database].collection(collections[c]).data = unset(this.databases[database].collection(collections[c]).data, [value])
             }
         } else if (value.startsWith(SLASH) && value.length > SLASH.length) {
             let collection = this.databases[database].getCollectionToInsert(value);
+            console.log("collection to insert: " + collection);
             if (collection === null) {
                 collection = await this.createCollectionOn("data/" + database)
             }
+            this.updateValueMap(database, collection, value, store);
             let branchsVal = value.split(SLASH);
             let branchs = [];
             for (let b in branchsVal) {
@@ -215,57 +230,95 @@ function DatabasesManager(configuration) {
         }
     };
 
-    // TODO use collections
-    this.updateValDB = function (database, value, object) {
+    /**
+     * Updates value map
+     * @param database
+     * @param collection
+     * @param path
+     * @param object
+     */
+    this.updateValueMap = function (database, collection, path, object) {
+        if (collection === undefined || collection.length === 0) {
+            throw new Error("Collection not found updating value map");
+        }
+
         // remove previous values
-        let obj = this.getObject(database, value);
-        this.recursiveUnset(obj, value);
+        let obj = this.getObject(database, path, collection);
+        this.recursiveUnset(database, collection, path, obj);
 
         // store new values
-        this.recursiveSet(object, value);
+        this.recursiveSet(database, collection, path, object);
     };
 
-    // TODO use collections
-    this.recursiveUnset = function (object, pa) {
+    /**
+     * Un-sets recursively values on value map
+     * @param database
+     * @param collection
+     * @param pa -> path
+     * @param object
+     */
+    this.recursiveUnset = function (database, collection, pa, object) {
         for (let {parent, node, key, path, deep} of new RecursiveIterator(object)) {
             if (typeof node !== "object") {
-                if (dataVal[node] === undefined) {
-                    dataVal[node] = [];
+                if (this.databases[database][collection].values[node] === undefined) {
+                    this.databases[database][collection].values[node] = [];
                 }
                 let toRemove = pa + "/" + path.join("/");
-                if (dataVal[node].indexOf(toRemove) > -1) {
-                    dataVal[node].slice(dataVal[node].indexOf(toRemove), 1)
+                if (this.databases[database][collection].values[node].indexOf(toRemove) > -1) {
+                    this.databases[database][collection].values[node].slice(this.databases[database][collection].values[node].indexOf(toRemove), 1)
                 }
             }
         }
     };
 
-    // TODO use collections
-    this.recursiveSet = function (object, pa) {
+    /**
+     * Sets recursively values on value map
+     * @param database
+     * @param collection
+     * @param pa -> path
+     * @param object
+     */
+    this.recursiveSet = function (database, collection, pa, object) {
         for (let {parent, node, key, path, deep} of new RecursiveIterator(object)) {
             if (typeof node !== "object") {
-                if (dataVal[node] === undefined) {
-                    dataVal[node] = [];
+                if (this.databases[database][collection].values[node] === undefined) {
+                    this.databases[database][collection].values[node] = [];
                 }
                 let toAdd = pa + "/" + path.join("/");
-                if (dataVal[node].indexOf(toAdd) === -1) {
-                    dataVal[node].push(toAdd)
+                if (this.databases[database][collection].values[node].indexOf(toAdd) === -1) {
+                    this.databases[database][collection].values[node].push(toAdd)
                 }
             }
         }
     };
 
-    this.getCollectionNumber = function (item) {
-        return this.getCollectionName(item.replaceAll("col_", ""));
-    };
-    this.getCollectionName = function (item) {
-        return item.replaceAll(".json", "");
+    this.save =  async function() {
+        if (this.processed > 0) {
+            log((this.processed / interval) + " op/sec");
+            this.processed = 0;
+        } else {
+            log("0 op/sec");
+        }
+
+        let databases = Object.keys(this.databases);
+        for (let d in databases) {
+            this.databases[databases[d]].save();
+        }
     };
 
     // init databases
     this.loadDatabases().then(function () {
         console.log("manager ready")
+        Interval.run(function () {
+            queue.pushJob(function () {
+                _this.save().then(function() {
+
+                })
+            })
+        }, interval * 1000);
     })
+
+
 }
 
 module.exports = DatabasesManager;

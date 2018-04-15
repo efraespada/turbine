@@ -98,12 +98,14 @@ function Turbine(callback) {
 
     /**
      * Returns the object of the given path
+     * @param database -> myDatabase
      * @param path
      * @returns {Promise<*>}
      */
-    this.get = async function(path) {
+    this.get = async function(database, path) {
         let data = {
             method: "get",
+            database: database,
             path: path
         };
         return await this.ask(this.turbine_ip + ":" + this.turbine_port + "/", data)
@@ -111,13 +113,15 @@ function Turbine(callback) {
 
     /**
      * Stores data in the given path. Removes if data is null or empty
+     * @param database -> myDatabase
      * @param path
      * @param value
      * @returns {Promise<void>}
      */
-    this.post = async function(path, value) {
+    this.post = async function(database, path, value) {
         let data = {
             method: "post",
+            database: database,
             path: path,
             value: value
         };
@@ -126,13 +130,15 @@ function Turbine(callback) {
 
     /**
      * Returns a list of objects that contains the given fields and values
+     * @param database -> myDatabase
      * @param path -> /users/*
      * @param query -> { name: "Mark" }
      * @returns {Promise<*>}
      */
-    this.query = async function(path, query) {
+    this.query = async function(database, path, query) {
         let data = {
             method: "query",
+            database: database,
             path: path,
             query: query
         };

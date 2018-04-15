@@ -51,6 +51,73 @@ function Utils() {
         }
     };
 
+    this.sizeOf = function(obj){
+        let prim = {obj: obj, size: 0};
+        this.sizeOfPrim(prim);
+        return prim.size;
+    };
+
+    this.sizeOfPrim = function(param){
+        let clone, i;
+
+        if (typeof param.obj !== 'object' || !param.obj)
+            return param.obj;
+
+        if ('[object Array]' === Object.prototype.toString.apply(param.obj)) {
+            clone = [];
+            let len = param.obj.length;
+            param.size += len;
+            for (i = 0; i < len; i++)
+                clone[i] = this.sizeOfPrim({obj: param.obj[i], size: param.size});
+            return clone;
+        }
+
+        clone = {};
+        for (i in param.obj)
+            if (param.obj.hasOwnProperty(i)) {
+                param.size += 1;
+                clone[i] = this.sizeOfPrim({obj: param.obj[i], size: param.size});
+            }
+        return clone;
+    };
+
+    this.containsObject = function (array, toCheck) {
+        if (array === null || array.length === 0) {
+            return false
+        } else if (toCheck === undefined) {
+            return false
+        }
+        let isContained = true;
+        for (let index in array) {
+            let item = array[index];
+            let fields = Object.keys(toCheck);
+            for (let f in fields) {
+                let field = fields[f];
+                if (item[field] === undefined || item[field] !== toCheck[field]) {
+                    isContained = false;
+                    break;
+                }
+            }
+        }
+        return isContained
+    };
+
+    this.validateObject = function (object, query) {
+        if (object === undefined) {
+            return false
+        }
+        let fields = Object.keys(query);
+        let valid = true;
+        for (let f in fields) {
+            let field = fields[f];
+            if (object[field] === undefined || object[field] !== query[field]) {
+                valid = false;
+                break;
+            }
+        }
+        return valid
+    };
+
 }
 
 module.exports = Utils;
