@@ -47,7 +47,8 @@ function DatabasesManager(configuration) {
     this.loadSingleDatabase = async function (database) {
         let folder = "data/";
         await this.createDir(folder + database);
-        if (await this.isEmpty(folder + database)) {
+        let size = await this.getColSize(folder + database);
+        if (size == 0) {
             await this.createCollectionOn(folder + database)
         }
         await this.loadCollectionsOn(database);
@@ -65,25 +66,20 @@ function DatabasesManager(configuration) {
 
     this.createCollectionOn = async function (folder) {
         let items = await fs.readdirSync(folder);
-        if (await this.isEmpty(folder)) {
-            await fs.writeFileSync(folder + '/col_0.json', "{}");
-            return "0";
-        } else if (items.length < 8) {
-            await fs.writeFileSync(folder + '/col_' + items.length + '.json', "{}");
-            return items.length + "";
-        } else {
-            throw new Error("limit cols exceeded");
-        }
+        let size = await this.getColSize(folder + database);
+        await fs.writeFileSync(folder + '/col_' + size + '.json', "{}");
+        return size + "";
     };
 
-    this.isEmpty = async function (folder) {
+    this.getColSize = async function (folder) {
         let items = await fs.readdirSync(folder);
+        let f = 0;
         for (let i in items) {
             if (items[i].indexOf("col_") > -1) {
-                return false;
+                f++;
             }
         }
-        return true;
+        return f;
     };
 
     this.loadCollectionsOn = async function (database) {
