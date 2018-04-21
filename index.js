@@ -2,36 +2,35 @@ const forever = require('forever-monitor');
 const rp = require('request-promise');
 const logjs = require('logjsx');
 const logger = new logjs();
+logger.init({
+    level: "DEBUG"
+});
 
-function Turbine(callback) {
+function Turbine(config) {
 
-    this.callback = callback;
+    this.config = config;
     this.turbine_ip = "http://localhost";
     this.turbine_port = 7285;
-    this.db_name = "database";
+    this.databases = ["myDatabase"];
     this.uid = "turbine";
-    this.turbine_mode = "simple";
     this.log_dir = "";
     this.debug = false;
 
-    if (this.callback.config !== undefined) {
-        if (this.callback.config.db_name !== undefined && this.callback.config.db_name.length > 0) {
-            this.db_name = this.callback.config.db_name;
+    if (this.config !== undefined) {
+        if (this.config.databases !== undefined && this.config.databases.length > 0) {
+            this.databases = this.config.databases;
         }
-        if (this.callback.config.turbine_port !== undefined && this.callback.config.turbine_port > 0) {
-            this.turbine_port = this.callback.config.turbine_port;
+        if (this.config.turbine_port !== undefined && this.config.turbine_port > 0) {
+            this.turbine_port = this.config.turbine_port;
         }
-        if (this.callback.config.turbine_ip !== undefined) {
-            this.turbine_ip = this.callback.config.turbine_ip;
+        if (this.config.turbine_ip !== undefined) {
+            this.turbine_ip = this.config.turbine_ip;
         }
-        if (this.callback.config.debug !== undefined && this.callback.config.debug) {
-            this.debug = this.callback.config.debug;
+        if (this.config.debug !== undefined && this.config.debug) {
+            this.debug = this.config.debug;
         }
-        if (this.callback.config.log_dir !== undefined && this.callback.config.log_dir) {
-            this.log_dir = this.callback.config.log_dir;
-        }
-        if (this.callback.config.turbine_mode !== undefined && this.callback.config.turbine_mode) {
-            this.turbine_mode = this.callback.config.turbine_mode;
+        if (this.config.log_dir !== undefined && this.config.log_dir) {
+            this.log_dir = this.config.log_dir;
         }
     }
 
@@ -43,7 +42,6 @@ function Turbine(callback) {
 
     /**
      * Initializes Turbine process
-     * @param callback
      */
     this.server = function () {
 
@@ -59,7 +57,7 @@ function Turbine(callback) {
 
             sourceDir: __dirname,
 
-            args: ['DATABASE_NAME=' + this.db_name, 'TURBINE_PORT=' + this.turbine_port, 'MODE=' + this.turbine_mode, 'DEBUG=' + this.debug.toString()],
+            args: ['DATABASES=' + this.databases, 'TURBINE_PORT=' + this.turbine_port, 'DEBUG=' + this.debug.toString()],
 
             watch: false,
             watchIgnoreDotFiles: null,
@@ -98,12 +96,14 @@ function Turbine(callback) {
 
     /**
      * Returns the object of the given path
+     * @param database -> myDatabase
      * @param path
      * @returns {Promise<*>}
      */
-    this.get = async function(path) {
+    this.get = async function(database, path) {
         let data = {
             method: "get",
+            database: database,
             path: path
         };
         return await this.ask(this.turbine_ip + ":" + this.turbine_port + "/", data)
@@ -111,13 +111,15 @@ function Turbine(callback) {
 
     /**
      * Stores data in the given path. Removes if data is null or empty
+     * @param database -> myDatabase
      * @param path
      * @param value
      * @returns {Promise<void>}
      */
-    this.post = async function(path, value) {
+    this.post = async function(database, path, value) {
         let data = {
             method: "post",
+            database: database,
             path: path,
             value: value
         };
@@ -126,13 +128,15 @@ function Turbine(callback) {
 
     /**
      * Returns a list of objects that contains the given fields and values
+     * @param database -> myDatabase
      * @param path -> /users/*
      * @param query -> { name: "Mark" }
      * @returns {Promise<*>}
      */
-    this.query = async function(path, query) {
+    this.query = async function(database, path, query) {
         let data = {
             method: "query",
+            database: database,
             path: path,
             query: query
         };
