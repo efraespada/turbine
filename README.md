@@ -1,9 +1,8 @@
-[ ![@efraespada/turbine](https://d25lcipzij17d.cloudfront.net/badge.svg?id=js&type=6&v=0.0.2&x2=0)](https://www.npmjs.com/package/@efraespada/turbine)
+[ ![@efraespada/turbine](https://d25lcipzij17d.cloudfront.net/badge.svg?id=js&type=6&v=0.0.3&x2=0)](https://www.npmjs.com/package/@efraespada/turbine)
 
 # Turbine
-Turbine allows different node processes to work with the same JSON database. It works as a service receiving requests and returning, storing or querying data as quick as possible.
 
-## [Home](https://github.com/efraespada/turbine/wiki)
+### [Wiki](https://github.com/efraespada/turbine/wiki)
 
 [1. Implementation](https://github.com/efraespada/turbine/wiki/Implementation)
 
@@ -17,7 +16,10 @@ Turbine allows different node processes to work with the same JSON database. It 
 
 [6. Benchmark](https://github.com/efraespada/turbine/wiki/Benchmark)
 
+Turbine allows different node processes to work with the same JSON database. It works as a service receiving requests and returning, storing or querying data as quick as possible.
 
+
+<p align="center"><img width="45%" vspace="20" src="https://raw.githubusercontent.com/rotorlab/server-node/master/images/TurbineSchema.png"></p>
 License
 -------
     Copyright 2018 Efraín Espada
