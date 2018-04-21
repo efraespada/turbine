@@ -85,6 +85,12 @@ function Utils() {
         return !(arr1.length != arr2.length || arr1.some((v) => arr2.indexOf(v) < 0));
     };
 
+    /**
+     * Checks if object has all properties of query
+     * @param object
+     * @param query
+     * @returns {boolean}
+     */
     this.validateObject = function (object, query) {
         if (object === undefined) {
             return false
@@ -92,29 +98,31 @@ function Utils() {
         let fields = Object.keys(query);
         let valid = true;
         for (let f in fields) {
-            let field = fields[f];
-            if (typeof object[field] === "object") {
-                if ('[object Array]' === Object.prototype.toString.apply(object[field])) {
-                    if (object[field] === undefined || !this.sameArray(object[field], query[field])) {
+            if (object.hasOwnProperty(fields[f]) && typeof object[fields[f]] === "object") {
+                if ('[object Array]' === Object.prototype.toString.apply(object[fields[f]])) {
+                    if (!this.sameArray(object[fields[f]], query[fields[f]])) {
                         valid = false;
                         break;
                     }
                 } else {
-                    if (object[field] === undefined || object[field] !== query[field]) {
+                    if (object[fields[f]] !== query[fields[f]]) {
                         valid = false;
                         break;
                     }
                 }
-            } else if (typeof object[field] === "string") {
-                if (object[field] === undefined || object[field].toLowerCase() !== query[field].toLowerCase()) {
+            } else if (object.hasOwnProperty(fields[f]) && typeof object[fields[f]] === "string") {
+                if (object[fields[f]].toLowerCase() !== query[fields[f]].toLowerCase()) {
                     valid = false;
                     break;
                 }
-            } else if (typeof object[field] === "number") {
-                if (object[field] === undefined || object[field] != query[field]) {
+            } else if (object.hasOwnProperty(fields[f]) && typeof object[fields[f]] === "number") {
+                if (object[fields[f]] != query[fields[f]]) {
                     valid = false;
                     break;
                 }
+            } else {
+                valid = false;
+                break;
             }
         }
         return valid

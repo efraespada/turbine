@@ -21,6 +21,19 @@ Additionally, both servers work with pre-loaded data.
 | POST  | 2.5 s. | 2.1 s. | x1000
 | QUERY  | 46.9 s. | 2.1 s. | x1000
 
+
+getting 1 times -> finished in: 0.03 secs
+querying 1 times -> finished in: 0.004 secs
+setting 1 times -> finished in: 0.215 secs
+
+getting 1 times -> finished in: 0.053 secs
+[{"name":"CFU","age":35,"friends":["tom","mark"]}]
+querying 1 times -> finished in: 0.006 secs
+setting 1 times -> finished in: 0.144 secs
+
+
+
+
 For more details, check [benchmark](https://github.com/rotorlab/server-node/tree/master/benchmark) page.
 
 ### Installation
@@ -42,48 +55,7 @@ let turbine = new Turbine({
     "debug": true
 });
 ```
-#### server
-Starts Turbine server on a different process. This should be called first when your API is starting.
-```javascript
-turbine.server();
-```
-```bash
-╭───────────────────╮
-│                   │
-│                   │
-│      turbine      │
-│                   │
-│                   │
-╰───────────────────╯
-starting ..
-Indexed 22793.
-started on 4005 (15.749 secs)
-0 op/sec
-```
-Once Turbine is started, you can use client methods.
-#### get
-Client method that looks for an object on the given path.
-```javascript
-turbine.get("/users/usersA").then(function(user) {
-    console.log(JSON.stringify(user))
-}
-```
-#### post
-Client method that updates or removes an object on the given path passing another object or null.
-```javascript
-turbine.post("/users/usersB", newUser).then(function() {
-    console.log("stored")
-}
-```
-#### query
-Client method that looks for an object on the given path for the conditions passed.
-```javascript
-turbine.query("/users/*", { name: "Matt" }).then(function(users) {
-    for (let user in users) {
-        console.log(JSON.stringify(users[user]))
-    }
-});
-```
+
 
 ### Usage on clusters
 ```node

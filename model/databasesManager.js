@@ -66,7 +66,7 @@ function DatabasesManager(configuration) {
 
     this.createCollectionOn = async function (folder) {
         let items = await fs.readdirSync(folder);
-        let size = await this.getColSize(folder + database);
+        let size = await this.getColSize(folder);
         await fs.writeFileSync(folder + '/col_' + size + '.json', "{}");
         return size + "";
     };
@@ -241,7 +241,7 @@ function DatabasesManager(configuration) {
         } else {
             store = object;
         }
-        // TODO update this
+
         if (store == null || store === {}) {
             let collections = this.databases[database].collectionKeys();
             for (let c in collections) {

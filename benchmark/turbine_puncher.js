@@ -3,7 +3,7 @@ const logger = new logjs();
 logger.init({
     level: "DEBUG"
 });
-const numReq = 1000;
+const numReq = 10;
 const EMPTY_OBJECT = "{}";
 
 const Turbine = require('../index.js');
@@ -19,7 +19,6 @@ function randomString() {
     let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     for (let i = 0; i < 3; i++)
         text += possible.charAt(Math.floor(Math.random() * possible.length));
-
     return text;
 }
 
@@ -27,15 +26,15 @@ function randomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-async function get(i) {
+async function get(i = 0) {
     if (i < numReq) {
         let user = await turbine.get("database", "/users/" + randomString());
-        if (user && JSON.stringify(user) !== EMPTY_OBJECT) console.log(JSON.stringify(user));
+        // if (user && JSON.stringify(user) !== EMPTY_OBJECT) console.log(JSON.stringify(user));
         await get(i + 1)
     }
 }
 
-async function post(i) {
+async function post(i = 0) {
     if (i < numReq) {
         await turbine.post("database", "/users/" + randomString(), {
             name: randomString(),
@@ -45,33 +44,33 @@ async function post(i) {
     }
 }
 
-async function query(i) {
+async function query(i = 0) {
     if (i < numReq) {
         let users = await turbine.query("database", "/users/*", {
-            age: randomInt(100)
+            name: randomString()
         });
-        console.log(JSON.stringify(users));
         await query(i + 1)
     }
 }
 
 async function test() {
+
     let started = new Date();
-    await get(0);
+    await get();
     let duration = new Date() - started;
-    logger.debug("getting " + numReq + " times -> finished in: " + (duration/1000) + " secs");
+    logger.info("get " + numReq + " times [" + (duration/1000) + " secs]");
 
     started = new Date();
-    await query(0);
+    await query();
     duration = new Date() - started;
-    logger.debug("querying " + numReq + " times -> finished in: " + (duration/1000) + " secs");
+    logger.info("query " + numReq + " times [" + (duration/1000) + " secs]");
 
     started = new Date();
-    await post(0);
+    await post();
     duration = new Date() - started;
-    logger.debug("setting " + numReq + " times -> finished in: " + (duration/1000) + " secs");
+    logger.info("set " + numReq + " times [" + (duration/1000) + " secs]");
 }
 
 test().then(function() {
-   console.log("finish!");
+    logger.info("finish!");
 });

@@ -2,7 +2,7 @@ const RecursiveIterator = require('recursive-iterator');
 const log = require('single-line-log').stdout;
 const JsonDB = require('node-json-db');
 const SLASH = "/";
-const MAX_SIZE = 30000;
+const MAX_SIZE = 100000;
 
 function Database(params) {
 
@@ -46,20 +46,23 @@ function Database(params) {
     };
 
     this.hasObject = function(collection, path) {
-        let c = JSON.stringify(this.database[collection].data);
-        let values = path.split(SLASH);
-        let valid = true;
-        for (let v in values) {
-            if (values[v].length === 0) continue;
-            if (c.indexOf("\"" + values[v] + "\":") === -1) {
-                valid = false;
-                break;
+        let branchs = path.split(SLASH);
+        let object = this.collection(collection).data;
+        let found = false;
+        for (let b in branchs) {
+            if (branchs[b].length > 0 && object[branchs[b]] !== undefined) {
+                object = object[branchs[b]];
+                if (b == (branchs.length - 1)) {
+                    found = true;
+                }
             }
         }
-        return valid;
+
+        return found;
     };
 
     this.reindexValues = function (params) {
+        let nodes = 0;
         for (let {parent, node, key, path, deep} of new RecursiveIterator(params.data)) {
             if (typeof node !== "object") {
                 if (typeof node === "string") {
@@ -67,17 +70,19 @@ function Database(params) {
                 }
                 if (params.values[node] === undefined) {
                     params.values[node] = [];
+                    nodes++;
                 }
                 this.indexed++;
-                log('i: ' + this.indexed);
+                log('i: ' + this.indexed + " lenght: " + nodes);
                 params.values[node].push("/" + path.join("/"));
             } else if ('[object Array]' === Object.prototype.toString.apply(node)) {
                 for (let i = 0; i < node.length; i++) {
                     if (params.values[node[i]] === undefined) {
                         params.values[node[i]] = [];
+                        nodes++;
                     }
                     this.indexed++;
-                    log('i: ' + this.indexed);
+                    log('i: ' + this.indexed + " lenght: " + nodes);
                     params.values[node[i]].push("/" + path.join("/") + "/" + i + "-list");
                 }
             }
@@ -88,24 +93,25 @@ function Database(params) {
     this.getCollectionToInsert = function(path) {
         let collections = this.collectionKeys();
         let suggested = null;
+        let suggestedForSize = null;
+        let length = null;
         for (let c in collections) {
             if (this.hasObject(collections[c], path)) {
                 suggested = collections[c];
                 break;
+            } else {
+                let size = Object.keys(this.database[collections[c]].values).length;
+                if ((length === null || length > size) && size < MAX_SIZE) {
+                    length = size;
+                    suggestedForSize = collections[c];
+                }
             }
         }
         if (suggested !== null) {
             return suggested;
+        } else {
+            return suggestedForSize;
         }
-        let length = null;
-        for (let c in collections) {
-            let size = this.utils.sizeOf(this.database[collections[c]].data);
-            if ((length === null || length > size) && size < MAX_SIZE) {
-                length = size;
-                suggested = collections[c];
-            }
-        }
-        return suggested
     };
 
     /**
