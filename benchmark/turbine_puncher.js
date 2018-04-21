@@ -152,9 +152,7 @@ for (let i = 0; i < numReq; i++) {
         database: "database",
         path: userToCheck,
         query: {
-            name: "cfU",
-            friends: ["mark", "tom"]
-
+            name: "cFu"
         }
     };
 

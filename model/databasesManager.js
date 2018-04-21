@@ -179,16 +179,27 @@ function DatabasesManager(configuration) {
                         let keys = Object.keys(query);
                         for (let k in keys) {
                             let key = keys[k];
-                            if (typeof query[key] === "string") {
-                                query[key] = query[key].toLowerCase();
-                            }
-                            // console.log("json: " + JSON.stringify(this.databases[database].collection(collections[c]).values));
-                            if (this.databases[database].collection(collections[c]).values[query[key]] !== undefined) {
-                                console.log("checking value: " + query[key]);
-                                for (let p in this.databases[database].collection(collections[c]).values[query[key]]) {
-                                    if (this.databases[database].collection(collections[c]).values[query[key]][p].indexOf(value.replace(/\*/g, '')) > -1) {
-                                        let valid = this.databases[database].collection(collections[c]).values[query[key]][p].replaceAll("/" + key, "");
-                                        result.push(this.getObject(database, valid));
+                            if ('[object Array]' === Object.prototype.toString.apply(query[key])) {
+                                for (let i = 0; i < query[key].length; i++) {
+                                    if (this.databases[database].collection(collections[c]).values[query[key][i]] !== undefined) {
+                                        for (let p in this.databases[database].collection(collections[c]).values[query[key][i]]) {
+                                            if (this.databases[database].collection(collections[c]).values[query[key][i]][p].endsWith("-list")) {
+                                                let valid = this.databases[database].collection(collections[c]).values[query[key][i]][p].replaceAll("\\/" + key + ".*.-list$", "");
+                                                result.push(this.getObject(database, valid));
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                if (typeof query[key] === "string") {
+                                    query[key] = query[key].toLowerCase();
+                                }
+                                if (this.databases[database].collection(collections[c]).values[query[key]] !== undefined) {
+                                    for (let p in this.databases[database].collection(collections[c]).values[query[key]]) {
+                                        if (this.databases[database].collection(collections[c]).values[query[key]][p].indexOf(value.replace(/\*/g, '')) > -1) {
+                                            let valid = this.databases[database].collection(collections[c]).values[query[key]][p].replaceAll("/" + key, "");
+                                            result.push(this.getObject(database, valid));
+                                        }
                                     }
                                 }
                             }
@@ -199,7 +210,6 @@ function DatabasesManager(configuration) {
                     }
                 }
             }
-            console.log("result: " + result.length);
             let res = [];
             for (let obj in result) {
                 if (utils.validateObject(result[obj], query)) {

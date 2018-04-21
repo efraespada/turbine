@@ -71,6 +71,15 @@ function Database(params) {
                 this.indexed++;
                 log('i: ' + this.indexed);
                 params.values[node].push("/" + path.join("/"));
+            } else if ('[object Array]' === Object.prototype.toString.apply(node)) {
+                for (let i = 0; i < node.length; i++) {
+                    if (params.values[node[i]] === undefined) {
+                        params.values[node[i]] = [];
+                    }
+                    this.indexed++;
+                    log('i: ' + this.indexed);
+                    params.values[node[i]].push("/" + path.join("/") + "/" + i + "-list");
+                }
             }
         }
         console.log((this.indexed > 0 ? "\n" : "") + "🎉")
