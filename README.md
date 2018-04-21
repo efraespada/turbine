@@ -20,6 +20,7 @@ Turbine allows different node processes to work with the same JSON database. It 
 
 
 <p align="center"><img width="45%" vspace="20" src="https://raw.githubusercontent.com/rotorlab/server-node/master/images/TurbineSchema.png"></p>
+
 License
 -------
     Copyright 2018 Efraín Espada
