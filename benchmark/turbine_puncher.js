@@ -10,7 +10,7 @@ const Turbine = require('../index.js');
 let turbine = new Turbine({
     "turbine_port": 4005,
     "turbine_ip": "http://localhost",
-    "db_names": ["database","paths"],
+    "databases": ["database","paths"],
     "debug": true
 });
 

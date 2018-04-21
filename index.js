@@ -11,7 +11,7 @@ function Turbine(config) {
     this.config = config;
     this.turbine_ip = "http://localhost";
     this.turbine_port = 7285;
-    this.databases = [];
+    this.databases = ["myDatabase"];
     this.uid = "turbine";
     this.log_dir = "";
     this.debug = false;
