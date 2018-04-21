@@ -16,19 +16,19 @@ String.prototype.replaceAll = function (search, replacement) {
 };
 
 const DATABASE_FOLDER = "data/";
-const expectedDBNEnvVar = "DATABASE_NAME";
+const expectedDBNEnvVar = "DATABASES";
 const expectedTPORTEnvVar = "TURBINE_PORT";
 const expectedModeEnvVar = "MODE";
 const expectedDebugKeyEnvVar = "DEBUG";
 
-let db_name = null;
+let databaseNames = null;
 let debug = false;
 let turbine_port = false;
 let mode = "simple";
 
 process.argv.forEach(function (val, index, array) {
     if (val.indexOf(expectedDBNEnvVar) > -1) {
-        db_name = val.replaceAll(expectedDBNEnvVar + "=", "");
+        databaseNames = val.replaceAll(expectedDBNEnvVar + "=", "").split(",");
     }
     if (val.indexOf(expectedDebugKeyEnvVar) > -1) {
         debug = val.replaceAll(expectedDebugKeyEnvVar + "=", "") === "true";
@@ -42,7 +42,7 @@ process.argv.forEach(function (val, index, array) {
 });
 
 let config = {
-    databases: ["database", "paths"]
+    databases: databaseNames
 };
 
 /**

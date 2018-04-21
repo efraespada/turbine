@@ -11,14 +11,14 @@ function Turbine(config) {
     this.config = config;
     this.turbine_ip = "http://localhost";
     this.turbine_port = 7285;
-    this.db_names = [];
+    this.databases = [];
     this.uid = "turbine";
     this.log_dir = "";
     this.debug = false;
 
     if (this.config !== undefined) {
-        if (this.config.db_names !== undefined && this.config.db_names.length > 0) {
-            this.db_names = this.config.db_names;
+        if (this.config.databases !== undefined && this.config.databases.length > 0) {
+            this.databases = this.config.databases;
         }
         if (this.config.turbine_port !== undefined && this.config.turbine_port > 0) {
             this.turbine_port = this.config.turbine_port;
@@ -57,7 +57,7 @@ function Turbine(config) {
 
             sourceDir: __dirname,
 
-            args: ['DATABASE_NAME=' + this.db_names, 'TURBINE_PORT=' + this.turbine_port, 'DEBUG=' + this.debug.toString()],
+            args: ['DATABASES=' + this.databases, 'TURBINE_PORT=' + this.turbine_port, 'DEBUG=' + this.debug.toString()],
 
             watch: false,
             watchIgnoreDotFiles: null,
