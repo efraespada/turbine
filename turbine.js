@@ -18,13 +18,13 @@ String.prototype.replaceAll = function (search, replacement) {
 const DATABASE_FOLDER = "data/";
 const expectedDBNEnvVar = "DATABASES";
 const expectedTPORTEnvVar = "TURBINE_PORT";
-const expectedModeEnvVar = "MODE";
+const expectedIDEEnvVar = "IDE";
 const expectedDebugKeyEnvVar = "DEBUG";
 
 let databaseNames = null;
 let debug = false;
 let turbine_port = false;
-let mode = "simple";
+let ide = false;
 
 process.argv.forEach(function (val, index, array) {
     if (val.indexOf(expectedDBNEnvVar) > -1) {
@@ -36,8 +36,8 @@ process.argv.forEach(function (val, index, array) {
     if (val.indexOf(expectedTPORTEnvVar) > -1) {
         turbine_port = val.replaceAll(expectedTPORTEnvVar + "=", "");
     }
-    if (val.indexOf(expectedModeEnvVar) > -1) {
-        mode = val.replaceAll(expectedModeEnvVar + "=", "");
+    if (val.indexOf(expectedIDEEnvVar) > -1) {
+        ide = val.replaceAll(expectedIDEEnvVar + "=", "") === "true";
     }
 });
 
@@ -81,6 +81,11 @@ router.post('/', function (req, res) {
         }
     });
 });
+
+if (ide) {
+    // TODO add database/query viewer endpoind
+}
+
 app.use('/', router);
 app.listen(turbine_port, function () {
     console.log("started on " + turbine_port);

@@ -9,6 +9,7 @@ logger.init({
 function Turbine(config) {
 
     this.config = config;
+    this.ide = false;
     this.turbine_ip = "http://localhost";
     this.turbine_port = 7285;
     this.databases = ["myDatabase"];
@@ -31,6 +32,9 @@ function Turbine(config) {
         }
         if (this.config.log_dir !== undefined && this.config.log_dir) {
             this.log_dir = this.config.log_dir;
+        }
+        if (this.config.ide !== undefined && this.config.ide) {
+            this.ide = this.config.ide;
         }
     }
 
@@ -57,7 +61,7 @@ function Turbine(config) {
 
             sourceDir: __dirname,
 
-            args: ['DATABASES=' + this.databases, 'TURBINE_PORT=' + this.turbine_port, 'DEBUG=' + this.debug.toString()],
+            args: ['DATABASES=' + this.databases, 'TURBINE_PORT=' + this.turbine_port, 'IDE=' + this.ide, 'DEBUG=' + this.debug.toString()],
 
             watch: false,
             watchIgnoreDotFiles: null,

@@ -2,5 +2,6 @@
     "turbine_port": 4005,
     "turbine_ip": "http://localhost",
     "databases": ["database"],
+    "ide": true,
     "debug": true
 }
