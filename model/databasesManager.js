@@ -102,21 +102,22 @@ function DatabasesManager(configuration) {
         }
     };
 
-    this.getObject = function (database, value, collection) {
+    this.getObject = function (database, value, collection, interf) {
         this.processed++;
         if (value.startsWith(SLASH) && value.length > SLASH.length) {
             let branchs = value.split(SLASH);
             let collections = this.databases[database].collectionKeys();
             let parts = [];
-            //console.log("get object collection: " + collection);
             if (collection === undefined || collection.length === 0) {
                 for (let c in collections) {
                     let object = this.databases[database].collection(collections[c]).data;
                     let found = false;
                     for (let b in branchs) {
                         if (branchs[b].length > 0 && object[branchs[b]] !== undefined) {
+                            console.log("branchs[b]: " + branchs[b]);
                             object = object[branchs[b]];
                             if (b == (branchs.length - 1)) {
+                                console.log("found: " + branchs[b]);
                                 found = true;
                             }
                         }
@@ -140,20 +141,28 @@ function DatabasesManager(configuration) {
                     parts.push(object);
                 }
             }
-            return parts.length === 0 ? {} : utils.mergeObjects({parts: parts});
-        } else if (value.startsWith(SLASH) && value.length === SLASH.length) {
-            let collections = this.databases[database].collectionKeys();
+            return parts.length === 0 ? {} : utils.mergeObjects({parts: parts}, interf);
+        } else if (value === SLASH) {
+            console.log("value: " + value)
             let parts = [];
-            if (collection === undefined) {
+            if (collection === undefined || collection.length === 0) {
+                console.log("value2: " + value)
+                let collections = this.databases[database].collectionKeys();
+                console.log("value3: " + value)
                 for (let c in collections) {
+                    console.log("collection: " + c)
                     parts.push(this.databases[database].collection(collections[c]).data);
                 }
             } else {
+                console.log("collection: " + collection)
                 parts.push(this.databases[database].collection(collection).data);
             }
-            return parts.length === 0 ? {} : utils.mergeObjects({parts: parts});
+
+            return parts.length === 0 ? {} : utils.mergeObjects({parts: parts}, interf);
+        } else if (!value.startsWith(SLASH)) {
+            return value + " don't start with slash (/)"
         } else {
-            return null
+            return "unknown error with " + value
         }
     };
 
@@ -164,10 +173,14 @@ function DatabasesManager(configuration) {
      * @param query
      * @returns {*}
      */
-    this.getObjectFromQuery = function (database, value, query) {
+    this.getObjectFromQuery = function (database, value, query, interf) {
         this.processed++;
-        if (query === undefined || query === null || JSON.stringify(query) === "{}" || value.indexOf("*") === -1) {
-            return null
+        if (query === undefined || query === null || JSON.stringify(query) === "{}") {
+            return "no query defined"
+        } else if (value.indexOf("*") === -1) {
+            return value + " don't contain a path to find (/*)"
+        } else if (!value.startsWith(SLASH)) {
+            return value + " don't start with slash (/)"
         } else if (value.startsWith(SLASH) && value.length > SLASH.length) {
             let result = [];
             let branchs = value.split(SLASH);
@@ -185,7 +198,12 @@ function DatabasesManager(configuration) {
                                         for (let p in this.databases[database].collection(collections[c]).values[query[key][i]]) {
                                             if (this.databases[database].collection(collections[c]).values[query[key][i]][p].endsWith("-list")) {
                                                 let valid = this.databases[database].collection(collections[c]).values[query[key][i]][p].replaceAll("\\/" + key + ".*.-list$", "");
-                                                result.push(this.getObject(database, valid));
+                                                let r = this.getObject(database, valid);
+                                                if (typeof r === "string") {
+                                                    return r
+                                                } else {
+                                                    result.push(r);
+                                                }
                                             }
                                         }
                                     }
@@ -198,7 +216,12 @@ function DatabasesManager(configuration) {
                                     for (let p in this.databases[database].collection(collections[c]).values[query[key]]) {
                                         if (this.databases[database].collection(collections[c]).values[query[key]][p].indexOf(value.replace(/\*/g, '')) > -1) {
                                             let valid = this.databases[database].collection(collections[c]).values[query[key]][p].replaceAll("/" + key, "");
-                                            result.push(this.getObject(database, valid));
+                                            let r = this.getObject(database, valid);
+                                            if (typeof r === "string") {
+                                                return r
+                                            } else {
+                                                result.push(r);
+                                            }
                                         }
                                     }
                                 }
@@ -218,11 +241,12 @@ function DatabasesManager(configuration) {
                     }
                 }
             }
+            console.log("interface: " + interf);
             return res;
         } else if (value.startsWith(SLASH) && value.length === SLASH.length) {
             return this.getObject(database, value);
         } else {
-            return null
+            return "unknown error"
         }
     };
 
@@ -263,6 +287,8 @@ function DatabasesManager(configuration) {
                 }
             }
             this.databases[database].setData(collection, setIn(this.databases[database].getData(collection), branchs, store));
+        } else if (!value.startsWith(SLASH) && value.length > SLASH.length) {
+            return value + " don't start with slash (/)"
         } else if (value === SLASH) {
             // TODO reset database
             console.error("in progress: " + value)
@@ -283,10 +309,14 @@ function DatabasesManager(configuration) {
 
         // remove previous values
         let obj = this.getObject(database, path, collection);
-        this.recursiveUnset(database, collection, path, obj);
+        if (typeof obj === "string") {
+            return obj
+        } else {
+            this.recursiveUnset(database, collection, path, obj);
 
-        // store new values
-        this.recursiveSet(database, collection, path, object);
+            // store new values
+            this.recursiveSet(database, collection, path, object);
+        }
     };
 
     /**

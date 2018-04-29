@@ -104,11 +104,12 @@ function Turbine(config) {
      * @param path
      * @returns {Promise<*>}
      */
-    this.get = async function(database, path) {
+    this.get = async function(database, path, interf = {}) {
         let data = {
             method: "get",
             database: database,
-            path: path
+            path: path,
+            interface: interf
         };
         return await this.ask(this.turbine_ip + ":" + this.turbine_port + "/", data)
     };
@@ -127,7 +128,11 @@ function Turbine(config) {
             path: path,
             value: value
         };
-        await this.ask(this.turbine_ip + ":" + this.turbine_port + "/", data)
+        let response, err = await this.ask(this.turbine_ip + ":" + this.turbine_port + "/", data);
+        if (err) {
+            return err
+        }
+        return response
     };
 
     /**
@@ -135,14 +140,16 @@ function Turbine(config) {
      * @param database -> myDatabase
      * @param path -> /users/*
      * @param query -> { name: "Mark" }
+     * @param interf -> { name: type("string) }
      * @returns {Promise<*>}
      */
-    this.query = async function(database, path, query) {
+    this.query = async function(database, path, query, interf = {}) {
         let data = {
             method: "query",
             database: database,
             path: path,
-            query: query
+            query: query,
+            interface: interf
         };
         return await this.ask(this.turbine_ip + ":" + this.turbine_port + "/", data)
     };

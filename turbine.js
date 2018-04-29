@@ -65,14 +65,34 @@ router.post('/', function (req, res) {
     queue.pushJob(function () {
         if (req.body.method !== undefined && req.body.path !== undefined && req.body.database !== undefined) {
             if (req.body.method === "get") {
-                let object = databaseManager.getObject(req.body.database, req.body.path);
-                res.json(object)
+                let interf = req.body.interface || {};
+                let object = databaseManager.getObject(req.body.database, req.body.path, "", interf);
+                if (typeof object === "string") {
+                    console.error(object)
+                    res.status(406).send(object);
+                } else {
+                    res.json(object)
+                }
             } else if (req.body.method === "post" && req.body.value !== undefined) {
-                databaseManager.saveObject(req.body.database, req.body.path, req.body.value === null ? null : req.body.value);
-                res.json({})
+                console.log(JSON.stringify(req.body));
+                databaseManager.saveObject(req.body.database, req.body.path, req.body.value === null ? null : req.body.value).then(function (result) {
+                    if (typeof result === "string") {
+                        console.error(result)
+                        res.status(406).send(result);
+                    } else {
+                        res.json({})
+                    }
+                });
             } else if (req.body.method === "query" && req.body.query !== undefined) {
-                let object = databaseManager.getObjectFromQuery(req.body.database, req.body.path, req.body.query);
-                res.json(object)
+                let interf = req.body.interface || {};
+                console.log(JSON.stringify(req.body));
+                let object = databaseManager.getObjectFromQuery(req.body.database, req.body.path, req.body.query, interf);
+                if (typeof object === "string") {
+                    console.error(object)
+                    res.status(406).send(object);
+                } else {
+                    res.json(object)
+                }
             } else {
                 res.status(500).send("💥");
             }
