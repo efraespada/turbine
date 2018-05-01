@@ -40,9 +40,10 @@ async function test() {
     console.log("1525019037169: " + JSON.stringify(response));
 }
 
+/*
 setTimeout(function () {
     test().then(function() {
         console.log("finish")
     });
 }, 3000);
-
+*/

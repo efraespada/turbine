@@ -48,8 +48,7 @@ function Turbine(config) {
      * Initializes Turbine process
      */
     this.server = function () {
-
-        let config = {
+        let turbine_config = {
             silent: false,
             uid: this.uid,
             pidFile: "./" + this.uid + ".pid",
@@ -69,14 +68,43 @@ function Turbine(config) {
             watchDirectory: null,
 
 
-            logFile: __dirname + "/" + this.log_dir + "logFile.log",
-            outFile: __dirname + "/" + this.log_dir + "outFile.log",
-            errFile: __dirname + "/" + this.log_dir + "errFile.log"
+            logFile: __dirname + "/.turbine_" + this.log_dir + "logFile.log",
+            outFile: __dirname + "/.turbine_" + this.log_dir + "outFile.log",
+            errFile: __dirname + "/.turbine_" + this.log_dir + "errFile.log"
         };
 
-        let child = forever.start('./turbine.js', config);
+        let app_config = {
+            silent: false,
+            uid: this.uid,
+            pidFile: "./app_" + this.uid + ".pid",
+            max: 10,
+            killTree: true,
+
+            minUptime: 2000,
+            spinSleepTime: 1000,
+
+            args: [],
+
+            watch: false,
+            watchIgnoreDotFiles: null,
+            watchIgnorePatterns: null,
+            watchDirectory: null,
+
+
+            logFile: __dirname + "/.app_" + this.log_dir + "logFile.log",
+            outFile: __dirname + "/.app_" + this.log_dir + "outFile.log",
+            errFile: __dirname + "/.app_" + this.log_dir + "errFile.log"
+        };
+
+
+        let app = forever.start([ "ng", "serve" ], app_config);
+        app.on('start', function (code) {
+            logger.debug(app_config.args);
+        });
+
+        let child = forever.start('./turbine.js', turbine_config);
         child.on('start', function (code) {
-            logger.debug(config.args);
+            logger.debug(turbine_config.args);
         });
     };
 
