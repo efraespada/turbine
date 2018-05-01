@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DataService, User } from "../../../services/DataService";
 
 @Component({
   selector: 'app-navbar',
@@ -7,9 +8,19 @@ import { Component, OnInit } from '@angular/core';
 })
 export class NavbarComponent implements OnInit {
 
-  constructor() { }
+  _user: User = null;
 
-  ngOnInit() {
+  constructor( private _dataService: DataService) {
+
+  }
+
+  async ngOnInit() {
+      let user = await this._dataService.getUser();
+      if (user) {
+        console.log("nav logged with: " + user.getName())
+      } else {
+        console.log("nav not logged")
+      }
   }
 
 }
