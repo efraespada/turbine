@@ -7,6 +7,8 @@ import { NavbarComponent } from './components/shared/navbar/navbar.component';
 import { HomeComponent } from './components/pages/home/home.component';
 import { AboutComponent } from './components/pages/about/about.component';
 
+import {APP_ROUTING} from "./app.routes";
+
 
 @NgModule({
   declarations: [
@@ -16,7 +18,8 @@ import { AboutComponent } from './components/pages/about/about.component';
     AboutComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    APP_ROUTING
   ],
   providers: [],
   bootstrap: [AppComponent]
