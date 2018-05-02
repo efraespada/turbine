@@ -10,8 +10,7 @@ import {DataService} from "../../../services/DataService";
 })
 export class LoginComponent implements OnInit {
 
-  constructor(private _router: Router,
-              public dataService: DataService) { }
+  constructor(private _router: Router, public dataService: DataService) { }
 
   ngOnInit() {
 

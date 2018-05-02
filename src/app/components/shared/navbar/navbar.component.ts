@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService, User } from "../../../services/DataService";
+import {Observable} from "rxjs/Observable";
+import {AuthService} from "../../../services/auth.service";
 
 @Component({
   selector: 'app-navbar',
@@ -8,19 +10,17 @@ import { DataService, User } from "../../../services/DataService";
 })
 export class NavbarComponent implements OnInit {
 
-  _user: User = null;
-
-  constructor( private _dataService: DataService) {
+  constructor( private _dataService: DataService,
+               public _authService: AuthService) {
 
   }
 
-  async ngOnInit() {
-      let user = await this._dataService.getUser();
-      if (user) {
-        console.log("nav logged with: " + user.getName())
-      } else {
-        console.log("nav not logged")
-      }
+  ngOnInit() {
+
+  }
+
+  logout() {
+      this._authService.logout()
   }
 
 }

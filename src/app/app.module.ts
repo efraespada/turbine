@@ -14,6 +14,7 @@ import { APP_ROUTING } from "./app.routes";
 import { DataService } from "./services/DataService";
 import { AngularFireAuth } from 'angularfire2/auth';
 import { LoginComponent } from './components/pages/login/login.component';
+import {AuthService} from "./services/auth.service";
 
 
 @NgModule({
@@ -30,6 +31,7 @@ import { LoginComponent } from './components/pages/login/login.component';
       APP_ROUTING
   ],
   providers: [
+      AuthService,
       DataService,
       AngularFireAuth
   ],
