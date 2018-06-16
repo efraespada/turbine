@@ -11,6 +11,12 @@ const Interval = require('Interval');
 const SN = require('sync-node');
 const queue = SN.createQueue();
 
+const logjs =                   require('logjsx');
+const logger = new logjs();
+logger.init({
+  level : "DEBUG"
+});
+
 const utils = new Utils();
 const SLASH = "/";
 
@@ -102,13 +108,12 @@ function DatabasesManager(configuration) {
         }
     };
 
-    this.getObject = function (database, value, collection) {
+    this.getObject = function (database, value, collection, interf) {
         this.processed++;
         if (value.startsWith(SLASH) && value.length > SLASH.length) {
             let branchs = value.split(SLASH);
             let collections = this.databases[database].collectionKeys();
             let parts = [];
-            //console.log("get object collection: " + collection);
             if (collection === undefined || collection.length === 0) {
                 for (let c in collections) {
                     let object = this.databases[database].collection(collections[c]).data;
@@ -140,20 +145,23 @@ function DatabasesManager(configuration) {
                     parts.push(object);
                 }
             }
-            return parts.length === 0 ? {} : utils.mergeObjects({parts: parts});
-        } else if (value.startsWith(SLASH) && value.length === SLASH.length) {
-            let collections = this.databases[database].collectionKeys();
+            return parts.length === 0 ? {} : utils.mergeObjects({parts: parts}, interf);
+        } else if (value === SLASH) {
             let parts = [];
-            if (collection === undefined) {
+            if (collection === undefined || collection.length === 0) {
+                let collections = this.databases[database].collectionKeys();
                 for (let c in collections) {
                     parts.push(this.databases[database].collection(collections[c]).data);
                 }
             } else {
                 parts.push(this.databases[database].collection(collection).data);
             }
-            return parts.length === 0 ? {} : utils.mergeObjects({parts: parts});
+
+            return parts.length === 0 ? {} : utils.mergeObjects({parts: parts}, interf);
+        } else if (!value.startsWith(SLASH)) {
+            return value + " don't start with slash (/)"
         } else {
-            return null
+            return "unknown error with " + value
         }
     };
 
@@ -164,41 +172,45 @@ function DatabasesManager(configuration) {
      * @param query
      * @returns {*}
      */
-    this.getObjectFromQuery = function (database, value, query) {
+    this.getObjectFromQuery = function (database, value, query, interf) {
         this.processed++;
-        if (query === undefined || query === null || JSON.stringify(query) === "{}" || value.indexOf("*") === -1) {
-            return null
+        if (query === undefined || query === null || JSON.stringify(query) === "{}") {
+            return "no query defined"
+        } else if (value.indexOf("*") === -1) {
+            return value + " don't contain a path to find (/*)"
+        } else if (!value.startsWith(SLASH)) {
+            return value + " don't start with slash (/)"
         } else if (value.startsWith(SLASH) && value.length > SLASH.length) {
             let result = [];
+            let metaQuery = utils.getPathsOfQuery(query);
+            let keysQuery = Object.keys(metaQuery);
             let branchs = value.split(SLASH);
             let collections = this.databases[database].collectionKeys();
+            let found = 0;
+            let suggestedReferences = {};
             for (let c in collections) {
                 let object = this.databases[database].collection(collections[c]).data;
                 for (let b in branchs) {
                     if (branchs[b] === "*") {
-                        let keys = Object.keys(query);
-                        for (let k in keys) {
-                            let key = keys[k];
-                            if ('[object Array]' === Object.prototype.toString.apply(query[key])) {
-                                for (let i = 0; i < query[key].length; i++) {
-                                    if (this.databases[database].collection(collections[c]).values[query[key][i]] !== undefined) {
-                                        for (let p in this.databases[database].collection(collections[c]).values[query[key][i]]) {
-                                            if (this.databases[database].collection(collections[c]).values[query[key][i]][p].endsWith("-list")) {
-                                                let valid = this.databases[database].collection(collections[c]).values[query[key][i]][p].replaceAll("\\/" + key + ".*.-list$", "");
-                                                result.push(this.getObject(database, valid));
-                                            }
-                                        }
-                                    }
-                                }
-                            } else {
-                                if (typeof query[key] === "string") {
-                                    query[key] = query[key].toLowerCase();
-                                }
-                                if (this.databases[database].collection(collections[c]).values[query[key]] !== undefined) {
-                                    for (let p in this.databases[database].collection(collections[c]).values[query[key]]) {
-                                        if (this.databases[database].collection(collections[c]).values[query[key]][p].indexOf(value.replace(/\*/g, '')) > -1) {
-                                            let valid = this.databases[database].collection(collections[c]).values[query[key]][p].replaceAll("/" + key, "");
-                                            result.push(this.getObject(database, valid));
+                        for (let kQ in keysQuery) {
+                            let key = typeof keysQuery[kQ] === "string" ? keysQuery[kQ].toLowerCase() : keysQuery[kQ];
+                            let pathsToCheck = this.databases[database].collection(collections[c]).values[key];
+                            for (let p in pathsToCheck) {
+                                for (let innerPath in metaQuery[keysQuery[kQ]]) {
+                                    let orPath = value.replace("*","");
+                                    if (pathsToCheck[p].indexOf(metaQuery[keysQuery[kQ]][innerPath]) > -1
+                                        && pathsToCheck[p].indexOf(orPath) > -1) {
+                                        let valid = pathsToCheck[p].replace(metaQuery[keysQuery[kQ]][innerPath], "");
+
+                                        if (!suggestedReferences[valid]) {
+                                            let refe = this.getObject(database, valid, collections[c]);
+                                            suggestedReferences[valid] = {};
+                                            suggestedReferences[valid].found = 1;
+                                            suggestedReferences[valid].metafound = [metaQuery[keysQuery[kQ]][innerPath]];
+                                            suggestedReferences[valid].value = refe;
+                                        } else if (suggestedReferences[valid].metafound.indexOf(metaQuery[keysQuery[kQ]][innerPath]) == -1) {
+                                            suggestedReferences[valid].metafound.push(metaQuery[keysQuery[kQ]][innerPath]);
+                                            suggestedReferences[valid].found = suggestedReferences[valid].found + 1;
                                         }
                                     }
                                 }
@@ -211,10 +223,18 @@ function DatabasesManager(configuration) {
                 }
             }
             let res = [];
-            for (let obj in result) {
-                if (utils.validateObject(result[obj], query)) {
-                    if (!utils.containsObject(res, result[obj])) {
-                        res.push(result[obj])
+            let refsKeys = Object.keys(suggestedReferences);
+            for (let i in refsKeys) {
+                let reference = suggestedReferences[refsKeys[i]];
+                if (reference.found == keysQuery.length && reference.value !== {}) {
+                    if (typeof interf === "string" && interf !== "{}") {
+                        let obj = utils.maskObject(reference.value, JSON.parse(interf));
+                        res.push(obj)
+                    } if (typeof interf === "object" && JSON.stringify(interf) !== "{}") {
+                        let obj = utils.maskObject(reference.value, interf);
+                        res.push(obj)
+                    } else {
+                        res.push(reference.value)
                     }
                 }
             }
@@ -222,7 +242,7 @@ function DatabasesManager(configuration) {
         } else if (value.startsWith(SLASH) && value.length === SLASH.length) {
             return this.getObject(database, value);
         } else {
-            return null
+            return "unknown error"
         }
     };
 
@@ -263,6 +283,8 @@ function DatabasesManager(configuration) {
                 }
             }
             this.databases[database].setData(collection, setIn(this.databases[database].getData(collection), branchs, store));
+        } else if (!value.startsWith(SLASH) && value.length > SLASH.length) {
+            return value + " don't start with slash (/)"
         } else if (value === SLASH) {
             // TODO reset database
             console.error("in progress: " + value)
@@ -283,10 +305,14 @@ function DatabasesManager(configuration) {
 
         // remove previous values
         let obj = this.getObject(database, path, collection);
-        this.recursiveUnset(database, collection, path, obj);
+        if (typeof obj === "string") {
+            return obj
+        } else {
+            this.recursiveUnset(database, collection, path, obj);
 
-        // store new values
-        this.recursiveSet(database, collection, path, object);
+            // store new values
+            this.recursiveSet(database, collection, path, object);
+        }
     };
 
     /**
@@ -299,6 +325,9 @@ function DatabasesManager(configuration) {
     this.recursiveUnset = function (database, collection, pa, object) {
         for (let {parent, node, key, path, deep} of new RecursiveIterator(object)) {
             if (typeof node !== "object") {
+                if (typeof node === "string") {
+                    node = node.toLowerCase();
+                }
                 if (this.databases[database].collection(collection).values[node] === undefined) {
                     this.databases[database].collection(collection).values[node] = [];
                 }
@@ -320,11 +349,14 @@ function DatabasesManager(configuration) {
     this.recursiveSet = function (database, collection, pa, object) {
         for (let {parent, node, key, path, deep} of new RecursiveIterator(object)) {
             if (typeof node !== "object") {
+                if (typeof node === "string") {
+                    node = node.toLowerCase();
+                }
                 if (this.databases[database].collection(collection).values[node] === undefined) {
                     this.databases[database].collection(collection).values[node] = [];
                 }
                 let toAdd = pa + "/" + path.join("/");
-                if (this.databases[database].collection(collection).values[node].indexOf(toAdd) === -1) {
+                if (this.databases[database].collection(collection).values[node].indexOf(toAdd) == -1) {
                     this.databases[database].collection(collection).values[node].push(toAdd)
                 }
             }
@@ -352,7 +384,7 @@ function DatabasesManager(configuration) {
 
     // init databases
     this.loadDatabases().then(function () {
-        console.log("manager ready in " + ((new Date().getTime() - _this.initOn)/1000) +  " secs");
+        console.log("Database manager ready in " + ((new Date().getTime() - _this.initOn)/1000) +  " secs");
         Interval.run(function () {
             queue.pushJob(function () {
                 _this.save().then(function() {

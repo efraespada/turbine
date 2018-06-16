@@ -7,11 +7,11 @@ logger.init({
     level: "DEBUG"
 });
 const url = "http://localhost:3000/graphql";
-const numReq = 1000;
+const numReq = 10000;
 const EMPTY_OBJECT = {};
 
 /**
- * Returns data from graphql query
+ * Returns data from graphql query0807
  * @param url
  * @param data
  * @returns {Promise<any>}
