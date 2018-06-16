@@ -70,9 +70,9 @@ function Turbine(config) {
             watchDirectory: null,
 
 
-            logFile: __dirname + "/" + o.log_dir + o.uid + "/logFile.log",
-            outFile: __dirname + "/" + o.log_dir + o.uid + "/outFile.log",
-            errFile: __dirname + "/" + o.log_dir + o.uid + "/errFile.log"
+            logFile: __dirname + "/logFile.log",
+            outFile: __dirname + "/outFile.log",
+            errFile: __dirname + "/errFile.log"
         };
 
         this.createDir(o.log_dir + o.uid + "/").then(function () {
