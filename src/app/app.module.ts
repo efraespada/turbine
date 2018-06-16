@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import {LOCALE_ID, NgModule} from '@angular/core';
 
 import { AngularFireModule } from 'angularfire2';
 
@@ -33,7 +33,8 @@ import {AuthService} from "./services/auth.service";
   providers: [
       AuthService,
       DataService,
-      AngularFireAuth
+      AngularFireAuth,
+      { provide: LOCALE_ID, useValue: 'es'}
   ],
   bootstrap: [AppComponent]
 })
