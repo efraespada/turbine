@@ -49,7 +49,6 @@ It will return all users named "Mark".
 ## Run tests
 Run this test on your PC by cloning this repo and running:
 ```bash
-/turbine
 node launcher.js
 /benchmark
 node turbine_puncher.js
