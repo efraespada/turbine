@@ -1,6 +1,8 @@
-const forever = require('forever-monitor');
-const rp = require('request-promise');
-const logjs = require('logjsx');
+const forever =             require('forever-monitor');
+const rp =                  require('request-promise');
+const logjs =               require('logjsx');
+const fs =                  require('fs');
+const path =                require('path');
 const logger = new logjs();
 logger.init({
     level: "DEBUG"
@@ -8,6 +10,7 @@ logger.init({
 
 function Turbine(config) {
 
+    let o = this;
     this.config = config;
     this.turbine_ip = "http://localhost";
     this.turbine_port = 7285;
@@ -44,11 +47,14 @@ function Turbine(config) {
      * Initializes Turbine process
      */
     this.server = function () {
-
-        let config = {
+        if (this.turbine_ip !== "http://localhost") {
+            logger.error("server load can't be without http://localhost");
+            return;
+        }
+        let turbine_config = {
             silent: false,
-            uid: this.uid,
-            pidFile: "./" + this.uid + ".pid",
+            uid: o.uid,
+            pidFile: "./" + o.uid + ".pid",
             max: 10,
             killTree: true,
 
@@ -65,14 +71,13 @@ function Turbine(config) {
             watchDirectory: null,
 
 
-            logFile: __dirname + "/" + this.log_dir + "logFile.log",
-            outFile: __dirname + "/" + this.log_dir + "outFile.log",
-            errFile: __dirname + "/" + this.log_dir + "errFile.log"
+            logFile: __dirname + "/" + o.log_dir + o.uid + "/logFile.log",
+            outFile: __dirname + "/" + o.log_dir + o.uid + "/outFile.log",
+            errFile: __dirname + "/" + o.log_dir + o.uid + "/errFile.log"
         };
 
-        let child = forever.start('./turbine.js', config);
-        child.on('start', function (code) {
-            logger.debug(config.args);
+        this.createDir(o.log_dir + o.uid + "/").then(function () {
+            let child = forever.start('./turbine.js', turbine_config);
         });
     };
 
@@ -98,13 +103,15 @@ function Turbine(config) {
      * Returns the object of the given path
      * @param database -> myDatabase
      * @param path
+     * @param interf
      * @returns {Promise<*>}
      */
-    this.get = async function(database, path) {
+    this.get = async function(database, path, interf = {}) {
         let data = {
             method: "get",
             database: database,
-            path: path
+            path: path,
+            interface: interf
         };
         return await this.ask(this.turbine_ip + ":" + this.turbine_port + "/", data)
     };
@@ -123,7 +130,11 @@ function Turbine(config) {
             path: path,
             value: value
         };
-        await this.ask(this.turbine_ip + ":" + this.turbine_port + "/", data)
+        let response, err = await this.ask(this.turbine_ip + ":" + this.turbine_port + "/", data);
+        if (err) {
+            return err
+        }
+        return response
     };
 
     /**
@@ -131,16 +142,29 @@ function Turbine(config) {
      * @param database -> myDatabase
      * @param path -> /users/*
      * @param query -> { name: "Mark" }
+     * @param interf -> { name: type("string) }
      * @returns {Promise<*>}
      */
-    this.query = async function(database, path, query) {
+    this.query = async function(database, path, query, interf = {}) {
         let data = {
             method: "query",
             database: database,
             path: path,
-            query: query
+            query: query,
+            mask: interf
         };
         return await this.ask(this.turbine_ip + ":" + this.turbine_port + "/", data)
+    };
+
+    this.createDir = async function (dirPath) {
+        if (!await fs.existsSync(dirPath)) {
+            try {
+                await fs.mkdirSync(dirPath);
+            } catch (e) {
+                await this.createDir(path.dirname(dirPath));
+                await this.createDir(dirPath);
+            }
+        }
     };
 
 }

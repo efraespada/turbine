@@ -87,7 +87,7 @@ function Database(params) {
                 }
             }
         }
-        console.log((this.indexed > 0 ? "\n" : "") + "🎉")
+        console.log((this.indexed > 0 ? "\n" : "") + "👍")
     };
 
     this.getCollectionToInsert = function(path) {

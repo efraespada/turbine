@@ -3,7 +3,7 @@ const logger = new logjs();
 logger.init({
     level: "DEBUG"
 });
-const numReq = 10;
+const numReq = 10000;
 const EMPTY_OBJECT = "{}";
 
 const Turbine = require('../index.js');
