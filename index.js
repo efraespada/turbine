@@ -48,7 +48,6 @@ function Turbine(config) {
      */
     this.server = function () {
         if (this.turbine_ip !== "http://localhost") {
-            logger.error("server load can't be without http://localhost");
             return;
         }
         let turbine_config = {

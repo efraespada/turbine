@@ -1,6 +1,6 @@
 {
   "name": "@efraespada/turbine",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Turbine allows different node processes to work with the same JSON database",
   "main": "index.js",
   "scripts": {
