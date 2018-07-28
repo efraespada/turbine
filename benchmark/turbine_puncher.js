@@ -3,7 +3,7 @@ const logger = new logjs();
 logger.init({
     level: "DEBUG"
 });
-const numReq = 10000;
+const numReq = 1;
 const EMPTY_OBJECT = "{}";
 
 const Turbine = require('../index.js');
@@ -47,8 +47,23 @@ async function post(i = 0) {
 async function query(i = 0) {
     if (i < numReq) {
         let users = await turbine.query("database", "/users/*", {
-            name: randomString()
+            members: {
+                lala: {
+                    id: "lala"
+                }
+            }
+        }, {
+            name: "",
+            device: {
+                os: ""
+            },
+            members: {
+                "*" : {
+                    rol: ""
+                }
+            }
         });
+        console.log(JSON.stringify(users));
         await query(i + 1)
     }
 }
@@ -56,7 +71,7 @@ async function query(i = 0) {
 async function test() {
 
     let started = new Date();
-    await get();
+    //  await get();
     let duration = new Date() - started;
     logger.info("get " + numReq + " times [" + (duration/1000) + " secs]");
 
@@ -66,7 +81,7 @@ async function test() {
     logger.info("query " + numReq + " times [" + (duration/1000) + " secs]");
 
     started = new Date();
-    await post();
+    // await post();
     duration = new Date() - started;
     logger.info("set " + numReq + " times [" + (duration/1000) + " secs]");
 }

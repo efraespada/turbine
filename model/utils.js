@@ -88,18 +88,49 @@ function Utils() {
         let maskObj = this.getPathsOfQuery(obj);
         let maskInter = this.getPathsOfQuery(interf);
         let result = {};
-        let k = Object.keys(maskObj);
-        let q = Object.keys(maskInter);
-        for (let i in k) {
-            let vals = k[i];
-            for (let v in maskObj[k[i]]) {
-                for (let u in q) {
-                    if (maskInter[q[u]].indexOf(maskObj[k[i]][v]) > -1) {
-                        let insert = maskObj[k[i]][v].split("/");
-                        if (insert[0] === "") {
-                            insert = insert.slice(1, insert.length);
+        let maskObjKey = Object.keys(maskObj);
+        let maskInterKey = Object.keys(maskInter);
+        for (let i in maskObjKey) {
+            let value = maskObjKey[i];
+            for (let pathValueIndex in maskObj[value]) {
+                let pathValue = maskObj[value][pathValueIndex];
+                for (let u in maskInterKey) {
+                    let maskValue = maskInterKey[u];
+                    for (let maskValueIndex in maskInter[maskValue]) {
+                        let maskPath = maskInter[maskValue][maskValueIndex];
+                        // path contains *.
+                        if (maskPath.indexOf("*") > -1) {
+                            let pM = maskPath.split("/*");
+                            let valid = true;
+                            for (let iPM in pM) {
+                                let pToCheck = pM[iPM];
+                                if (pathValue.indexOf(pToCheck) == -1) {
+                                    valid = false;
+                                    break;
+                                }
+                            }
+                            if (valid) {
+                                let insert = pathValue.split("/");
+                                if (insert[0] === "") {
+                                    insert = insert.slice(1, insert.length);
+                                }
+                                setIn(result, insert, value);
+                            }
+                        } else if (maskValue === "{}" && pathValue.indexOf(maskPath) > -1) {
+                            let insert = pathValue.split("/");
+                            if (insert[0] === "") {
+                                insert = insert.slice(1, insert.length);
+                            }
+                            setIn(result, insert, value);
+                        } else {
+                            if (maskPath.indexOf(pathValue) > -1) {
+                                let insert = pathValue.split("/");
+                                if (insert[0] === "") {
+                                    insert = insert.slice(1, insert.length);
+                                }
+                                setIn(result, insert, value);
+                            }
                         }
-                        setIn(result, insert, k[i]);
                     }
                 }
             }
@@ -122,9 +153,15 @@ function Utils() {
                 if (!paths[node]) {
                     paths[node] = [];
                 }
-                let builded = "/" + path.join("/");
+                let build = "/" + path.join("/");
                 //console.log("build path: " + builded + " for " + node);
-                paths[node].push(builded)
+                paths[node].push(build)
+            } else if (Object.keys(node).length == 0) {
+                if (!paths["{}"]) {
+                    paths["{}"] = [];
+                }
+                let build = "/" + path.join("/");
+                paths["{}"].push(build);
             }
         }
         //console.log("paths: " + JSON.stringify(paths));
