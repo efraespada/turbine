@@ -193,7 +193,10 @@ function DatabasesManager(configuration) {
                 for (let b in branchs) {
                     if (branchs[b] === "*") {
                         for (let kQ in keysQuery) {
+                            // if value to check is string, it is transform to a lowercase value
                             let key = typeof keysQuery[kQ] === "string" ? keysQuery[kQ].toLowerCase() : keysQuery[kQ];
+
+                            // list of paths that contains the value
                             let pathsToCheck = this.databases[database].collection(collections[c]).values[key];
                             for (let p in pathsToCheck) {
                                 for (let innerPath in metaQuery[keysQuery[kQ]]) {
@@ -227,10 +230,10 @@ function DatabasesManager(configuration) {
             for (let i in refsKeys) {
                 let reference = suggestedReferences[refsKeys[i]];
                 if (reference.found == keysQuery.length && reference.value !== {}) {
-                    if (typeof interf === "string" && interf !== "{}") {
+                    if (typeof interf === "string") {
                         let obj = utils.maskObject(reference.value, JSON.parse(interf));
                         res.push(obj)
-                    } if (typeof interf === "object" && JSON.stringify(interf) !== "{}") {
+                    } if (typeof interf === "object") {
                         let obj = utils.maskObject(reference.value, interf);
                         res.push(obj)
                     } else {
