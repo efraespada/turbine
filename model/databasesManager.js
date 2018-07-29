@@ -183,11 +183,13 @@ function DatabasesManager(configuration) {
         } else if (value.startsWith(SLASH) && value.length > SLASH.length) {
             let result = [];
             let metaQuery = utils.getPathsOfQuery(query);
+            console.log("metaQuery: " + JSON.stringify(metaQuery));
             let keysQuery = Object.keys(metaQuery);
             let branchs = value.split(SLASH);
             let collections = this.databases[database].collectionKeys();
             let found = 0;
             let suggestedReferences = {};
+            let orPath = value.replace("*","");
             for (let c in collections) {
                 let object = this.databases[database].collection(collections[c]).data;
                 for (let b in branchs) {
@@ -199,13 +201,39 @@ function DatabasesManager(configuration) {
                             // list of paths that contains the value
                             let pathsToCheck = this.databases[database].collection(collections[c]).values[key];
                             for (let p in pathsToCheck) {
+                                let pathOfValue = pathsToCheck[p];
+                                console.log("pathOfValue: " + pathOfValue);
                                 for (let innerPath in metaQuery[keysQuery[kQ]]) {
-                                    let orPath = value.replace("*","");
-                                    if (pathsToCheck[p].indexOf(metaQuery[keysQuery[kQ]][innerPath]) > -1
-                                        && pathsToCheck[p].indexOf(orPath) > -1) {
-                                        let valid = pathsToCheck[p].replace(metaQuery[keysQuery[kQ]][innerPath], "");
+                                    let queryPathValue = metaQuery[keysQuery[kQ]][innerPath];
+                                    if (queryPathValue.indexOf("/*") > -1 && pathOfValue.indexOf(orPath) > -1) {
+                                        let pQPVs = queryPathValue.split("/*");
+                                        let valid = true;
+                                        for (let i in pQPVs) {
+                                            if (pathOfValue.indexOf(pQPVs[i]) == -1) {
+                                                valid = false;
+                                                break;
+                                            }
+                                        }
+                                        if (valid) {
+                                            let valid = pathOfValue.split(pQPVs[0])[0];
+                                            if (suggestedReferences[valid] === undefined) {
+                                                let refe = this.getObject(database, valid, collections[c]);
+                                                suggestedReferences[valid] = {};
+                                                suggestedReferences[valid].found = 1;
+                                                suggestedReferences[valid].metafound = [queryPathValue];
+                                                suggestedReferences[valid].value = refe;
+                                            } else if (suggestedReferences[valid].metafound.indexOf(queryPathValue) == -1) {
+                                                suggestedReferences[valid].metafound.push(queryPathValue);
+                                                suggestedReferences[valid].found = suggestedReferences[valid].found + 1;
+                                            }
+                                        }
+                                    } else if (pathOfValue.indexOf(metaQuery[keysQuery[kQ]][innerPath]) > -1
+                                            && pathOfValue.indexOf(orPath) > -1) {
 
-                                        if (!suggestedReferences[valid]) {
+                                        // path of supposed valid result
+                                        let valid = pathOfValue.replace(metaQuery[keysQuery[kQ]][innerPath], "");
+
+                                        if (suggestedReferences[valid] === undefined) {
                                             let refe = this.getObject(database, valid, collections[c]);
                                             suggestedReferences[valid] = {};
                                             suggestedReferences[valid].found = 1;
@@ -373,10 +401,10 @@ function DatabasesManager(configuration) {
 
             // seconds per opertion
             let s = 1 / ops;
-            log(ops.toFixed(2) + " op/sec -> " + s.toFixed(3) + " sec/op");
+            // log(ops.toFixed(2) + " op/sec -> " + s.toFixed(3) + " sec/op");
             this.processed = 0;
         } else {
-            log("0 op/sec");
+            // log("0 op/sec");
         }
 
         let databases = Object.keys(this.databases);
