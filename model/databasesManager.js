@@ -401,10 +401,10 @@ function DatabasesManager(configuration) {
 
             // seconds per opertion
             let s = 1 / ops;
-            // log(ops.toFixed(2) + " op/sec -> " + s.toFixed(3) + " sec/op");
+            log(ops.toFixed(2) + " op/sec -> " + s.toFixed(3) + " sec/op");
             this.processed = 0;
         } else {
-            // log("0 op/sec");
+            log("0 op/sec");
         }
 
         let databases = Object.keys(this.databases);
