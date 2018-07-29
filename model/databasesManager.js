@@ -183,7 +183,6 @@ function DatabasesManager(configuration) {
         } else if (value.startsWith(SLASH) && value.length > SLASH.length) {
             let result = [];
             let metaQuery = utils.getPathsOfQuery(query);
-            console.log("metaQuery: " + JSON.stringify(metaQuery));
             let keysQuery = Object.keys(metaQuery);
             let branchs = value.split(SLASH);
             let collections = this.databases[database].collectionKeys();
@@ -202,7 +201,6 @@ function DatabasesManager(configuration) {
                             let pathsToCheck = this.databases[database].collection(collections[c]).values[key];
                             for (let p in pathsToCheck) {
                                 let pathOfValue = pathsToCheck[p];
-                                console.log("pathOfValue: " + pathOfValue);
                                 for (let innerPath in metaQuery[keysQuery[kQ]]) {
                                     let queryPathValue = metaQuery[keysQuery[kQ]][innerPath];
                                     if (queryPathValue.indexOf("/*") > -1 && pathOfValue.indexOf(orPath) > -1) {

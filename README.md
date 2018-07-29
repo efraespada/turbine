@@ -1,4 +1,4 @@
-[ ![@efraespada/turbine](https://d25lcipzij17d.cloudfront.net/badge.svg?id=js&type=6&v=0.0.8&x2=0)](https://www.npmjs.com/package/@efraespada/turbine)
+[ ![@efraespada/turbine](https://d25lcipzij17d.cloudfront.net/badge.svg?id=js&type=6&v=0.0.9&x2=0)](https://www.npmjs.com/package/@efraespada/turbine)
 
 # Turbine
 
