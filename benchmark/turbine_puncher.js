@@ -48,8 +48,8 @@ async function query(i = 0) {
     if (i < numReq) {
         let users = await turbine.query("database", "/users/*", {
             members: {
-                lala: {
-                    id: "lala"
+                "*": {
+                    id: "lolo"
                 }
             }
         }, {
