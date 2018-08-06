@@ -47,9 +47,6 @@ function Turbine(config) {
      * Initializes Turbine process
      */
     this.server = function () {
-        if (this.turbine_ip !== "http://localhost") {
-            return;
-        }
         let turbine_config = {
             silent: false,
             uid: o.uid,
