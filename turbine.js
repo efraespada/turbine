@@ -1,4 +1,4 @@
-nconst express =             require('express');
+const express =             require('express');
 const bodyParser =          require('body-parser');
 const timeout =             require('connect-timeout');
 const SN =                  require('sync-node');
