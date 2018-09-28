@@ -43,6 +43,42 @@ function Turbine(config) {
         });
     }
 
+    this.getRequest = function (url, data) {
+        return new Promise(function (resolve, reject) {
+            let options = {
+                uri: url,
+                qs: data,
+                json: true
+            };
+            rp(options)
+                .then(function (parsedBody) {
+                    resolve(parsedBody)
+                })
+                .catch(function (err) {
+                    reject(err)
+                });
+        });
+    };
+
+    this.postRequest = function (url, data) {
+        return new Promise(function (resolve, reject) {
+            let options = {
+                method: 'POST',
+                uri: url,
+                body: data,
+                json: true
+            };
+            rp(options)
+                .then(function (parsedBody) {
+                    resolve(parsedBody)
+                })
+                .catch(function (err) {
+                    reject(err)
+                });
+        });
+    };
+
+
     /**
      * Initializes Turbine process
      */
@@ -77,39 +113,21 @@ function Turbine(config) {
         });
     };
 
-    this.ask = function (url, data) {
-        return new Promise(function (resolve, reject) {
-            let options = {
-                method: 'POST',
-                uri: url,
-                body: data,
-                json: true
-            };
-            rp(options)
-                .then(function (parsedBody) {
-                    resolve(parsedBody)
-                })
-                .catch(function (err) {
-                    reject(err)
-                });
-        });
-    };
-
     /**
      * Returns the object of the given path
      * @param database -> myDatabase
      * @param path
-     * @param interf
+     * @param mask
      * @returns {Promise<*>}
      */
-    this.get = async function(database, path, interf = {}) {
+    this.get = async function(database, path, mask = {}) {
         let data = {
             method: "get",
             database: database,
             path: path,
-            interface: interf
+            interface: mask
         };
-        return await this.ask(this.turbine_ip + ":" + this.turbine_port + "/", data)
+        return await this.getRequest(this.turbine_ip + ":" + this.turbine_port + "/", data)
     };
 
     /**
@@ -126,7 +144,7 @@ function Turbine(config) {
             path: path,
             value: value
         };
-        let response, err = await this.ask(this.turbine_ip + ":" + this.turbine_port + "/", data);
+        let response, err = await this.postRequest(this.turbine_ip + ":" + this.turbine_port + "/", data);
         if (err) {
             return err
         }
@@ -147,9 +165,10 @@ function Turbine(config) {
             database: database,
             path: path,
             query: query,
-            mask: interf
+            mask: interf,
+            token: ""
         };
-        return await this.ask(this.turbine_ip + ":" + this.turbine_port + "/", data)
+        return await this.getRequest(this.turbine_ip + ":" + this.turbine_port + "/", data)
     };
 
     this.createDir = async function (dirPath) {

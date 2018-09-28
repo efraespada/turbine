@@ -61,16 +61,7 @@ app.use(timeout('120s'));
 router.post('/', function (req, res) {
     queue.pushJob(function () {
         if (req.body.method !== undefined && req.body.path !== undefined && req.body.database !== undefined) {
-            if (req.body.method === "get") {
-                let interf = req.body.mask || {};
-                let object = databaseManager.getObject(req.body.database, req.body.path, "", interf);
-                if (typeof object === "string") {
-                    console.error(object);
-                    res.status(406).send(object);
-                } else {
-                    res.json(object)
-                }
-            } else if (req.body.method === "post" && req.body.value !== undefined) {
+            if (req.body.method === "post" && req.body.value !== undefined) {
                 databaseManager.saveObject(req.body.database, req.body.path, req.body.value === null ? null : req.body.value).then(function (result) {
                     if (typeof result === "string") {
                         console.error(result);
@@ -79,9 +70,29 @@ router.post('/', function (req, res) {
                         res.json({})
                     }
                 });
-            } else if (req.body.method === "query" && req.body.query !== undefined) {
-                let interf = req.body.mask || {};
-                let object = databaseManager.getObjectFromQuery(req.body.database, req.body.path, req.body.query, interf);
+            } else {
+                res.status(406).send("💥");
+            }
+        } else {
+            res.status(406).send("💥");
+        }
+    });
+});
+router.get('/', function (req, res) {
+    queue.pushJob(function () {
+        if (req.query.method !== undefined && req.query.path !== undefined && req.query.database !== undefined) {
+            if (req.query.method === "get") {
+                let interf = req.query.mask || {};
+                let object = databaseManager.getObject(req.query.database, req.query.path, "", interf);
+                if (typeof object === "string") {
+                    console.error(object);
+                    res.status(406).send(object);
+                } else {
+                    res.json(object)
+                }
+            } else if (req.query.method === "query" && req.query.query !== undefined) {
+                let interf = req.query.mask || {};
+                let object = databaseManager.getObjectFromQuery(req.query.database, req.query.path, req.query.query, interf);
                 if (typeof object === "string") {
                     console.error(object);
                     res.status(406).send(object);
