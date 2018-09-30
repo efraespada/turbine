@@ -1,1 +1,21 @@
-
+<div *ngIf=" visible " class="navbar navbar-light bg-faded">
+  <button class="navbar-toggler" type="button" data-toggle="drawer" data-target="#dw-p1">
+    <span class="sr-only">Toggle drawer</span>
+    <i class="material-icons">menu</i>
+  </button>
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <span class="nav-link">Turbine</span>
+    </li>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+      <div class="dropdown-menu dropdown-menu-right">
+        <a class="dropdown-item" href="#">Action</a>
+        <a class="dropdown-item" href="#">Permissions</a>
+        <a class="dropdown-item" href="#">Sync requests</a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="#">Logout</a>
+      </div>
+    </li>
+  </ul>
+</div>

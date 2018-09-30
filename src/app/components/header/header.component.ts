@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-header',
@@ -8,7 +9,14 @@ import { Component, OnInit } from '@angular/core';
 
 export class HeaderComponent implements OnInit {
 
-  constructor() { }
+  public visible: boolean = false;
+
+  constructor(router: Router) {
+    router.events.subscribe((val) => {
+      this.visible = !(location.href.indexOf("/splash") > -1 || location.href.indexOf("/login") > -1);
+      this.ngOnInit()
+    });
+  }
 
   ngOnInit() {
 
