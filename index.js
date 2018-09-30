@@ -86,7 +86,6 @@ function Turbine(config) {
    * Initializes Turbine process
    */
   this.server = function () {
-    o.startApp();
     let process = "server";
     let turbine_config = {
       silent: false,
@@ -113,12 +112,15 @@ function Turbine(config) {
       errFile: __dirname + "/" + o.log_dir + process + "/errFile.log"
     };
 
-    this.createDir(o.log_dir + process + "/").then(function () {
-      let child = forever.start('./turbine.js', turbine_config);
+    o.startApp(function () {
+      /*
+      o.createDir(o.log_dir + process + "/").then(function () {
+        let child = forever.start('./turbine.js', turbine_config);
+      });*/
     });
   };
 
-  this.startApp = async function () {
+  this.startApp = async function (callback) {
     let process = "app";
     let app_config = {
       silent: false,
@@ -146,6 +148,9 @@ function Turbine(config) {
       let app = forever.start(["ng", "serve", "-o", "--port", o.app_port + ""], app_config);
       app.on('start', function (code) {
         logger.info("App started (" + o.app_port + ")");
+        setTimeout(function () {
+          callback();
+        }, 5000);
       });
     });
   };
