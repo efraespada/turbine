@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { auth } from 'firebase/app';
 import {Router} from "@angular/router";
 
 @Component({
@@ -19,15 +18,12 @@ export class SplashBodyComponent implements OnInit {
   ngOnInit() {
     setTimeout( async () => {
       if (this.afAuth.auth.currentUser === null || this.afAuth.auth.currentUser === undefined) {
-        console.log("not logged");
         this.goLogin()
       } else {
         let token: string = await this.afAuth.auth.currentUser.getIdToken();
         if (token === null || token === undefined) {
-          console.log("not logged";
           this.goLogin()
         } else {
-          console.log("logged");
           this.goConsole()
         }
       }
@@ -36,11 +32,15 @@ export class SplashBodyComponent implements OnInit {
   }
 
   private goLogin() {
-    this.router.navigateByUrl('/login');
+    this.router.navigateByUrl('/login').then(function () {
+      console.log("login");
+    });
   }
 
   private goConsole() {
-    this.router.navigateByUrl('/console');
+    this.router.navigateByUrl('/console').then(function () {
+      console.log("console");
+    });
   }
 
 }

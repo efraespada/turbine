@@ -30,6 +30,8 @@ import { ProfileBodyComponent } from './components/profile-body/profile-body.com
   imports: [
     BrowserModule,
     AngularFireModule.initializeApp(environment.firebase),
+    AngularFireAuthModule,
+    AngularFireStorageModule,
     APP_ROUTING
   ],
   providers: [],
