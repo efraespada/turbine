@@ -1,10 +1,12 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
+
 
 import { AppComponent } from './app.component';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireStorageModule } from '@angular/fire/storage';
-import { AngularFireAuthModule } from '@angular/fire/auth';
+import { AngularFireAuth, AngularFireAuthModule } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
 
 // routes
@@ -16,6 +18,8 @@ import { LoginBodyComponent } from './components/login-body/login-body.component
 import { SplashBodyComponent } from './components/splash-body/splash-body.component';
 import { ConsoleBodyComponent } from './components/console-body/console-body.component';
 import { ProfileBodyComponent } from './components/profile-body/profile-body.component';
+import {GoogleAuthService} from "./services/google-auth.service";
+
 
 
 @NgModule({
@@ -32,9 +36,13 @@ import { ProfileBodyComponent } from './components/profile-body/profile-body.com
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,
     AngularFireStorageModule,
+    HttpClientModule,
     APP_ROUTING
   ],
-  providers: [],
+  providers: [
+    AngularFireAuth,
+    GoogleAuthService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

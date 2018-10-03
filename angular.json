@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/turbine",
+            "outputPath": "dist/turbine-app",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -27,9 +27,8 @@
               "node_modules/bootstrap-material-design/dist/css/bootstrap-material-design.css"
             ],
             "scripts": [
-              "node_modules/jquery/dist/jquery.slim.js",
               "node_modules/popper.js/dist/umd/popper.js",
-              "node_modules/bootstrap-material-design/dist/js/bootstrap-material-design.js"
+              "node_modules/bootstrap-material-design/dist/js/bootstrap-material-design.min.js"
             ]
           },
           "configurations": {

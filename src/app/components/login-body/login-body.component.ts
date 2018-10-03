@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from "@angular/fire/auth";
 import { auth } from 'firebase/app';
 import { Router } from "@angular/router";
+import { GoogleAuthService } from "../../services/google-auth.service";
 
 @Component({
   selector: 'app-login-body',
@@ -10,7 +11,7 @@ import { Router } from "@angular/router";
 })
 export class LoginBodyComponent implements OnInit {
 
-  constructor(private afAuth: AngularFireAuth, private router: Router){
+  constructor(private afAuth: AngularFireAuth, private router: Router, public service: GoogleAuthService){
     // nothing to do here
   }
 
@@ -26,14 +27,14 @@ export class LoginBodyComponent implements OnInit {
     provider.setCustomParameters({
       'login_hint': 'your_mail@gmail.com'
     });
-    this.afAuth.auth.signInWithPopup(provider).then(function(result) {
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      //let token = result.credential.accessToken;
-      // The signed-in user info.
+    this.afAuth.auth.signInWithPopup(provider).then((result) => {
       let user = result.user;
-      console.log("user: " + user)
-
-      // ...
+      console.log("user: " + JSON.stringify(user));
+      this.service.verifyUser(result.user).then(function (res) {
+        console.log(JSON.stringify(res));
+      }).catch(function (err) {
+        console.error(JSON.stringify(err));
+      });
     }).catch(function(error) {
       // Handle Errors here.
       let errorCode = error.code;

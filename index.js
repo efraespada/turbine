@@ -1,5 +1,7 @@
 const forever = require('forever-monitor');
 const rp = require('request-promise');
+const express = require('express');
+const app = express();
 const logjs = require('logjsx');
 const fs = require('fs');
 const path = require('path');
@@ -113,10 +115,10 @@ function Turbine(config) {
     };
 
     o.startApp(function () {
-      /*
+      logger.info(`Turbine app started (${o.app_port})`);
       o.createDir(o.log_dir + process + "/").then(function () {
-        let child = forever.start('./turbine.js', turbine_config);
-      });*/
+        forever.start('./turbine.js', turbine_config);
+      });
     });
   };
 
@@ -145,13 +147,8 @@ function Turbine(config) {
     };
 
     this.createDir(o.log_dir + process + "/").then(function () {
-      let app = forever.start(["ng", "serve", "-o", "--port", o.app_port + ""], app_config);
-      app.on('start', function (code) {
-        logger.info("App started (" + o.app_port + ")");
-        setTimeout(function () {
-          callback();
-        }, 5000);
-      });
+      app.use('*', express.static(path.join(__dirname, 'dist/turbine-app')));
+      app.listen(o.app_port, () => callback());
     });
   };
 
