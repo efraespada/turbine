@@ -14,7 +14,7 @@ const surname = ["Espada", "Fraile", "Martinez", "Fernandez", "Molina", "Espinel
 logger.init({
     level: "DEBUG"
 });
-const numReq = 1;
+const numReq = 1000;
 const EMPTY_OBJECT = "{}";
 
 const Turbine = require('../index.js');

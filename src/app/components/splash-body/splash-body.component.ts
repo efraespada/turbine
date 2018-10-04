@@ -28,7 +28,6 @@ export class SplashBodyComponent implements OnInit {
         }
       }
     }, 2000);
-
   }
 
   private goLogin() {

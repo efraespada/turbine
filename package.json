@@ -2,7 +2,7 @@
   "name": "@efraespada/turbine",
   "version": "0.0.0",
   "scripts": {
-    "pwa": "ng build --prod && node launcher.js",
+    "pwa": "rm -rf dist && ng build --prod && node launcher.js",
     "server": "http-server -p 4006 ./dist/turbine-app",
     "ng": "ng",
     "dev": "ng serve -o",

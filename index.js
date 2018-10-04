@@ -147,7 +147,14 @@ function Turbine(config) {
     };
 
     this.createDir(o.log_dir + process + "/").then(function () {
-      app.use('*', express.static(path.join(__dirname, 'dist/turbine-app')));
+      app.use('/', express.static(path.join(__dirname, 'dist/turbine-app/')));
+      app.all('/*', function(req, res, next) {
+        if (req.originalUrl.indexOf(".css/") > -1 || req.originalUrl.indexOf(".js/") > -1) {
+          res.sendFile('dist/turbine-app/' + req.originalUrl.substring(0, req.originalUrl.length - 1) , { root: __dirname });
+        } else {
+          res.sendFile('dist/turbine-app/index.html' , { root: __dirname });
+        }
+      });
       app.listen(o.app_port, () => callback());
     });
   };
