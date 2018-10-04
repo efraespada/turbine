@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from "@angular/fire/auth";
 import { auth } from 'firebase/app';
 import { Router } from "@angular/router";
-import { GoogleAuthService } from "../../services/google-auth.service";
+import { GoogleAuthService } from "../../services/google-auth/google-auth.service";
 
 @Component({
   selector: 'app-login-body',

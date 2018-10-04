@@ -18,7 +18,7 @@ import { LoginBodyComponent } from './components/login-body/login-body.component
 import { SplashBodyComponent } from './components/splash-body/splash-body.component';
 import { ConsoleBodyComponent } from './components/console-body/console-body.component';
 import { ProfileBodyComponent } from './components/profile-body/profile-body.component';
-import {GoogleAuthService} from "./services/google-auth.service";
+import { GoogleAuthService } from "./services/google-auth/google-auth.service";
 
 
 
