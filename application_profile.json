@@ -1,4 +1,5 @@
 {
   "name": "Turbine R",
-  "toolbar_color": "#CD474A"
+  "toolbar_color": "#CD474A",
+  "image": "https://github.com/efraespada/turbine/raw/feature/app/src/assets/icon_512.png"
 }

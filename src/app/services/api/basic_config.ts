@@ -3,6 +3,7 @@ export class BasicConfig {
 
   private _name: string;
   private _toolbar_color: string;
+  private _image: string;
 
   constructor() {
     // nothing to do here
@@ -14,6 +15,10 @@ export class BasicConfig {
 
   get toolbar_color(): string {
     return this._toolbar_color;
+  }
+
+  get image(): string {
+    return this._image;
   }
 
   public fromJSON(json) {

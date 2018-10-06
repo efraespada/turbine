@@ -1,4 +1,4 @@
-<div *ngIf=" visible " class="navbar navbar-light bg-faded">
+<div *ngIf=" visible " class="navbar navbar-light bg-faded" [ngStyle]="headerColor()">
   <button class="navbar-toggler" type="button" data-toggle="drawer" data-target="#dw-p1">
     <span class="sr-only">Toggle drawer</span>
     <i class="material-icons">menu</i>

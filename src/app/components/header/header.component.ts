@@ -38,4 +38,10 @@ export class HeaderComponent implements OnInit {
     // nothing to do here
   }
 
+  headerColor() {
+    return {
+      'background-color':  this.basicConfig.toolbar_color
+    }
+  }
+
 }
