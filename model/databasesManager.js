@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const setIn = require('set-in');
 const unset = require('unset');
-const JsonDB = require('node-json-db');
 const log = require('single-line-log').stdout;
 const Utils = require('./utils.js');
 const Database = require('./database.js');

@@ -73,7 +73,7 @@ function Database(params) {
                     nodes++;
                 }
                 this.indexed++;
-                log('i: ' + this.indexed + " lenght: " + nodes);
+                log('read: ' + this.indexed + " indexed: " + nodes);
                 params.values[node].push("/" + path.join("/"));
             } else if ('[object Array]' === Object.prototype.toString.apply(node)) {
                 for (let i = 0; i < node.length; i++) {
@@ -82,7 +82,7 @@ function Database(params) {
                         nodes++;
                     }
                     this.indexed++;
-                    log('i: ' + this.indexed + " lenght: " + nodes);
+                    log('read: ' + this.indexed + " indexed: " + nodes);
                     params.values[node[i]].push("/" + path.join("/") + "/" + i + "-list");
                 }
             }

@@ -1,7 +1,9 @@
 {
-    "turbine_port": 4005,
-    "app_port": 4006,
-    "turbine_ip": "http://localhost",
-    "databases": ["database"],
-    "debug": true
+  "turbine_port": 4005,
+  "app_port": 4006,
+  "turbine_ip": "http://localhost",
+  "databases": [
+    "database"
+  ],
+  "debug": true
 }

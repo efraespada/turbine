@@ -18,7 +18,10 @@ import { LoginBodyComponent } from './components/login-body/login-body.component
 import { SplashBodyComponent } from './components/splash-body/splash-body.component';
 import { ConsoleBodyComponent } from './components/console-body/console-body.component';
 import { ProfileBodyComponent } from './components/profile-body/profile-body.component';
+
+// services
 import { GoogleAuthService } from "./services/google-auth/google-auth.service";
+import { ApiService } from "./services/api/api.service";
 
 
 
@@ -41,7 +44,8 @@ import { GoogleAuthService } from "./services/google-auth/google-auth.service";
   ],
   providers: [
     AngularFireAuth,
-    GoogleAuthService
+    GoogleAuthService,
+    ApiService
   ],
   bootstrap: [AppComponent]
 })

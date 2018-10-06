@@ -114,12 +114,13 @@ function Turbine(config) {
       errFile: __dirname + "/" + o.log_dir + process + "/errFile.log"
     };
 
-    o.startApp(function () {
-      logger.info(`Turbine app started (${o.app_port})`);
-      o.createDir(o.log_dir + process + "/").then(function () {
-        forever.start('./turbine.js', turbine_config);
+    o.createDir(o.log_dir + process + "/").then(function () {
+      forever.start('./turbine.js', turbine_config);
+      o.startApp(function () {
+        logger.info(`Turbine app started (${o.app_port})`);
       });
     });
+
   };
 
   this.startApp = async function (callback) {
