@@ -1,6 +1,8 @@
 const log = require('single-line-log').stdout;
 const logjs = require('logjsx');
 const launcher = require('./launcher');
+// ip
+require('./model/ip');
 const logger = new logjs();
 
 const namesM = ["Marcos", "Hugo", "Juan", "Pablo", "Mario", "Adrian", "Walter", "Antonio", "Manolo", "Miguel",
