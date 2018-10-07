@@ -4,7 +4,7 @@
   "description": "Turbine allows different node processes to work with the same JSON database",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -29,5 +29,10 @@
     "single-line-log": "^1.1.2",
     "sync-node": "^1.3.1",
     "unset": "0.0.2"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "supertest": "^3.3.0"
   }
 }
