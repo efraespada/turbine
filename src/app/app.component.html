@@ -1,6 +1,9 @@
 <mat-toolbar>
+  <button mat-icon-button class="menu" (click)="drawer.toggle()">
+    <mat-icon>menu</mat-icon>
+  </button>
   <span>My Application</span>
-  <button mat-icon-button float-right [matMenuTriggerFor]="menu">
+  <button mat-icon-button class="float-right" [matMenuTriggerFor]="menu">
     <mat-icon>more_vert</mat-icon>
   </button>
   <mat-menu #menu="matMenu">
@@ -18,9 +21,32 @@
     </button>
   </mat-menu>
 </mat-toolbar>
-<mat-sidenav-container>
-  <mat-sidenav>Start</mat-sidenav>
-  <mat-sidenav-content>Main</mat-sidenav-content>
-</mat-sidenav-container>
+<mat-drawer-container class="example-container" autosize>
+  <mat-drawer #drawer class="example-sidenav" mode="{{navMode}}" [opened]="true">
+    <mat-list>
+      <h3 mat-subheader>Tools</h3>
+      <mat-list-item *ngFor="let link of links">
+        <mat-icon mat-list-icon>{{link.icon}}</mat-icon>
+        <h4 mat-line>{{link.name}}</h4>
+        <p mat-line> {{link.description}} </p>
+      </mat-list-item>
+      <mat-divider></mat-divider>
+      <h3 mat-subheader>Databases</h3>
+      <mat-list-item *ngFor="let link of links">
+        <mat-icon mat-list-icon>note</mat-icon>
+        <h4 mat-line>{{link.name}}</h4>
+        <p mat-line> {{link.name}} </p>
+      </mat-list-item>
+    </mat-list>
+  </mat-drawer>
+
+  <div class="example-sidenav-content">
+
+
+
+
+  </div>
+
+</mat-drawer-container>
 
 

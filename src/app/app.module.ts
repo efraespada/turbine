@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule, MatCheckboxModule, MatToolbarModule, MatSidenavModule, MatMenuModule, MatIconModule } from '@angular/material';
+import { MatButtonModule, MatCheckboxModule, MatToolbarModule, MatSidenavModule, MatMenuModule, MatIconModule, MatListModule } from '@angular/material';
 
 
 
@@ -50,6 +50,7 @@ import { ApiService } from "./services/api/api.service";
     MatToolbarModule,
     MatMenuModule,
     MatIconModule,
+    MatListModule,
     APP_ROUTING
   ],
   exports: [
@@ -58,6 +59,7 @@ import { ApiService } from "./services/api/api.service";
     MatToolbarModule,
     MatSidenavModule,
     MatIconModule,
+    MatListModule,
     MatMenuModule
   ],
   providers: [

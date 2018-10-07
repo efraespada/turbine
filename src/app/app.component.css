@@ -1,3 +1,44 @@
 .float-right {
-  float: right;
+  position: fixed;
+  right: 0;
 }
+
+.example-container {
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.example-sidenav-content {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.example-sidenav {
+  padding: 20px;
+}
+
+.menu {
+  margin-right: 10px;
+}
+
+.mat-menu-item .mat-icon {
+  margin-right: auto;
+  border-radius: 50%;
+}
+
+.mat-list-icon {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.mat-menu-item[_ngcontent-c0] .mat-icon[_ngcontent-c0] {
+  margin-right: 15px;
+}
+
+p {
+  letter-spacing: .5px;
+}
+
+
