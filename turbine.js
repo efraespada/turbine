@@ -17,28 +17,30 @@ String.prototype.replaceAll = function (search, replacement) {
   return target.replace(new RegExp(search, 'g'), replacement);
 };
 
-const DATABASE_FOLDER = "data/";
 const expectedDBNEnvVar = "DATABASES";
 const expectedTPORTEnvVar = "TURBINE_PORT";
 const expectedDebugKeyEnvVar = "DEBUG";
+const expectedProtectedKeyEnvVar = "PROTECTED";
 
 let databaseNames = null;
 let debug = false;
 let turbine_port = false;
+let protect = true;
 
 process.argv.forEach(function (val, index, array) {
   if (val.indexOf(expectedDBNEnvVar) > -1) {
     databaseNames = val.replaceAll(expectedDBNEnvVar + "=", "").split(",");
   }
   if (val.indexOf(expectedDebugKeyEnvVar) > -1) {
-    debug = val.replaceAll(expectedDebugKeyEnvVar + "=", "") === "true";
+    debug = val.replaceAll(expectedDebugKeyEnvVar + "=", "").toLocaleLowerCase() === "true";
   }
   if (val.indexOf(expectedTPORTEnvVar) > -1) {
     turbine_port = val.replaceAll(expectedTPORTEnvVar + "=", "");
   }
+  if (val.indexOf(expectedProtectedKeyEnvVar) > -1) {
+    protect = val.replaceAll(expectedProtectedKeyEnvVar + "=", "").toLocaleLowerCase()  === "true";
+  }
 });
-
-
 
 let config = {
   databases: databaseNames,
@@ -51,10 +53,6 @@ config.access.init();
 
 // application profile
 config.app_profile.init();
-
-let first_start = config.access.isFirstRun();
-
-const MAX_REQUEST = 15;
 
 /**
  * check if given databases has own folder and collections, if not they are created.
@@ -81,7 +79,7 @@ app.use(function(req, res, next) {
   next();
 });
 router.post('/', function (req, res) {
-  if (config.access.validRequest(req.body)) {
+  if (config.access.validRequest(req.body) || !protect) {
     queue.pushJob(function () {
       if (req.body.method !== undefined && req.body.path !== undefined && req.body.database !== undefined) {
         if (req.body.method === "post" && req.body.value !== undefined) {
@@ -112,7 +110,7 @@ router.post('/', function (req, res) {
   }
 });
 router.get('/', function (req, res) {
-  if (config.access.validRequest(req.query)) {
+  if (config.access.validRequest(req.query) || !protect) {
     queue.pushJob(function () {
       if (req.query.method !== undefined && req.query.path !== undefined && req.query.database !== undefined) {
         if (req.query.method === "get") {

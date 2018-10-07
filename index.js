@@ -20,6 +20,9 @@ function Turbine(config) {
   this.databases = ["myDatabase"];
   this.log_dir = "logs/";
   this.debug = false;
+  this.protected = true;
+  this.turbine_process = null;
+  this.app_process = null;
 
   if (this.config !== undefined) {
     if (this.config.databases !== undefined && this.config.databases.length > 0) {
@@ -39,6 +42,9 @@ function Turbine(config) {
     }
     if (this.config.app_port !== undefined && this.config.app_port) {
       this.app_port = this.config.app_port;
+    }
+    if (this.config.protected !== undefined) {
+      this.protected = this.config.protected;
     }
   }
 
@@ -83,12 +89,12 @@ function Turbine(config) {
     });
   };
 
-
   /**
    * Initializes Turbine process
    */
   this.server = function () {
     let process = "server";
+
     let turbine_config = {
       silent: false,
       uid: process,
@@ -101,13 +107,13 @@ function Turbine(config) {
 
       sourceDir: __dirname,
 
-      args: ['DATABASES=' + this.databases, 'TURBINE_PORT=' + this.turbine_port, 'DEBUG=' + this.debug.toString()],
+      args: ['DATABASES=' + this.databases, 'TURBINE_PORT=' + this.turbine_port, 'DEBUG=' + this.debug.toString(),
+        'PROTECTED=' + this.protected.toString(),],
 
       watch: false,
       watchIgnoreDotFiles: null,
       watchIgnorePatterns: null,
       watchDirectory: null,
-
 
       logFile: __dirname + "/" + o.log_dir + process + "/logFile.log",
       outFile: __dirname + "/" + o.log_dir + process + "/outFile.log",
@@ -115,12 +121,17 @@ function Turbine(config) {
     };
 
     o.createDir(o.log_dir + process + "/").then(function () {
-      forever.start('./turbine.js', turbine_config);
+      o.turbine_process = forever.start('./turbine.js', turbine_config);
       o.startApp(function () {
         logger.info(`Turbine app started (${o.app_port})`);
       });
     });
 
+  };
+
+  this.stopServer = () => {
+    this.turbine_process.stop();
+    this.app_process.close();
   };
 
   this.startApp = async function (callback) {
@@ -156,7 +167,7 @@ function Turbine(config) {
           res.sendFile('dist/turbine-app/index.html' , { root: __dirname });
         }
       });
-      app.listen(o.app_port, () => callback());
+      o.app_process = app.listen(o.app_port, () => callback());
     });
   };
 

@@ -2,12 +2,13 @@
   "name": "@efraespada/turbine",
   "version": "0.2.0-beta",
   "scripts": {
-    "dev-prod": "rm -rf dist && ng build --prod && node launcher.js",
+    "dev-prod": "rm -rf dist && ng build --prod",
+    "dev-prod-runner": "rm -rf dist && ng build --prod && node launcher.js",
     "dev-server": "rm -rf dist && ng serve --port 4006 && node launcher.js",
     "dev": "ng serve -o",
     "start": "ng serve",
     "build": "ng build",
-    "test": "ng test",
+    "test": "mocha",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
@@ -73,6 +74,7 @@
     "protractor": "~5.4.0",
     "ts-node": "~7.0.0",
     "tslint": "~5.11.0",
-    "typescript": "~2.9.2"
+    "typescript": "~2.9.2",
+    "mocha": "^5.2.0"
   }
 }
