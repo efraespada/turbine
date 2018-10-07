@@ -21,7 +21,7 @@ const EMPTY_OBJECT = "{}";
 const Turbine = require('./index');
 let turbine = new Turbine({
     "turbine_port": 4005,
-    "turbine_ip": "http://localhost",
+    "turbine_ip": "http://127.0.0.1",
     "debug": true
 });
 
