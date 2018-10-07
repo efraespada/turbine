@@ -36,7 +36,7 @@ workflows:
           branches:
             only:
               - develop
-              - feature/*
+              - feature/app
 
 
 
