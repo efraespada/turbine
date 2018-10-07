@@ -162,7 +162,7 @@ function printProgress(value = 0, total = 100) {
     for (let i = 0; i < rVal; i++) {
         p += "▫️";
     }
-    log(p + " " + Math.round(pT - 100 * (rVal / nPercent)) + "%")
+    //log(p + " " + Math.round(pT - 100 * (rVal / nPercent)) + "%")
 }
 
 
