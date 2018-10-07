@@ -1,38 +1,58 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/auth';
 import {Router} from "@angular/router";
+import {ApiService} from "../../services/api/api.service";
+import {BasicConfigCallback} from "../../services/api/basic_config_callback";
+import {BasicConfig} from "../../services/api/basic_config";
+import {GoogleAuthService} from "../../services/google-auth/google-auth.service";
 
 @Component({
   selector: 'app-splash-body',
   templateUrl: './splash-body.component.html',
   styleUrls: ['./splash-body.component.css'],
-  providers: [ AngularFireAuth ]
+  providers: [
+    GoogleAuthService
+  ]
 })
 
 export class SplashBodyComponent implements OnInit {
 
-  constructor(private afAuth: AngularFireAuth, private router: Router){
-    // nothing to do here
+  constructor(private gService: GoogleAuthService, private router: Router, public api: ApiService){
+    let sbc = this;
+    this.api.getBasicInfo(new class implements BasicConfigCallback {
+      basicConfig(basicConfig: BasicConfig) {
+        if (basicConfig.mode === "first_run") {
+          sbc.goAdmin();
+        } else if (!gService.authenticated) {
+          sbc.goLogin();
+        } else {
+          sbc.goConsole()
+        }
+      }
+      error(error: string) {
+        sbc.goError()
+      }
+    });
   }
 
   ngOnInit() {
-    setTimeout( async () => {
-      if (this.afAuth.auth.currentUser === null || this.afAuth.auth.currentUser === undefined) {
-        this.goLogin()
-      } else {
-        let token: string = await this.afAuth.auth.currentUser.getIdToken();
-        if (token === null || token === undefined) {
-          this.goLogin()
-        } else {
-          this.goConsole()
-        }
-      }
-    }, 2000);
+    // nothing to do here
   }
 
   private goLogin() {
     this.router.navigateByUrl('/login').then(function () {
       console.log("login");
+    });
+  }
+
+  private goAdmin() {
+    this.router.navigateByUrl('/admin').then(function () {
+      console.log("admin");
+    });
+  }
+
+  private goError() {
+    this.router.navigateByUrl('/error').then(function () {
+      console.log("error");
     });
   }
 

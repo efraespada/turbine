@@ -9,7 +9,10 @@ import {AngularFireAuth} from "@angular/fire/auth";
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css']
+  styleUrls: ['./header.component.css'],
+  providers: [
+    AngularFireAuth
+  ]
 })
 
 export class HeaderComponent implements OnInit {

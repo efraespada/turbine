@@ -1,0 +1,28 @@
+.example-card {
+  max-width: 400px;
+}
+
+.example-header-image {
+  background-image: url('https://material.angular.io/assets/img/examples/shiba1.jpg');
+  background-size: cover;
+}
+
+.inline {
+  display: inline-block;
+}
+
+.p_with_link {
+  line-height: 25px;
+}
+
+.link {
+  min-width: 0;
+  padding: 0 7px;
+  line-height: 24px;
+  border-radius: 12px;
+}
+
+.l_extra {
+  margin-left: 8px;
+  margin-right: 8px;
+}

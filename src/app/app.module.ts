@@ -2,7 +2,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule, MatCheckboxModule, MatToolbarModule, MatSidenavModule, MatMenuModule, MatIconModule, MatListModule } from '@angular/material';
+import { MatButtonModule, MatCheckboxModule, MatToolbarModule, MatSidenavModule, MatMenuModule, MatIconModule,
+  MatListModule, MatCardModule, MatChipsModule } from '@angular/material';
 
 
 
@@ -25,7 +26,8 @@ import { ProfileBodyComponent } from './components/profile-body/profile-body.com
 // services
 import { GoogleAuthService } from "./services/google-auth/google-auth.service";
 import { ApiService } from "./services/api/api.service";
-
+import { AdminBodyComponent } from './components/admin-body/admin-body.component';
+import { ErrorBodyComponent } from './components/error-body/error-body.component';
 
 
 @NgModule({
@@ -35,7 +37,9 @@ import { ApiService } from "./services/api/api.service";
     LoginBodyComponent,
     SplashBodyComponent,
     ConsoleBodyComponent,
-    ProfileBodyComponent
+    ProfileBodyComponent,
+    AdminBodyComponent,
+    ErrorBodyComponent
   ],
   imports: [
     BrowserModule,
@@ -51,6 +55,8 @@ import { ApiService } from "./services/api/api.service";
     MatMenuModule,
     MatIconModule,
     MatListModule,
+    MatCardModule,
+    MatChipsModule,
     APP_ROUTING
   ],
   exports: [
@@ -60,6 +66,8 @@ import { ApiService } from "./services/api/api.service";
     MatSidenavModule,
     MatIconModule,
     MatListModule,
+    MatCardModule,
+    MatChipsModule,
     MatMenuModule
   ],
   providers: [

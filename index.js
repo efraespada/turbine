@@ -122,9 +122,10 @@ function Turbine(config) {
 
     o.createDir(o.log_dir + process + "/").then(function () {
       o.turbine_process = forever.start('./turbine.js', turbine_config);
+      /*
       o.startApp(function () {
         logger.info(`Turbine app started (${o.app_port})`);
-      });
+      });*/
     });
 
   };

@@ -30,11 +30,6 @@ export class LoginBodyComponent implements OnInit {
     this.afAuth.auth.signInWithPopup(provider).then((result) => {
       let user = result.user;
       console.log("user: " + JSON.stringify(user));
-      this.service.verifyUser(result.user).then(function (res) {
-        console.log(JSON.stringify(res));
-      }).catch(function (err) {
-        console.error(JSON.stringify(err));
-      });
     }).catch(function(error) {
       // Handle Errors here.
       let errorCode = error.code;

@@ -4,6 +4,7 @@ export class BasicConfig {
   private _name: string;
   private _toolbar_color: string;
   private _image: string;
+  private _mode: string;
 
   constructor() {
     // nothing to do here
@@ -19,6 +20,10 @@ export class BasicConfig {
 
   get image(): string {
     return this._image;
+  }
+
+  get mode(): string {
+    return this._mode;
   }
 
   public fromJSON(json) {

@@ -1,8 +1,8 @@
-<mat-toolbar>
+<mat-toolbar *ngIf=" visible " [ngStyle]="headerColor()">
   <button mat-icon-button class="menu" (click)="drawer.toggle()">
     <mat-icon>menu</mat-icon>
   </button>
-  <span>My Application</span>
+  <span>{{ basicConfig?.name }}</span>
   <button mat-icon-button class="float-right" [matMenuTriggerFor]="menu">
     <mat-icon>more_vert</mat-icon>
   </button>
@@ -22,7 +22,7 @@
   </mat-menu>
 </mat-toolbar>
 <mat-drawer-container class="example-container" autosize>
-  <mat-drawer #drawer class="example-sidenav" mode="{{navMode}}" [opened]="true">
+  <mat-drawer *ngIf=" visible " #drawer class="example-sidenav" mode="{{navMode}}" [opened]="true">
     <mat-list>
       <h3 mat-subheader>Tools</h3>
       <mat-list-item *ngFor="let link of links">
@@ -39,14 +39,9 @@
       </mat-list-item>
     </mat-list>
   </mat-drawer>
-
   <div class="example-sidenav-content">
-
-
-
-
+    <router-outlet></router-outlet>
   </div>
-
 </mat-drawer-container>
 
 
