@@ -1,3 +1,6 @@
+[![CircleCI](https://circleci.com/gh/efraespada/turbine.svg?style=svg)](https://circleci.com/gh/efraespada/turbine)
+
+
 [ ![@efraespada/turbine](https://d25lcipzij17d.cloudfront.net/badge.svg?id=js&type=6&v=0.1.0&x2=0)](https://www.npmjs.com/package/@efraespada/turbine)
 
 # Turbine
