@@ -8,9 +8,9 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/node:7.10
-    branches:
-      - develop
-      - feature/app
+    filters:
+      branches:
+        only: develop
 
     # Specify service dependencies here if necessary
     # CircleCI maintains a library of pre-built images
