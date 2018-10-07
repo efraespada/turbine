@@ -1,12 +1,7 @@
 const log = require('single-line-log').stdout;
 const logjs = require('logjsx');
 
-// ip
-const Ip = require('./model/ip');
-let ip = new Ip();
-
 const Turbine = require('./index');
-console.log("ip: " + ip.ip());
 let turbine = new Turbine({
     "turbine_port": 4005,
     "turbine_ip": "http://localhost",
@@ -48,7 +43,6 @@ async function get(i = 0) {
     if (i < numReq) {
         let user = await turbine.get("database", "/users/" + randomString(28));
         // if (user && JSON.stringify(user) !== EMPTY_OBJECT) console.log(JSON.stringify(user));
-        printProgress(i + 1, numReq);
         await get(i + 1)
     }
 }
@@ -94,7 +88,6 @@ async function post(i = 0) {
                 }
             }
         });
-        printProgress(i + 1, numReq);
         await post(i + 1);
     }
 }
@@ -120,7 +113,6 @@ async function query(i = 0) {
 
          */
         // console.log(JSON.stringify(users));
-        printProgress(i + 1, numReq);
         await query(i + 1);
     }
 }
@@ -149,22 +141,6 @@ function randomOf(list = []) {
     return list[randomInt(list.length)];
 }
 
-function printProgress(value = 0, total = 100) {
-    let pT = 100;
-    let nPercent = 40;
-    //if (total % nPercent != 0) return;
-    let pVal = value / (total / nPercent);
-    let rVal = nPercent - pVal;
-    let p = "";
-    for (let i = 0; i < pVal; i++) {
-        p += "⬜️";
-    }
-    for (let i = 0; i < rVal; i++) {
-        p += "▫️";
-    }
-    //log(p + " " + Math.round(pT - 100 * (rVal / nPercent)) + "%")
-}
-
 
 /**
  * Testing get all user endpoint
@@ -175,6 +151,7 @@ describe('running puncher', function () {
         setTimeout(function () {
             test().then(function() {
                 logger.info("finish!");
+                turbine.stopServer();
                 done()
             });
         }, 10000);

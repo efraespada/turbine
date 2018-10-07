@@ -18,6 +18,7 @@ function Turbine(config) {
     this.uid = "turbine";
     this.log_dir = "";
     this.debug = false;
+    this.turbine_process = null;
 
     if (this.config !== undefined) {
         if (this.config.databases !== undefined && this.config.databases.length > 0) {
@@ -84,7 +85,7 @@ function Turbine(config) {
     /**
      * Initializes Turbine process
      */
-    this.server = function () {
+    this.server = () => {
         let turbine_config = {
             silent: false,
             uid: o.uid,
@@ -110,10 +111,12 @@ function Turbine(config) {
             errFile: __dirname + "/errFile.log"
         };
 
-        this.createDir(o.log_dir + o.uid + "/").then(function () {
-            let child = forever.start('./turbine.js', turbine_config);
+        this.createDir(o.log_dir + o.uid + "/").then(() => {
+            this.turbine_process = forever.start('./turbine.js', turbine_config);
         });
     };
+
+    this.stopServer = () => this.turbine_process.stop();
 
     /**
      * Returns the object of the given path
