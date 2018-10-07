@@ -1,6 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatButtonModule, MatCheckboxModule, MatToolbarModule, MatSidenavModule, MatMenuModule, MatIconModule } from '@angular/material';
+
 
 
 import { AppComponent } from './app.component';
@@ -40,7 +43,22 @@ import { ApiService } from "./services/api/api.service";
     AngularFireAuthModule,
     AngularFireStorageModule,
     HttpClientModule,
+    BrowserAnimationsModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatSidenavModule,
+    MatToolbarModule,
+    MatMenuModule,
+    MatIconModule,
     APP_ROUTING
+  ],
+  exports: [
+    MatButtonModule,
+    MatCheckboxModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatIconModule,
+    MatMenuModule
   ],
   providers: [
     AngularFireAuth,

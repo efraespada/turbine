@@ -3,6 +3,8 @@ import {Router} from "@angular/router";
 import {ApiService} from "../../services/api/api.service";
 import {BasicConfigCallback} from "../../services/api/basic_config_callback";
 import {BasicConfig} from "../../services/api/basic_config";
+import {AngularFireAuth} from "@angular/fire/auth";
+
 
 @Component({
   selector: 'app-header',
@@ -13,11 +15,9 @@ import {BasicConfig} from "../../services/api/basic_config";
 export class HeaderComponent implements OnInit {
 
   public visible: boolean = false;
-  public api: ApiService;
   public basicConfig: BasicConfig;
 
-  constructor(router: Router, api: ApiService) {
-    this.api = api;
+  constructor(router: Router, public api: ApiService) {
     let header = this;
     this.api.getBasicInfo(new class implements BasicConfigCallback {
       basicConfig(basicConfig: BasicConfig) {
@@ -35,7 +35,7 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit() {
-    // nothing to do here
+
   }
 
   headerColor() {

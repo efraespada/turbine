@@ -1,7 +1,5 @@
-`master: ` [![CircleCI](https://circleci.com/gh/efraespada/turbine/tree/master.svg?style=svg)](https://circleci.com/gh/efraespada/turbine/tree/master) | `develop: ` [![CircleCI](https://circleci.com/gh/efraespada/turbine/tree/develop.svg?style=svg)](https://circleci.com/gh/efraespada/turbine/tree/develop)
+[ ![@efraespada/turbine](https://d25lcipzij17d.cloudfront.net/badge.svg?id=js&type=6&v=0.1.0&x2=0)](https://www.npmjs.com/package/@efraespada/turbine) | `master: ` [![CircleCI](https://circleci.com/gh/efraespada/turbine/tree/master.svg?style=svg)](https://circleci.com/gh/efraespada/turbine/tree/master) | `develop: ` [![CircleCI](https://circleci.com/gh/efraespada/turbine/tree/develop.svg?style=svg)](https://circleci.com/gh/efraespada/turbine/tree/develop)
 
-
-[ ![@efraespada/turbine](https://d25lcipzij17d.cloudfront.net/badge.svg?id=js&type=6&v=0.1.0&x2=0)](https://www.npmjs.com/package/@efraespada/turbine)
 
 # Turbine
 

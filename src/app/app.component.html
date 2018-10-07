@@ -1,22 +1,26 @@
-<div class="bmd-layout-container bmd-drawer-f-l bmd-drawer-overlay">
-  <header class="bmd-layout-header">
-    <app-header></app-header>
-  </header>
-  <div id="dw-p1" class="bmd-layout-drawer bg-faded">
-    <header>
-      <a class="navbar-brand">Title</a>
-    </header>
-    <ul class="list-group">
-      <a class="list-group-item">Link 1</a>
-      <a class="list-group-item">Link 2</a>
-      <a class="list-group-item">Link 3</a>
-    </ul>
-  </div>
-  <main class="bmd-layout-content">
-    <div class="container">
-      <router-outlet></router-outlet>
-    </div>
-  </main>
-</div>
+<mat-toolbar>
+  <span>My Application</span>
+  <button mat-icon-button float-right [matMenuTriggerFor]="menu">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+  <mat-menu #menu="matMenu">
+    <button mat-menu-item>
+      <mat-icon>dialpad</mat-icon>
+      <span>Redial</span>
+    </button>
+    <button mat-menu-item disabled>
+      <mat-icon>voicemail</mat-icon>
+      <span>Check voicemail</span>
+    </button>
+    <button mat-menu-item>
+      <mat-icon>notifications_off</mat-icon>
+      <span>Disable alerts</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>
+<mat-sidenav-container>
+  <mat-sidenav>Start</mat-sidenav>
+  <mat-sidenav-content>Main</mat-sidenav-content>
+</mat-sidenav-container>
 
 
