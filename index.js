@@ -55,6 +55,7 @@ function Turbine(config) {
                     resolve(parsedBody)
                 })
                 .catch(function (err) {
+                    logger.error(err);
                     reject(err)
                 });
         });
@@ -73,6 +74,7 @@ function Turbine(config) {
                     resolve(parsedBody)
                 })
                 .catch(function (err) {
+                    logger.error(err);
                     reject(err)
                 });
         });
