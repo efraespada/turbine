@@ -1,9 +1,20 @@
 const log = require('single-line-log').stdout;
 const logjs = require('logjsx');
-const launcher = require('./launcher');
+
 // ip
 const Ip = require('./model/ip');
-let ip = new Ip()
+let ip = new Ip();
+
+const Turbine = require('./index');
+console.log("ip: " + ip.ip());
+let turbine = new Turbine({
+    "turbine_port": 4005,
+    "turbine_ip": "http://" + ip.ip(),
+    "databases": ["database"],
+    "debug": true
+});
+turbine.server();
+
 const logger = new logjs();
 
 const namesM = ["Marcos", "Hugo", "Juan", "Pablo", "Mario", "Adrian", "Walter", "Antonio", "Manolo", "Miguel",
@@ -20,15 +31,6 @@ logger.init({
 });
 const numReq = 100;
 const EMPTY_OBJECT = "{}";
-
-console.log("ip: " + ip.ip());
-
-const Turbine = require('./index');
-let turbine = new Turbine({
-    "turbine_port": 4005,
-    "turbine_ip": "http://" + ip.ip(),
-    "debug": true
-});
 
 function randomString(lenght) {
     let text = "";
