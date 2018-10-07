@@ -412,7 +412,7 @@ function DatabasesManager(configuration) {
 
     // init databases
     this.loadDatabases().then(function () {
-        console.log("Database manager ready in " + ((new Date().getTime() - _this.initOn)/1000) +  " secs");
+        console.log("database manager ready in " + ((new Date().getTime() - _this.initOn)/1000) +  " secs");
         Interval.run(function () {
             queue.pushJob(function () {
                 _this.save().then(function() {
