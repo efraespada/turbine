@@ -4,6 +4,8 @@ import {ApiService} from "./services/api/api.service";
 import {BasicConfigCallback} from "./services/api/basic_config_callback";
 import {BasicConfig} from "./services/api/basic_config";
 import {Router} from "@angular/router";
+import {GoogleAuthService} from "./services/google-auth/google-auth.service";
+import {RouterService} from "./services/router/router.service";
 
 @Component({
   selector: 'app-root',
@@ -15,12 +17,13 @@ export class AppComponent implements OnInit {
   navMode = 'side';
   basicConfig: BasicConfig;
   visible: boolean = false;
+  siging_out: boolean;
 
   public links = [];
 
   @ViewChild('drawer') matDrawer: MatDrawer;
 
-  constructor(router: Router, public api: ApiService) {
+  constructor(public routerService: RouterService, public router: Router, public api: ApiService, public gService: GoogleAuthService) {
     let csl = {
       name: "Console",
       description: "Test request",
@@ -42,7 +45,7 @@ export class AppComponent implements OnInit {
     });
     router.events.subscribe((val) => {
       this.visible = !(location.href.indexOf("/splash") > -1 || location.href.indexOf("/login") > -1 ||
-        location.href.indexOf("/admin") > -1 || location.href.indexOf("/error") > -1);
+        location.href.indexOf("/admin") > -1 || location.href.indexOf("/notification") > -1);
     });
   }
 
@@ -51,6 +54,11 @@ export class AppComponent implements OnInit {
     if (window.innerWidth < 768) {
       this.navMode = 'over';
     }
+    this.gService.update((logged) => {
+      if (!logged && !this.siging_out) {
+        this.routerService.goSplash()
+      }
+    }, location, "")
   }
 
   @HostListener('window:resize', ['$event'])
@@ -67,6 +75,11 @@ export class AppComponent implements OnInit {
     return {
       'background-color':  (this.basicConfig !== null && this.basicConfig !== undefined) ? this.basicConfig.toolbar_color : "#f5f5f5"
     }
+  }
+
+  logout() {
+    this.siging_out = true;
+    this.gService.logout()
   }
 
 }

@@ -28,6 +28,8 @@ import { GoogleAuthService } from "./services/google-auth/google-auth.service";
 import { ApiService } from "./services/api/api.service";
 import { AdminBodyComponent } from './components/admin-body/admin-body.component';
 import { ErrorBodyComponent } from './components/error-body/error-body.component';
+import {RouterService} from "./services/router/router.service";
+import {MessagesService} from "./services/messages/messages.service";
 
 
 @NgModule({
@@ -77,7 +79,9 @@ import { ErrorBodyComponent } from './components/error-body/error-body.component
   providers: [
     AngularFireAuth,
     GoogleAuthService,
-    ApiService
+    RouterService,
+    ApiService,
+    MessagesService
   ],
   bootstrap: [AppComponent]
 })

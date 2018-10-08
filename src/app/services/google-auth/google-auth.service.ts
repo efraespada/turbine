@@ -1,12 +1,13 @@
-import { Injectable } from '@angular/core';
-import { AngularFireAuth } from "@angular/fire/auth";
+import {Injectable} from '@angular/core';
+import {AngularFireAuth} from "@angular/fire/auth";
 import {auth} from "firebase";
 import {ApiService} from "../api/api.service";
 import {CreateAdminCallback} from "../api/create_admin_callback";
 import {BasicConfigCallback} from "../api/basic_config_callback";
 import {BasicConfig} from "../api/basic_config";
-import {Router} from "@angular/router";
 import {MatSnackBar} from "@angular/material";
+import {RouterService} from "../router/router.service";
+import {MessagesService} from "../messages/messages.service";
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,8 @@ export class GoogleAuthService {
 
   authState: any = null;
 
-  constructor(public afAuth: AngularFireAuth, private api: ApiService, public router: Router, public snackBar: MatSnackBar) {
+  constructor(public afAuth: AngularFireAuth, private api: ApiService, public snackBar: MatSnackBar
+    , public router: RouterService, public messages: MessagesService) {
     this.afAuth.authState.subscribe((auth) => {
       this.authState = auth
     });
@@ -42,7 +44,7 @@ export class GoogleAuthService {
     return this.authenticated ? this.authState.uid : '';
   }
 
-  login() {
+  login(adminLogin: boolean) {
     let provider = new auth.GoogleAuthProvider();
     provider.addScope('profile');
     provider.addScope('email');
@@ -50,10 +52,23 @@ export class GoogleAuthService {
     provider.setCustomParameters({
       'login_hint': 'your_mail@gmail.com'
     });
+
+    if (!adminLogin) {
+      this.snackBar.open('Login with Google account', null, {
+        duration: 2000
+      });
+    }
     this.afAuth.auth.signInWithPopup(provider).then((result) => {
-      // nothing to do here
-    }).catch(function(error) {
-      // nothing to do here
+      if (!adminLogin) {
+        this.snackBar.open('Welcome back ' + result.user.displayName, null, {
+          duration: 2000
+        });
+        setTimeout(() => {
+          this.router.goConsole();
+        }, 2500)
+      }
+    }).catch(function (error) {
+      // TODO go error page
     });
   }
 
@@ -62,7 +77,7 @@ export class GoogleAuthService {
       let gas = this;
       this.api.createAdmin(this.afAuth.auth.currentUser, new class implements CreateAdminCallback {
         created() {
-          gas.snackBar.open('Administrator created 👍',null, {
+          gas.snackBar.open('Administrator created 👍', null, {
             duration: 2000
           });
           setTimeout(() => {
@@ -71,21 +86,23 @@ export class GoogleAuthService {
               basicConfig(basicConfig: BasicConfig) {
                 if (basicConfig.mode === "first_run") {
                   console.error("still in first mode")
-                }  else {
+                } else {
                   gas.logout();
-                  gas.goLogin()
+                  gas.router.goLogin()
                 }
               }
+
               error(error: string) {
-                gas.logout();
-                gas.goSplash()
+                gas.messages.currentMessage = "see you soon";
+                gas.router.goError()
               }
             });
           }, 1000);
         }
+
         error(error: string) {
-          gas.logout();
-          gas.goSplash()
+          gas.messages.currentMessage = "see you soon";
+          gas.router.goError()
         }
       });
     }
@@ -94,23 +111,22 @@ export class GoogleAuthService {
   logout() {
     if (this.afAuth.auth.currentUser !== null && this.afAuth.auth.currentUser !== undefined) {
       this.afAuth.auth.signOut().then((result) => {
-        // nothing to do here
+        //this.router.close();
+        this.messages.currentMessage = "Signed out successfully";
+        this.router.goError()
       }).catch((error) => {
-        // nothing to do here
+        this.messages.currentMessage = "Error signing out";
+        this.router.goError()
       });
     }
   }
 
-  private goSplash() {
-    this.router.navigateByUrl('/splash').then(function () {
-      console.log("splash");
+  update(callback, location, tag) {
+    this.afAuth.authState.subscribe((auth) => {
+      if (location.pathname.startsWith("/" + tag))
+        callback(auth !== null);
     });
   }
 
-  private goLogin() {
-    this.router.navigateByUrl('/login').then(function () {
-      console.log("login");
-    });
-  }
 
 }

@@ -1,3 +1,13 @@
-<p>
-  error-body works!
-</p>
+<mat-card class="example-card">
+  <mat-card-content>
+    <p *ngIf="messages.currentMessage !== undefined && messages.currentMessage.length > 0">
+      {{ messages.currentMessage }}
+    </p>
+    <p *ngIf="messages.currentMessage === null || messages.currentMessage === undefined">
+      🧙‍♂️ - What are you doing here?
+    </p>
+  </mat-card-content>
+  <mat-card-actions>
+    <button (click)="router.goSplash()" color="primary" mat-button>OPEN {{ basicConfig?.name.toUpperCase() }}</button>
+  </mat-card-actions>
+</mat-card>

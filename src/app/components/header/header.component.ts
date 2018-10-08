@@ -3,16 +3,12 @@ import {Router} from "@angular/router";
 import {ApiService} from "../../services/api/api.service";
 import {BasicConfigCallback} from "../../services/api/basic_config_callback";
 import {BasicConfig} from "../../services/api/basic_config";
-import {AngularFireAuth} from "@angular/fire/auth";
 
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css'],
-  providers: [
-    AngularFireAuth
-  ]
+  styleUrls: ['./header.component.css']
 })
 
 export class HeaderComponent implements OnInit {

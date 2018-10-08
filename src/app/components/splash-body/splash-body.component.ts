@@ -1,65 +1,48 @@
-import { Component, OnInit } from '@angular/core';
-import {Router} from "@angular/router";
+import {Component, OnInit} from '@angular/core';
 import {ApiService} from "../../services/api/api.service";
 import {BasicConfigCallback} from "../../services/api/basic_config_callback";
 import {BasicConfig} from "../../services/api/basic_config";
 import {GoogleAuthService} from "../../services/google-auth/google-auth.service";
+import {RouterService} from "../../services/router/router.service";
 
 @Component({
   selector: 'app-splash-body',
   templateUrl: './splash-body.component.html',
-  styleUrls: ['./splash-body.component.css'],
-  providers: [
-    GoogleAuthService
-  ]
+  styleUrls: ['./splash-body.component.css']
 })
 
 export class SplashBodyComponent implements OnInit {
 
-  constructor(private gService: GoogleAuthService, private router: Router, public api: ApiService){
-    let sbc = this;
-    this.api.getBasicInfo(new class implements BasicConfigCallback {
-      basicConfig(basicConfig: BasicConfig) {
-        if (basicConfig.mode === "first_run") {
-          sbc.goAdmin();
-        } else if (!gService.authenticated) {
-          sbc.goLogin();
-        } else {
-          sbc.goConsole()
-        }
-      }
-      error(error: string) {
-        sbc.goError()
-      }
-    });
-  }
+  static TAG: string = 'splash';
 
-  ngOnInit() {
+  constructor(public gService: GoogleAuthService, public router: RouterService, public api: ApiService) {
     // nothing to do here
   }
 
-  private goLogin() {
-    this.router.navigateByUrl('/login').then(function () {
-      console.log("login");
-    });
-  }
+  ngOnInit() {
+    setTimeout(() => {
+      let r = this.router;
+      let g = this.gService;
+      this.api.getBasicInfo(new class implements BasicConfigCallback {
+        basicConfig(basicConfig: BasicConfig) {
+          g.update((logged) => {
+            if (basicConfig.mode === "first_run") {
+              r.goAdmin();
+            } else if (!logged) {
+              r.goLogin();
+            } else {
+              r.goConsole()
+            }
+          }, location, SplashBodyComponent.TAG);
+        }
 
-  private goAdmin() {
-    this.router.navigateByUrl('/admin').then(function () {
-      console.log("admin");
-    });
-  }
-
-  private goError() {
-    this.router.navigateByUrl('/error').then(function () {
-      console.log("error");
-    });
-  }
-
-  private goConsole() {
-    this.router.navigateByUrl('/console').then(function () {
-      console.log("console");
-    });
+        error(error: string) {
+          r.goError()
+        }
+      });
+    }, 2000);
   }
 
 }
+
+

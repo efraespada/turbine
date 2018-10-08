@@ -95,7 +95,6 @@ router.post('/', function (req, res) {
           res.status(406).send("💥");
         }
       } else if (req.body.method === "add_member" && req.body.user !== undefined) {
-        logger.debug("adding: " + JSON.stringify(req.body.user));
         config.access.addUser(req.body.user);
         res.json(req.body.user)
       } else {

@@ -8,28 +8,29 @@ import {GoogleAuthService} from "../../services/google-auth/google-auth.service"
 @Component({
   selector: 'app-admin-body',
   templateUrl: './admin-body.component.html',
-  styleUrls: ['./admin-body.component.css'],
-  providers: [
-    GoogleAuthService
-  ]
+  styleUrls: ['./admin-body.component.css']
 })
 export class AdminBodyComponent implements OnInit {
 
+  static TAG: string = "admin";
   basicConfig: BasicConfig;
 
-  constructor(router: Router, public api: ApiService, public gService: GoogleAuthService) {
-    let component = this;
-    this.api.getBasicInfo(new class implements BasicConfigCallback {
-      basicConfig(basicConfig: BasicConfig) {
-        component.basicConfig = basicConfig;
-      }
-      error(error: string) {
-        console.error(error)
-      }
-    });
+  constructor(public api: ApiService, public gService: GoogleAuthService) {
+    // nothing to do here
   }
 
   ngOnInit() {
+    this.gService.update(() => {
+      let component = this;
+      this.api.getBasicInfo(new class implements BasicConfigCallback {
+        basicConfig(basicConfig: BasicConfig) {
+          component.basicConfig = basicConfig;
+        }
+        error(error: string) {
+          console.error(error)
+        }
+      });
+    }, location, AdminBodyComponent.TAG);
   }
 
 
