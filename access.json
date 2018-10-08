@@ -1,1 +1,34 @@
-{}
+{
+    "7B0pPjljs5bPMUZzGgXs78jpe8R2": {
+        "uid": "7B0pPjljs5bPMUZzGgXs78jpe8R2",
+        "displayName": "Efra Espada",
+        "photoURL": "https://lh4.googleusercontent.com/-Ynmq9xxHmIk/AAAAAAAAAAI/AAAAAAAALcM/LkQv23S5zGg/photo.jpg",
+        "email": "efraespada@gmail.com",
+        "emailVerified": true,
+        "phoneNumber": null,
+        "isAnonymous": false,
+        "providerData": [
+            {
+                "uid": "101560513586122496423",
+                "displayName": "Efra Espada",
+                "photoURL": "https://lh4.googleusercontent.com/-Ynmq9xxHmIk/AAAAAAAAAAI/AAAAAAAALcM/LkQv23S5zGg/photo.jpg",
+                "email": "efraespada@gmail.com",
+                "phoneNumber": null,
+                "providerId": "google.com"
+            }
+        ],
+        "apiKey": "AIzaSyAtx8E_xHmqWFh66Ru96I5XvaKJehlmC8s",
+        "appName": "[DEFAULT]",
+        "authDomain": "turbine-ide.firebaseapp.com",
+        "stsTokenManager": {
+            "apiKey": "AIzaSyAtx8E_xHmqWFh66Ru96I5XvaKJehlmC8s",
+            "refreshToken": "AEXAG-fSLrNFOEfDB6iEG5PyFOnBoV0cNg1pHb0SF1QNh9LAh3aHPKVXS1HX0K9Ejep3Tl2csjB2SwCSq0ApWuolSyI3kahABdX-59AKmNWpN20b_Yv8jPlcRKIGJRWOYi2FhbaEsp8iUcN96gCuY3n_qf1p_A3kS24tAasrRBspEaiFfmwL50dCJpjLpQRKQhgMq0TDecfEFvtPGtzlxeuCAHQW4tmp2aPbl-xUXG_CdaHrk9Y8lIUx35j8AYsSEUz4VmAztXUqiy89CzF-FYnZdGi6yY6HMBAdWYoGZG7ze1KOwhHrUG4chYMD_A2_YYWkp7O9Pcc8heB0_URS3gqRf-ww1dNlqARSJGuXnLUQzuegFKE_E-A",
+            "accessToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjA2OThjZmNlMTgzNWZjNDZmNWVhZWZjOGJmOTMwNjk0OGQ2OTFmMGIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdHVyYmluZS1pZGUiLCJuYW1lIjoiRWZyYSBFc3BhZGEiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDQuZ29vZ2xldXNlcmNvbnRlbnQuY29tLy1Zbm1xOXh4SG1Jay9BQUFBQUFBQUFBSS9BQUFBQUFBQUxjTS9Ma1F2MjNTNXpHZy9waG90by5qcGciLCJhdWQiOiJ0dXJiaW5lLWlkZSIsImF1dGhfdGltZSI6MTUzODk0NDM2MiwidXNlcl9pZCI6IjdCMHBQamxqczViUE1VWnpHZ1hzNzhqcGU4UjIiLCJzdWIiOiI3QjBwUGpsanM1YlBNVVp6R2dYczc4anBlOFIyIiwiaWF0IjoxNTM4OTQ0MzYzLCJleHAiOjE1Mzg5NDc5NjMsImVtYWlsIjoiZWZyYWVzcGFkYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJnb29nbGUuY29tIjpbIjEwMTU2MDUxMzU4NjEyMjQ5NjQyMyJdLCJlbWFpbCI6WyJlZnJhZXNwYWRhQGdtYWlsLmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6Imdvb2dsZS5jb20ifX0.vUm3EEphxa1ixv6Nzvy8XYNs-PyMlZzlC_vN7qtbOyhvYEIqQhUX87_OhO1Q8MR31fvKf_CbFz92RqusRda6dC6FySrECZl2jXOCLCqEAdVtIS0aqeNKK4hFd2VG0URzrXUU0wfvi-NJsW5szHaACQPRYDJc2tuiQfLVtbg2bPCNdmSgnNvgb_TqQNS25zUSVZdq0fbAEjVmvvzt3a9GANLXY33eP9TBiE_73q69-IAdH4mf_qtI-fT8OeK5BHGAeBW_rCej17C26t-7sNNKnA8rk8CfynkeVv8NF2_Wr68Pg9Gt-uKeYWmI1cH-SgtUNp4mp1BeOJabOzZ-Kb4ETA",
+            "expirationTime": 1538947963164
+        },
+        "redirectEventId": null,
+        "lastLoginAt": "1538944362000",
+        "createdAt": "1525210852000",
+        "rol": "admin"
+    }
+}

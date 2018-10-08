@@ -3,6 +3,8 @@ import {HttpClient, HttpHeaders} from "@angular/common/http";
 import { environment } from "../../../environments/environment";
 import { BasicConfig} from "./basic_config";
 import { BasicConfigCallback } from "./basic_config_callback";
+import {User} from "firebase";
+import {CreateAdminCallback} from "./create_admin_callback";
 
 @Injectable({
   providedIn: 'root'
@@ -39,6 +41,29 @@ export class ApiService {
           callback.error(JSON.stringify(err))
         });
     }
+  }
+
+  public createAdmin(user: User, callback: CreateAdminCallback) {
+    let data = {
+      method: "add_member",
+      user: user
+    };
+    const headerDict = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Origin': '*'
+    };
+
+    const requestOptions = {
+      headers: new HttpHeaders(headerDict),
+    };
+    this.http.post(environment.turbine_ip + ":" + environment.turbine_port + "/", JSON.stringify(data), requestOptions).toPromise()
+      .then((res) => {
+        callback.created()
+      }).catch((err) => {
+        callback.error(JSON.stringify(err))
+      });
   }
 
   public cleanCache() {

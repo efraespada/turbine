@@ -41,6 +41,8 @@ function AccessManager() {
   this.validRequest = (params) => {
     if (this.isFirstRun()) {
       return params.method === "add_member" || params.method === "get_basic_info";
+    } else if (params.method === "add_member" || params.method === "get_basic_info") {
+      return true
     }
 
     if (params.token !== null && params.token !== undefined) {
@@ -55,9 +57,12 @@ function AccessManager() {
    * @param user
    */
   this.addUser = (user) => {
+    let rol = this.isFirstRun() ? "admin" : "collaborator";
     if (this.config === null || this.config === undefined) {
       this.config = {};
     }
+
+    user.rol = rol;
 
     if (user.uid != null && user.uid !== undefined) {
       if (this.config[user.uid] === undefined) {

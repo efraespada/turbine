@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatButtonModule, MatCheckboxModule, MatToolbarModule, MatSidenavModule, MatMenuModule, MatIconModule,
-  MatListModule, MatCardModule, MatChipsModule } from '@angular/material';
+  MatListModule, MatCardModule, MatChipsModule, MatSnackBarModule, MatProgressSpinnerModule } from '@angular/material';
 
 
 
@@ -57,6 +57,8 @@ import { ErrorBodyComponent } from './components/error-body/error-body.component
     MatListModule,
     MatCardModule,
     MatChipsModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
     APP_ROUTING
   ],
   exports: [
@@ -68,6 +70,8 @@ import { ErrorBodyComponent } from './components/error-body/error-body.component
     MatListModule,
     MatCardModule,
     MatChipsModule,
+    MatSnackBarModule,
+    MatProgressSpinnerModule,
     MatMenuModule
   ],
   providers: [

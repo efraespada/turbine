@@ -6,5 +6,5 @@
     "database"
   ],
   "debug": true,
-  "protect": false
+  "protect": true
 }

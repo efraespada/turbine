@@ -94,13 +94,10 @@ router.post('/', function (req, res) {
         } else {
           res.status(406).send("💥");
         }
-      } else if (req.body.method === "add_member") {
-        let app_profile = config.app_profile.getConfig();
-        if (app_profile === null) {
-          res.status(204).send("{}");
-        } else {
-          res.json(app_profile)
-        }
+      } else if (req.body.method === "add_member" && req.body.user !== undefined) {
+        logger.debug("adding: " + JSON.stringify(req.body.user));
+        config.access.addUser(req.body.user);
+        res.json(req.body.user)
       } else {
         res.status(406).send("💥");
       }

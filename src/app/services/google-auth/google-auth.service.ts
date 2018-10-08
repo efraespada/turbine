@@ -1,6 +1,12 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from "@angular/fire/auth";
 import {auth} from "firebase";
+import {ApiService} from "../api/api.service";
+import {CreateAdminCallback} from "../api/create_admin_callback";
+import {BasicConfigCallback} from "../api/basic_config_callback";
+import {BasicConfig} from "../api/basic_config";
+import {Router} from "@angular/router";
+import {MatSnackBar} from "@angular/material";
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +16,7 @@ export class GoogleAuthService {
 
   authState: any = null;
 
-  constructor(public afAuth: AngularFireAuth) {
+  constructor(public afAuth: AngularFireAuth, private api: ApiService, public router: Router, public snackBar: MatSnackBar) {
     this.afAuth.authState.subscribe((auth) => {
       this.authState = auth
     });
@@ -51,6 +57,40 @@ export class GoogleAuthService {
     });
   }
 
+  createAdmin() {
+    if (this.authenticated) {
+      let gas = this;
+      this.api.createAdmin(this.afAuth.auth.currentUser, new class implements CreateAdminCallback {
+        created() {
+          gas.snackBar.open('Administrator created 👍',null, {
+            duration: 2000
+          });
+          setTimeout(() => {
+            gas.api.cleanCache();
+            gas.api.getBasicInfo(new class implements BasicConfigCallback {
+              basicConfig(basicConfig: BasicConfig) {
+                if (basicConfig.mode === "first_run") {
+                  console.error("still in first mode")
+                }  else {
+                  gas.logout();
+                  gas.goLogin()
+                }
+              }
+              error(error: string) {
+                gas.logout();
+                gas.goSplash()
+              }
+            });
+          }, 1000);
+        }
+        error(error: string) {
+          gas.logout();
+          gas.goSplash()
+        }
+      });
+    }
+  }
+
   logout() {
     if (this.afAuth.auth.currentUser !== null && this.afAuth.auth.currentUser !== undefined) {
       this.afAuth.auth.signOut().then((result) => {
@@ -59,6 +99,18 @@ export class GoogleAuthService {
         // nothing to do here
       });
     }
+  }
+
+  private goSplash() {
+    this.router.navigateByUrl('/splash').then(function () {
+      console.log("splash");
+    });
+  }
+
+  private goLogin() {
+    this.router.navigateByUrl('/login').then(function () {
+      console.log("login");
+    });
   }
 
 }
