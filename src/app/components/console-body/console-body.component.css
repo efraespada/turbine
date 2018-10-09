@@ -1,6 +1,6 @@
 .example-form {
-  min-width: 150px;
-  max-width: 500px;
+  min-width: 350px;
+  max-width: 700px;
   width: 100%;
 }
 .text-area-min {
@@ -16,6 +16,6 @@
 
 .inline {
   display: inline-block;
-  width: 40%;
-  margin: 15px;
+  vertical-align: top;
+  margin: 8px;
 }

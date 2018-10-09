@@ -37,8 +37,17 @@ export class AppComponent implements OnInit {
 
       }
     };
+    let mon = {
+      name: "Monitor",
+      description: "Live chart",
+      icon: "show_chart",
+      click: () => {
+
+      }
+    };
     let component = this;
     this.links.push(csl);
+    this.links.push(mon);
 
     this.api.getBasicInfo(new class implements BasicConfigCallback {
       basicConfig(basicConfig: BasicConfig) {
