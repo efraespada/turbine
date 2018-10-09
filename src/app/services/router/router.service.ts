@@ -4,6 +4,7 @@ import {Router} from "@angular/router";
 @Injectable({
   providedIn: 'root'
 })
+
 export class RouterService {
 
   constructor(public router: Router) {
@@ -12,31 +13,31 @@ export class RouterService {
 
   public goSplash() {
     this.router.navigateByUrl('/splash').then(function () {
-      console.log("splash");
+      // nothing to do here
     });
   }
 
   public goLogin() {
     this.router.navigateByUrl('/login').then(function () {
-      console.log("login");
+      // nothing to do here
     });
   }
 
   public goConsole() {
     this.router.navigateByUrl('/console').then(function () {
-      console.log("console");
+      // nothing to do here
     });
   }
 
   public goAdmin() {
     this.router.navigateByUrl('/admin').then(function () {
-      console.log("admin");
+      // nothing to do here
     });
   }
 
   public goError() {
     this.router.navigateByUrl('/notification').then(function () {
-      console.log("notification");
+      // nothing to do here
     });
   }
 

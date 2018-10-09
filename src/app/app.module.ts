@@ -2,8 +2,21 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule, MatCheckboxModule, MatToolbarModule, MatSidenavModule, MatMenuModule, MatIconModule,
-  MatListModule, MatCardModule, MatChipsModule, MatSnackBarModule, MatProgressSpinnerModule } from '@angular/material';
+import {
+  MatButtonModule,
+  MatCheckboxModule,
+  MatToolbarModule,
+  MatSidenavModule,
+  MatMenuModule,
+  MatIconModule,
+  MatListModule,
+  MatCardModule,
+  MatChipsModule,
+  MatSnackBarModule,
+  MatProgressSpinnerModule,
+  MatFormFieldModule,
+  MatInputModule, MatAutocompleteModule, MatTabsModule
+} from '@angular/material';
 
 
 
@@ -60,6 +73,10 @@ import {MessagesService} from "./services/messages/messages.service";
     MatCardModule,
     MatChipsModule,
     MatSnackBarModule,
+    MatAutocompleteModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTabsModule,
     MatProgressSpinnerModule,
     APP_ROUTING
   ],
@@ -72,7 +89,11 @@ import {MessagesService} from "./services/messages/messages.service";
     MatListModule,
     MatCardModule,
     MatChipsModule,
+    MatInputModule,
     MatSnackBarModule,
+    MatFormFieldModule,
+    MatAutocompleteModule,
+    MatTabsModule,
     MatProgressSpinnerModule,
     MatMenuModule
   ],

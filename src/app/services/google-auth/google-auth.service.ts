@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {AngularFireAuth} from "@angular/fire/auth";
-import {auth} from "firebase";
+import {auth, User} from "firebase";
 import {ApiService} from "../api/api.service";
 import {CreateAdminCallback} from "../api/create_admin_callback";
 import {BasicConfigCallback} from "../api/basic_config_callback";
@@ -8,6 +8,7 @@ import {BasicConfig} from "../api/basic_config";
 import {MatSnackBar} from "@angular/material";
 import {RouterService} from "../router/router.service";
 import {MessagesService} from "../messages/messages.service";
+import {LoginCallback} from "../api/login_callback";
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ import {MessagesService} from "../messages/messages.service";
 export class GoogleAuthService {
 
   authState: any = null;
+  private _apiKey: string;
 
   constructor(public afAuth: AngularFireAuth, private api: ApiService, public snackBar: MatSnackBar
     , public router: RouterService, public messages: MessagesService) {
@@ -58,17 +60,36 @@ export class GoogleAuthService {
         duration: 2000
       });
     }
+    let g = this;
     this.afAuth.auth.signInWithPopup(provider).then((result) => {
       if (!adminLogin) {
-        this.snackBar.open('Welcome back ' + result.user.displayName, null, {
-          duration: 2000
-        });
-        setTimeout(() => {
-          this.router.goConsole();
-        }, 2500)
+        this.internalLogin(result.user);
       }
     }).catch(function (error) {
       // TODO go error page
+    });
+  }
+
+  private internalLogin(user: User) {
+    let g = this;
+    this.api.login(user, new class implements LoginCallback {
+      apiKey(apiKey: string) {
+        g.apiKey = apiKey;
+        g.api.apiKey = g.apiKey;
+        console.info("apiKey: " + apiKey);
+        g.snackBar.open('Welcome back ' + user.displayName, null, {
+          duration: 2000
+        });
+        setTimeout(() => {
+          g.router.goConsole();
+        }, 2500)
+      }
+
+      error(error: string) {
+        g.logout(false);
+        g.messages.currentMessage = "Error login user: " + error + " [" + error.length + "]";
+        g.router.goError()
+      }
     });
   }
 
@@ -87,7 +108,7 @@ export class GoogleAuthService {
                 if (basicConfig.mode === "first_run") {
                   console.error("still in first mode")
                 } else {
-                  gas.logout();
+                  gas.logout(false);
                   gas.router.goLogin()
                 }
               }
@@ -108,25 +129,37 @@ export class GoogleAuthService {
     }
   }
 
-  logout() {
+  logout(with_message: boolean) {
     if (this.afAuth.auth.currentUser !== null && this.afAuth.auth.currentUser !== undefined) {
       this.afAuth.auth.signOut().then((result) => {
         //this.router.close();
-        this.messages.currentMessage = "Signed out successfully";
-        this.router.goError()
+        if (with_message) {
+          this.messages.currentMessage = "Signed out successfully";
+          this.router.goError()
+        }
       }).catch((error) => {
-        this.messages.currentMessage = "Error signing out";
-        this.router.goError()
+        if (with_message) {
+          this.messages.currentMessage = "Error signing out";
+          this.router.goError()
+        }
       });
     }
   }
 
   update(callback, location, tag) {
     this.afAuth.authState.subscribe((auth) => {
+      this.api.user = auth;
       if (location.pathname.startsWith("/" + tag))
         callback(auth !== null);
     });
   }
 
 
+  get apiKey(): string {
+    return this._apiKey;
+  }
+
+  set apiKey(value: string) {
+    this._apiKey = value;
+  }
 }

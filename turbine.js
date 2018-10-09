@@ -143,6 +143,19 @@ router.get('/', function (req, res) {
         }
         app_profile.mode = config.access.isFirstRun() ? "first_run" : "manager";
         res.json(app_profile)
+      } else if (req.query.method === "login") {
+        if (config.access.verifyAccount(req.query)) {
+          let api = config.access.getApiKey(req.query);
+          if (api === null) {
+            res.status(403).send("🖕");
+          } else {
+            res.json(api)
+          }
+        } else {
+          res.status(403).send("🖕");
+        }
+      } else if (req.query.method === "get_databases_info") {
+        res.json(databaseManager.getDatabasesInfo());
       } else {
         res.status(406).send("💥");
       }

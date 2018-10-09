@@ -1,3 +1,33 @@
-<p>
-  console-body works!
-</p>
+<mat-card>
+  <form class="example-form">
+
+    <mat-form-field class="example-full-width">
+      <input matInput placeholder="Database">
+    </mat-form-field>
+
+    <mat-form-field class="example-full-width">
+      <input matInput placeholder="Path">
+    </mat-form-field>
+
+    <mat-tab-group>
+      <mat-tab label="GET">
+        <mat-form-field class="example-full-width">
+          <textarea matInput class="text-area-min" placeholder="Mask"></textarea>
+        </mat-form-field>
+      </mat-tab>
+      <mat-tab label="QUERY">
+        <mat-form-field class="example-full-width">
+          <textarea matInput class="text-area-min" #query placeholder="Query"></textarea>
+        </mat-form-field>
+        <mat-form-field class="example-full-width">
+          <textarea matInput class="text-area-min" placeholder="Mask"></textarea>
+        </mat-form-field>
+      </mat-tab>
+      <mat-tab label="POST">
+        <mat-form-field class="example-full-width">
+          <textarea matInput class="text-area-min" placeholder="Mask"></textarea>
+        </mat-form-field>
+      </mat-tab>
+    </mat-tab-group>
+  </form>
+</mat-card>

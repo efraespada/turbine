@@ -18,9 +18,7 @@ export class MessagesService {
   }
 
   set currentMessage(value: string) {
-    console.log("_currentMessage A: " + this._currentMessage)
     this._currentMessage = value;
-    console.log("_currentMessage B: " + this._currentMessage)
   }
 
   get currentType(): string {

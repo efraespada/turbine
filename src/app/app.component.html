@@ -28,10 +28,10 @@
       </mat-list-item>
       <mat-divider></mat-divider>
       <h3 mat-subheader>Databases</h3>
-      <mat-list-item *ngFor="let link of links">
+      <mat-list-item *ngFor="let database of databases">
         <mat-icon mat-list-icon>note</mat-icon>
-        <h4 mat-line>{{link.name}}</h4>
-        <p mat-line> {{link.name}} </p>
+        <h4 mat-line>{{database.name}}</h4>
+        <p mat-line> {{database.total_size}} </p>
       </mat-list-item>
     </mat-list>
   </mat-drawer>

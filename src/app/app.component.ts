@@ -6,6 +6,8 @@ import {BasicConfig} from "./services/api/basic_config";
 import {Router} from "@angular/router";
 import {GoogleAuthService} from "./services/google-auth/google-auth.service";
 import {RouterService} from "./services/router/router.service";
+import {DatabasesInfoCallback} from "./services/api/databases_info_callback";
+import {MessagesService} from "./services/messages/messages.service";
 
 @Component({
   selector: 'app-root',
@@ -18,12 +20,15 @@ export class AppComponent implements OnInit {
   basicConfig: BasicConfig;
   visible: boolean = false;
   siging_out: boolean;
+  databases;
 
   public links = [];
 
   @ViewChild('drawer') matDrawer: MatDrawer;
 
-  constructor(public routerService: RouterService, public router: Router, public api: ApiService, public gService: GoogleAuthService) {
+  constructor(public routerService: RouterService, public router: Router, public api: ApiService,
+              public gService: GoogleAuthService, public messagesService: MessagesService) {
+    this.databases = [];
     let csl = {
       name: "Console",
       description: "Test request",
@@ -57,6 +62,29 @@ export class AppComponent implements OnInit {
     this.gService.update((logged) => {
       if (!logged && !this.siging_out) {
         this.routerService.goSplash()
+      } else if (logged) {
+        let view = this;
+        this.api.getDatabaseInfo(new class implements DatabasesInfoCallback {
+          info(data: any) {
+            view.databases = [];
+            let databases_name = Object.keys(data);
+            for (let name in databases_name) {
+              console.log("name: " + JSON.stringify(data[databases_name[name]]));
+              let collection_keys = Object.keys(data[databases_name[name]].collections);
+              let size = 0;
+              for (let i in collection_keys) {
+                size += data[databases_name[name]].collections[collection_keys[i]].length
+              }
+              data[databases_name[name]].collections = collection_keys.length;
+              data[databases_name[name]].total_size = size;
+              view.databases.push(data[databases_name[name]])
+            }
+          }
+          error(error: string) {
+            view.messagesService.currentMessage = "Error getting databases info: " + error;
+            view.routerService.goError()
+          }
+        })
       }
     }, location, "")
   }
@@ -79,7 +107,7 @@ export class AppComponent implements OnInit {
 
   logout() {
     this.siging_out = true;
-    this.gService.logout()
+    this.gService.logout(true)
   }
 
 }

@@ -1,4 +1,5 @@
 const JsonDB = require('node-json-db');
+const sha1 = require('sha1');
 const logjs = require('logjsx');
 const logger = new logjs();
 const SLASH = "/";
@@ -40,13 +41,44 @@ function AccessManager() {
    */
   this.validRequest = (params) => {
     if (this.isFirstRun()) {
-      return params.method === "add_member" || params.method === "get_basic_info";
-    } else if (params.method === "add_member" || params.method === "get_basic_info") {
+      return params.method === "add_member" || params.method === "get_basic_info" || params.method === "login";
+    } else if (params.method === "add_member" || params.method === "get_basic_info" || params.method === "login") {
       return true
     }
 
-    if (params.token !== null && params.token !== undefined) {
-      return Object.keys(this.config).indexOf(params.token) > -1
+    if (params.apiKey !== null && params.apiKey !== undefined && params.uid !== null && params.uid !== undefined) {
+      return this.config[params.uid] !== undefined && this.config[params.uid].apiKey === params.apiKey;
+    } else {
+      return false;
+    }
+  };
+
+  this.getApiKey = (params) => {
+    if (params.user !== undefined) {
+      let u = JSON.parse(params.user);
+      if (u.uid !== undefined && this.config[u.uid] !== undefined) {
+        return {apiKey: this.config[u.uid].apiKey};
+      } else {
+        return null
+      }
+    } else {
+      return null
+    }
+  };
+
+  this.verifyAccount = (params) => {
+    if (params.user !== undefined) {
+      let u = JSON.parse(params.user);
+      if (u.uid !== undefined && this.config[u.uid] !== undefined) {
+        if (this.config[u.uid].locked !== undefined) {
+          u.locked = this.config[u.uid].locked;
+        }
+        this.addUser(u);
+        return (this.config[u.uid].locked === undefined || !this.config[u.uid].locked) &&
+          this.config[u.uid].email === u.email;
+      } else {
+        return false;
+      }
     } else {
       return false;
     }
@@ -63,6 +95,7 @@ function AccessManager() {
     }
 
     user.rol = rol;
+    user.apiKey = sha1(user.uid + user.email + user.apiKey);
 
     if (user.uid != null && user.uid !== undefined) {
       if (this.config[user.uid] === undefined) {

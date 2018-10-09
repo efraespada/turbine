@@ -1,0 +1,21 @@
+.example-form {
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+.text-area-min {
+  min-height: 150px;
+  max-height: 200px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.example-full-width {
+  width: 100%;
+}
+
+.inline {
+  display: inline-block;
+  width: 40%;
+  margin: 15px;
+}

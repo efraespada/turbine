@@ -16,6 +16,6 @@
   </mat-card-content>
   <mat-card-actions>
     <button mat-button color="primary" (click)="!gService.authenticated ? gService.login(true) : gService.createAdmin()">NEXT</button>
-    <button *ngIf=" gService.authenticated " (click)="gService.logout()" mat-button>CANCEL</button>
+    <button *ngIf=" gService.authenticated " (click)="gService.logout(false)" mat-button>CANCEL</button>
   </mat-card-actions>
 </mat-card>
