@@ -135,40 +135,15 @@ function Turbine(config) {
   };
 
   this.startApp = async function (callback) {
-    let process = "app";
-    let app_config = {
-      silent: false,
-      uid: process,
-      pidFile: "./" + process + ".pid",
-      max: 10,
-      killTree: true,
-
-      minUptime: 2000,
-      spinSleepTime: 1000,
-
-      args: [],
-
-      watch: false,
-      watchIgnoreDotFiles: null,
-      watchIgnorePatterns: null,
-      watchDirectory: null,
-
-      logFile: __dirname + "/" + o.log_dir + process + "/logFile.log",
-      outFile: __dirname + "/" + o.log_dir + process + "/outFile.log",
-      errFile: __dirname + "/" + o.log_dir + process + "/errFile.log"
-    };
-
-    this.createDir(o.log_dir + process + "/").then(function () {
-      app.use('/', express.static(path.join(__dirname, 'dist/turbine-app/')));
-      app.all('/*', function(req, res, next) {
-        if (req.originalUrl.indexOf(".css/") > -1 || req.originalUrl.indexOf(".js/") > -1) {
-          res.sendFile('dist/turbine-app/' + req.originalUrl.substring(0, req.originalUrl.length - 1) , { root: __dirname });
-        } else {
-          res.sendFile('dist/turbine-app/index.html' , { root: __dirname });
-        }
-      });
-      o.app_process = app.listen(o.app_port, () => callback());
+    app.use('/', express.static(path.join(__dirname, 'dist/turbine-app/')));
+    app.all('/*', function(req, res, next) {
+      if (req.originalUrl.indexOf(".css/") > -1 || req.originalUrl.indexOf(".js/") > -1) {
+        res.sendFile('dist/turbine-app/' + req.originalUrl.substring(0, req.originalUrl.length - 1) , { root: __dirname });
+      } else {
+        res.sendFile('dist/turbine-app/index.html' , { root: __dirname });
+      }
     });
+    o.app_process = app.listen(o.app_port, () => callback());
   };
 
   /**
