@@ -18,13 +18,11 @@ import {
   MatInputModule, MatAutocompleteModule, MatTabsModule, MatDialogModule
 } from '@angular/material';
 
-
-
+import { environment } from "../assets/config"
 import { AppComponent } from './app.component';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireStorageModule } from '@angular/fire/storage';
 import { AngularFireAuth, AngularFireAuthModule } from '@angular/fire/auth';
-import { environment } from '../environments/environment';
 
 // routes
 import { APP_ROUTING } from "./app.routes";

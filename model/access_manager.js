@@ -100,10 +100,8 @@ function AccessManager() {
     if (user.uid != null && user.uid !== undefined) {
       if (this.config[user.uid] === undefined) {
         this.config[user.uid] = user;
-        logger.info("user " + user.displayName !== undefined ? user.displayName : "" + " successfully")
       } else {
         this.config[user.uid] = user;
-        logger.warn("user " + user.displayName !== undefined ? user.displayName : "" + " already exists, updated")
       }
       if (this.jsondb === null) {
         this.jsondb = new JsonDB("access", true, true);

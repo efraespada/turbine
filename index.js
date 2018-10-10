@@ -2,18 +2,23 @@ const forever = require('forever-monitor');
 const rp = require('request-promise');
 const express = require('express');
 const app = express();
+const JsonDB = require('node-json-db');
 const logjs = require('logjsx');
 const fs = require('fs');
 const path = require('path');
 const logger = new logjs();
+const SLASH = "/";
+
 logger.init({
   level: "DEBUG"
 });
 
-function Turbine(config) {
+
+function Turbine(config, application_config) {
 
   let o = this;
   this.config = config;
+  this.application_config = application_config;
   this.turbine_ip = "http://localhost";
   this.turbine_port = 7285;
   this.app_port = 7286;
@@ -120,13 +125,14 @@ function Turbine(config) {
       errFile: __dirname + "/" + o.log_dir + process + "/errFile.log"
     };
 
-    o.createDir(o.log_dir + process + "/").then(function () {
-      o.turbine_process = forever.start('./turbine.js', turbine_config);
-      o.startApp(function () {
-        logger.info(`Turbine app started (${o.app_port})`);
+    this.prepareConfigFiles(this.application_config, () => {
+      o.createDir(o.log_dir + process + "/").then(function () {
+        o.turbine_process = forever.start('./turbine.js', turbine_config);
+        o.startApp(function () {
+          logger.info(`Turbine app started (${o.app_port})`);
+        });
       });
     });
-
   };
 
   this.stopServer = () => {
@@ -137,7 +143,7 @@ function Turbine(config) {
   this.startApp = async function (callback) {
     app.use('/', express.static(path.join(__dirname, 'dist/turbine-app/')));
     app.all('/*', function(req, res, next) {
-      if (req.originalUrl.indexOf(".css/") > -1 || req.originalUrl.indexOf(".js/") > -1) {
+      if (req.originalUrl.indexOf(".css/") > -1 || req.originalUrl.indexOf(".js/") > -1 || req.originalUrl.indexOf(".json/") > -1) {
         res.sendFile('dist/turbine-app/' + req.originalUrl.substring(0, req.originalUrl.length - 1) , { root: __dirname });
       } else {
         res.sendFile('dist/turbine-app/index.html' , { root: __dirname });
@@ -146,7 +152,25 @@ function Turbine(config) {
     o.app_process = app.listen(o.app_port, () => callback());
   };
 
-  /**
+  this.prepareConfigFiles = function (config, callback) {
+    let content = "export const environment = " + JSON.stringify(config) + ";";
+    this.writeFile(__dirname + "/dist/turbine-app/assets/config.ts", content, (err) => {
+      let devPath = __dirname + "/src/assets";
+      if (fs.existsSync(devPath)) {
+        this.writeFile(devPath + "/config.ts", content, (err) => {
+          callback()
+        });
+      } else {
+        callback();
+      }
+    });
+  };
+
+  this.writeFile = (path_file, content, callback) => {
+    fs.writeFile(path_file, content, callback);
+  };
+
+    /**
    * Returns the object of the given path
    * @param database -> myDatabase
    * @param path

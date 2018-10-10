@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
-import { environment } from "../../../environments/environment";
-import { BasicConfig} from "./basic_config";
-import { BasicConfigCallback } from "./basic_config_callback";
+import {BasicConfig} from "./basic_config";
+import {BasicConfigCallback} from "./basic_config_callback";
 import {User} from "firebase";
 import {CreateAdminCallback} from "./create_admin_callback";
 import {LoginCallback} from "./login_callback";
 import {DatabasesInfoCallback} from "./databases_info_callback";
+import {environment} from "../../../assets/config";
 
 @Injectable({
   providedIn: 'root'
@@ -112,7 +112,7 @@ export class ApiService {
           callback.error(e.toString());
         }
       }).catch((err) => {
-        console.error(JSON.stringify(err));
+      console.error(JSON.stringify(err));
       callback.error(err.status + " " + err.statusText + " (" + err.error + ")");
     });
 

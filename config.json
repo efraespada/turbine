@@ -4,13 +4,7 @@
     "turbine_ip": "http://localhost",
     "databases": [
         "database",
-        "dddd",
-        "asdcsDC",
-        "DSCdsc",
-        "lalalal",
-        "test",
-        "test2",
-        "hvhgvjmhgc"
+        "sample"
     ],
     "debug": true,
     "protect": true
