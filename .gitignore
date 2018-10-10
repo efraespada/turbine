@@ -45,4 +45,7 @@ Thumbs.db
 logs/
 .DS_Store
 
+access.json
+config.json
+
 data/
