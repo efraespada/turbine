@@ -41,6 +41,12 @@ export class RouterService {
     });
   }
 
+  public goMonitor() {
+    this.router.navigateByUrl('/monitor').then(function () {
+      // nothing to do here
+    });
+  }
+
 }
 
 

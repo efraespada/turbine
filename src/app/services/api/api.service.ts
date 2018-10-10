@@ -14,6 +14,7 @@ import {DatabasesInfoCallback} from "./databases_info_callback";
 export class ApiService {
 
   private _config: BasicConfig = null;
+  public _databases_info: any = null;
   private _apiKey: string = null;
   private _user: User = null;
 
@@ -82,6 +83,7 @@ export class ApiService {
     this.http.get(environment.turbine_ip + ":" + environment.turbine_port + "/?method=get_databases_info&apiKey="
       + this._apiKey + "&uid=" + this._user.uid, requestOptions).toPromise()
       .then((res) => {
+        this._databases_info = res;
         callback.info(res)
       }).catch((err) => {
       console.error(err.toString());
@@ -139,10 +141,62 @@ export class ApiService {
     });
   }
 
+  public createDatabase(name: string, callback: DatabasesInfoCallback) {
+    if (this._user === null) {
+      callback.error("not_logged_yet");
+      return
+    }
+    if (this._apiKey !== null && this._apiKey !== undefined) {
+      this.internalCreateDatabase(name, this._user, callback)
+    } else {
+      let a = this;
+      this.login(this._user, new class implements LoginCallback {
+        apiKey(apiKey: string) {
+          a._apiKey = apiKey;
+          console.info("apiKey 3: " + apiKey);
+          a.internalCreateDatabase(name, a._user, callback)
+        }
+
+        error(error: string) {
+          callback.error(error)
+        }
+      })
+    }
+  }
+
+  private internalCreateDatabase(name: string, user: User, callback: DatabasesInfoCallback) {
+    let data = {
+      method: "create_database",
+      uid: user.uid,
+      apiKey: this._apiKey,
+      name: name
+    };
+    const headerDict = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Origin': '*'
+    };
+
+    const requestOptions = {
+      headers: new HttpHeaders(headerDict),
+    };
+    this.http.post(environment.turbine_ip + ":" + environment.turbine_port + "/", JSON.stringify(data), requestOptions).toPromise()
+      .then((res) => {
+        this._databases_info = res;
+        callback.info(res)
+      }).catch((err) => {
+      callback.error(JSON.stringify(err))
+    });
+  }
+
   public cleanCache() {
     this._config = null;
   }
 
+  public cleanCacheDatabases() {
+    this._databases_info = null;
+  }
 
   get apiKey(): string {
     return this._apiKey;
@@ -160,4 +214,13 @@ export class ApiService {
   set user(value: firebase.User) {
     this._user = value;
   }
+
+  get databases_info(): any {
+    return this._databases_info;
+  }
+
+  set databases_info(value: any) {
+    this._databases_info = value;
+  }
+
 }

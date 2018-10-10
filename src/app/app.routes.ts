@@ -4,6 +4,7 @@ import {LoginBodyComponent} from "./components/login-body/login-body.component";
 import {ConsoleBodyComponent} from "./components/console-body/console-body.component";
 import {AdminBodyComponent} from "./components/admin-body/admin-body.component";
 import {ErrorBodyComponent} from "./components/error-body/error-body.component";
+import {MonitorBodyComponent} from "./components/monitor-body/monitor-body.component";
 
 const APP_ROUTES: Routes = [
   {path: SplashBodyComponent.TAG, component: SplashBodyComponent},
@@ -11,6 +12,7 @@ const APP_ROUTES: Routes = [
   {path: AdminBodyComponent.TAG, component: AdminBodyComponent},
   {path: ConsoleBodyComponent.TAG, component: ConsoleBodyComponent},
   {path: ErrorBodyComponent.TAG, component: ErrorBodyComponent},
+  {path: MonitorBodyComponent.TAG, component: MonitorBodyComponent},
   {path: '**', pathMatch: 'full', redirectTo: SplashBodyComponent.TAG}
 ];
 

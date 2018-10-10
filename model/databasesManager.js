@@ -6,6 +6,7 @@ const log = require('single-line-log').stdout;
 const Utils = require('./utils.js');
 const Database = require('./database.js');
 const RecursiveIterator = require('recursive-iterator');
+const JsonDB = require('node-json-db');
 const Interval = require('Interval');
 const SN = require('sync-node');
 const queue = SN.createQueue();
@@ -433,7 +434,18 @@ function DatabasesManager(configuration) {
     return data;
   };
 
-  // init databases
+  this.createDatabase = async function (name) {
+    if (this.configuration.databases.indexOf(name) == -1) {
+      this.configuration.databases.push(name);
+      await this.loadSingleDatabase(name);
+      let _db = new JsonDB("config", true, true);
+      _db.push(SLASH, this.configuration);
+      return true;
+    }
+    return false;
+  };
+
+    // init databases
   this.loadDatabases().then(function () {
     console.log("database manager ready in " + ((new Date().getTime() - _this.initOn) / 1000) + " secs");
     Interval.run(function () {

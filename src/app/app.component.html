@@ -21,16 +21,16 @@
   <mat-drawer *ngIf=" visible " #drawer class="example-sidenav" mode="{{navMode}}" [opened]="true">
     <mat-nav-list>
       <h3 mat-subheader>Tools</h3>
-      <mat-list-item *ngFor="let link of links">
+      <a mat-list-item (click)="link.click()" *ngFor="let link of links">
         <mat-icon mat-list-icon>{{link.icon}}</mat-icon>
         <h4 mat-line>{{link.name}}</h4>
         <p mat-line> {{link.description}} </p>
-      </mat-list-item>
+      </a>
 
       <mat-divider></mat-divider>
 
       <h3 mat-subheader>Databases</h3>
-      <a mat-list-item>
+      <a mat-list-item (click)="openDialog()">
         <mat-icon mat-list-icon>playlist_add</mat-icon>
         <p mat-line>New Database</p>
       </a>

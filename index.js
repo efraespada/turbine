@@ -135,7 +135,6 @@ function Turbine(config) {
   };
 
   this.startApp = async function (callback) {
-    /*
     app.use('/', express.static(path.join(__dirname, 'dist/turbine-app/')));
     app.all('/*', function(req, res, next) {
       if (req.originalUrl.indexOf(".css/") > -1 || req.originalUrl.indexOf(".js/") > -1) {
@@ -145,7 +144,6 @@ function Turbine(config) {
       }
     });
     o.app_process = app.listen(o.app_port, () => callback());
-    */
   };
 
   /**

@@ -15,7 +15,7 @@ import {
   MatSnackBarModule,
   MatProgressSpinnerModule,
   MatFormFieldModule,
-  MatInputModule, MatAutocompleteModule, MatTabsModule
+  MatInputModule, MatAutocompleteModule, MatTabsModule, MatDialogModule
 } from '@angular/material';
 
 
@@ -30,7 +30,6 @@ import { environment } from '../environments/environment';
 import { APP_ROUTING } from "./app.routes";
 
 // components
-import { HeaderComponent } from './components/header/header.component';
 import { LoginBodyComponent } from './components/login-body/login-body.component';
 import { SplashBodyComponent } from './components/splash-body/splash-body.component';
 import { ConsoleBodyComponent } from './components/console-body/console-body.component';
@@ -43,18 +42,22 @@ import { AdminBodyComponent } from './components/admin-body/admin-body.component
 import { ErrorBodyComponent } from './components/error-body/error-body.component';
 import {RouterService} from "./services/router/router.service";
 import {MessagesService} from "./services/messages/messages.service";
+import { MonitorBodyComponent } from './components/monitor-body/monitor-body.component';
+import { NewDatabaseDialogComponent } from './components/new-database-dialog/new-database-dialog.component';
+import {FormsModule} from "@angular/forms";
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderComponent,
     LoginBodyComponent,
     SplashBodyComponent,
     ConsoleBodyComponent,
     ProfileBodyComponent,
     AdminBodyComponent,
-    ErrorBodyComponent
+    ErrorBodyComponent,
+    MonitorBodyComponent,
+    NewDatabaseDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -66,6 +69,7 @@ import {MessagesService} from "./services/messages/messages.service";
     MatButtonModule,
     MatCheckboxModule,
     MatSidenavModule,
+    MatDialogModule,
     MatToolbarModule,
     MatMenuModule,
     MatIconModule,
@@ -76,11 +80,13 @@ import {MessagesService} from "./services/messages/messages.service";
     MatAutocompleteModule,
     MatFormFieldModule,
     MatInputModule,
+    FormsModule,
     MatTabsModule,
     MatProgressSpinnerModule,
     APP_ROUTING
   ],
   exports: [
+    FormsModule,
     MatButtonModule,
     MatCheckboxModule,
     MatToolbarModule,
@@ -93,6 +99,7 @@ import {MessagesService} from "./services/messages/messages.service";
     MatSnackBarModule,
     MatFormFieldModule,
     MatAutocompleteModule,
+    MatDialogModule,
     MatTabsModule,
     MatProgressSpinnerModule,
     MatMenuModule
@@ -103,6 +110,9 @@ import {MessagesService} from "./services/messages/messages.service";
     RouterService,
     ApiService,
     MessagesService
+  ],
+  entryComponents: [
+    NewDatabaseDialogComponent
   ],
   bootstrap: [AppComponent]
 })

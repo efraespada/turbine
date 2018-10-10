@@ -1,10 +1,17 @@
 {
-  "turbine_port": 4005,
-  "app_port": 4006,
-  "turbine_ip": "http://localhost",
-  "databases": [
-    "database"
-  ],
-  "debug": true,
-  "protect": true
+    "turbine_port": 4005,
+    "app_port": 4006,
+    "turbine_ip": "http://localhost",
+    "databases": [
+        "database",
+        "dddd",
+        "asdcsDC",
+        "DSCdsc",
+        "lalalal",
+        "test",
+        "test2",
+        "hvhgvjmhgc"
+    ],
+    "debug": true,
+    "protect": true
 }

@@ -43,7 +43,7 @@ process.argv.forEach(function (val, index, array) {
 });
 
 let config = {
-  databases: databaseNames,
+  databaseManager: new DatabasesManager(require("./config")),
   access: new AccessManager(),
   app_profile: new ApplicationProfile()
 };
@@ -59,8 +59,6 @@ config.app_profile.init();
  * also loads databases as associative arrays
  * @type {DatabasesManager}
  */
-let databaseManager = new DatabasesManager(config);
-
 if (config.app_profile.getConfig() !== null && config.app_profile.getConfig().name !== undefined) {
   console.log(boxen(config.app_profile.getConfig().name, {padding: 2, borderColor: "cyan", borderStyle: 'round'}));
 } else {
@@ -83,7 +81,7 @@ router.post('/', function (req, res) {
     queue.pushJob(function () {
       if (req.body.method !== undefined && req.body.path !== undefined && req.body.database !== undefined) {
         if (req.body.method === "post" && req.body.value !== undefined) {
-          databaseManager.saveObject(req.body.database, req.body.path, req.body.value === null ? null : req.body.value).then(function (result) {
+          config.databaseManager.saveObject(req.body.database, req.body.path, req.body.value === null ? null : req.body.value).then(function (result) {
             if (typeof result === "string") {
               console.error(result);
               res.status(406).send(result);
@@ -97,6 +95,13 @@ router.post('/', function (req, res) {
       } else if (req.body.method === "add_member" && req.body.user !== undefined) {
         config.access.addUser(req.body.user);
         res.json(req.body.user)
+      } else if (req.body.method === "create_database" && req.body.name !== undefined) {
+        if (config.databaseManager.createDatabase(req.body.name)) {
+          let data = config.databaseManager.getDatabasesInfo();
+          res.json(data);
+        } else {
+          res.status(406).json({error: "database " + req.body.name + " already exists"});
+        }
       } else {
         res.status(406).send("💥");
       }
@@ -111,7 +116,7 @@ router.get('/', function (req, res) {
       if (req.query.method !== undefined && req.query.path !== undefined && req.query.database !== undefined) {
         if (req.query.method === "get") {
           let interf = req.query.mask || {};
-          let object = databaseManager.getObject(req.query.database, req.query.path, "", interf);
+          let object = config.databaseManager.getObject(req.query.database, req.query.path, "", interf);
           if (typeof object === "string") {
             console.error(object);
             res.status(406).send(object);
@@ -120,7 +125,7 @@ router.get('/', function (req, res) {
           }
         } else if (req.query.method === "query" && req.query.query !== undefined) {
           let interf = req.query.mask || {};
-          let object = databaseManager.getObjectFromQuery(req.query.database, req.query.path, req.query.query, interf);
+          let object = config.databaseManager.getObjectFromQuery(req.query.database, req.query.path, req.query.query, interf);
           if (typeof object === "string") {
             console.error(object);
             res.status(406).send(object);
@@ -155,7 +160,7 @@ router.get('/', function (req, res) {
           res.status(403).send("🖕");
         }
       } else if (req.query.method === "get_databases_info") {
-        res.json(databaseManager.getDatabasesInfo());
+        res.json(config.databaseManager.getDatabasesInfo());
       } else {
         res.status(406).send("💥");
       }
