@@ -1,7 +1,7 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {BrowserModule} from '@angular/platform-browser';
+import {APP_INITIALIZER, Injectable, NgModule} from '@angular/core';
+import {HttpClientModule} from '@angular/common/http';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
   MatButtonModule,
   MatCheckboxModule,
@@ -18,32 +18,53 @@ import {
   MatInputModule, MatAutocompleteModule, MatTabsModule, MatDialogModule
 } from '@angular/material';
 
-import { environment } from "../assets/config"
-import { AppComponent } from './app.component';
-import { AngularFireModule } from '@angular/fire';
-import { AngularFireStorageModule } from '@angular/fire/storage';
-import { AngularFireAuth, AngularFireAuthModule } from '@angular/fire/auth';
+import { firebase } from '@firebase/app';
+
+
+
+import {AppComponent} from './app.component';
+import {AngularFireModule, FirebaseApp, FirebaseNameOrConfigToken, FirebaseOptionsToken} from '@angular/fire';
+import {AngularFireStorageModule} from '@angular/fire/storage';
+import {AngularFireAuth, AngularFireAuthModule} from '@angular/fire/auth';
 
 // routes
-import { APP_ROUTING } from "./app.routes";
+import {APP_ROUTING} from "./app.routes";
 
 // components
-import { LoginBodyComponent } from './components/login-body/login-body.component';
-import { SplashBodyComponent } from './components/splash-body/splash-body.component';
-import { ConsoleBodyComponent } from './components/console-body/console-body.component';
-import { ProfileBodyComponent } from './components/profile-body/profile-body.component';
+import {LoginBodyComponent} from './components/login-body/login-body.component';
+import {SplashBodyComponent} from './components/splash-body/splash-body.component';
+import {ConsoleBodyComponent} from './components/console-body/console-body.component';
+import {ProfileBodyComponent} from './components/profile-body/profile-body.component';
 
 // services
-import { GoogleAuthService } from "./services/google-auth/google-auth.service";
-import { ApiService } from "./services/api/api.service";
-import { AdminBodyComponent } from './components/admin-body/admin-body.component';
-import { ErrorBodyComponent } from './components/error-body/error-body.component';
+import {GoogleAuthService} from "./services/google-auth/google-auth.service";
+import {ApiService} from "./services/api/api.service";
+import {AdminBodyComponent} from './components/admin-body/admin-body.component';
+import {ErrorBodyComponent} from './components/error-body/error-body.component';
 import {RouterService} from "./services/router/router.service";
 import {MessagesService} from "./services/messages/messages.service";
-import { MonitorBodyComponent } from './components/monitor-body/monitor-body.component';
-import { NewDatabaseDialogComponent } from './components/new-database-dialog/new-database-dialog.component';
+import {MonitorBodyComponent} from './components/monitor-body/monitor-body.component';
+import {NewDatabaseDialogComponent} from './components/new-database-dialog/new-database-dialog.component';
 import {FormsModule} from "@angular/forms";
+import {AppConfigService} from "./services/app-config/app.config.service";
 
+export const config = {
+  "apiKey": "AIzaSyAtx8E_xHmqWFh66Ru96I5XvaKJehlmC8s",
+  "authDomain": "turbine-ide.firebaseapp.com",
+  "databaseURL": "https://turbine-ide.firebaseio.com",
+  "projectId": "turbine-ide",
+  "storageBucket": "turbine-ide.appspot.com",
+  "messagingSenderId": "440386510312"
+};
+
+export function test() {
+  console.log("config B: " + JSON.stringify(window['firebase_config']));
+  return config
+}
+
+export function initializeApp(appConfig: AppConfigService) {
+  return appConfig.fireConfig()
+}
 
 @NgModule({
   declarations: [
@@ -59,7 +80,7 @@ import {FormsModule} from "@angular/forms";
   ],
   imports: [
     BrowserModule,
-    AngularFireModule.initializeApp(environment.firebase),
+    AngularFireModule,
     AngularFireAuthModule,
     AngularFireStorageModule,
     HttpClientModule,
@@ -103,6 +124,8 @@ import {FormsModule} from "@angular/forms";
     MatMenuModule
   ],
   providers: [
+    AppConfigService,
+    { provide: FirebaseOptionsToken, deps: [AppConfigService], useFactory: initializeApp },
     AngularFireAuth,
     GoogleAuthService,
     RouterService,
@@ -114,4 +137,5 @@ import {FormsModule} from "@angular/forms";
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}

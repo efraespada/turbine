@@ -6,12 +6,12 @@
   <img *ngIf=" gService.authenticated " mat-card-image src="{{ gService.afAuth.auth.currentUser?.photoURL }}" alt="{{ gService.afAuth.auth.currentUser?.displayName }}">
   <mat-card-content>
     <p *ngIf=" gService.authenticated " class="p_with_link">
-      You will administrate {{ basicConfig?.name }}. Keep in mind this backend GI is in <mat-chip-list class="inline">
+      You will administrate {{ _name }}. Keep in mind this backend GI is in <mat-chip-list class="inline">
       <a mat-stroked-button class="link l_extra" color="primary" href="https://github.com/efraespada/turbine/releases" target="_blank">beta</a> phase. Any issue can be reported on <a mat-button class="link" color="warn" href="https://github.com/efraespada/turbine/issues" target="_blank">issues</a> Git page
     </mat-chip-list>
     </p>
     <p *ngIf=" !gService.authenticated " class="p_with_link">
-      {{ basicConfig?.name }} is on <strong>first run</strong> mode and needs an administrator for start working. First login will define the administrator profile.
+      {{ _name }} is on <strong>first run</strong> mode and needs an administrator for start working. First login will define the administrator profile.
     </p>
   </mat-card-content>
   <mat-card-actions>

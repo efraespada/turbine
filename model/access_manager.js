@@ -68,7 +68,7 @@ function AccessManager() {
 
   this.verifyAccount = (params) => {
     if (this.config === null || this.config === undefined) {
-      this.config = {};
+      return false
     }
     if (params.user !== undefined) {
       let u = JSON.parse(params.user);

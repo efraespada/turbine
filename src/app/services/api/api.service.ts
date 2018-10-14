@@ -6,14 +6,15 @@ import {User} from "firebase";
 import {CreateAdminCallback} from "./create_admin_callback";
 import {LoginCallback} from "./login_callback";
 import {DatabasesInfoCallback} from "./databases_info_callback";
-import {environment} from "../../../assets/config";
+import {AppConfigService} from "../app-config/app.config.service";
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class ApiService {
 
-  private _config: BasicConfig = null;
+  public _config: BasicConfig = null;
   public _databases_info: any = null;
   private _apiKey: string = null;
   private _user: User = null;
@@ -36,7 +37,7 @@ export class ApiService {
       const requestOptions = {
         headers: new HttpHeaders(headerDict),
       };
-      this.http.get(environment.turbine_ip + ":" + environment.turbine_port + "/?method=get_basic_info", requestOptions).toPromise()
+      this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/?method=get_basic_info", requestOptions).toPromise()
         .then((res) => {
           this._config = new BasicConfig().fromJSON(res);
           callback.basicConfig(this._config)
@@ -80,7 +81,7 @@ export class ApiService {
     const requestOptions = {
       headers: new HttpHeaders(headerDict),
     };
-    this.http.get(environment.turbine_ip + ":" + environment.turbine_port + "/?method=get_databases_info&apiKey="
+    this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/?method=get_databases_info&apiKey="
       + this._apiKey + "&uid=" + this._user.uid, requestOptions).toPromise()
       .then((res) => {
         this._databases_info = res;
@@ -103,7 +104,7 @@ export class ApiService {
       headers: new HttpHeaders(headerDict),
     };
 
-    this.http.get(environment.turbine_ip + ":" + environment.turbine_port + "/?method=login&user=" + JSON.stringify(user), requestOptions).toPromise()
+    this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/?method=login&user=" + JSON.stringify(user), requestOptions).toPromise()
       .then((res: any) => {
         try {
           callback.apiKey(res.apiKey)
@@ -133,7 +134,7 @@ export class ApiService {
     const requestOptions = {
       headers: new HttpHeaders(headerDict),
     };
-    this.http.post(environment.turbine_ip + ":" + environment.turbine_port + "/", JSON.stringify(data), requestOptions).toPromise()
+    this.http.post(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/", JSON.stringify(data), requestOptions).toPromise()
       .then((res) => {
         callback.created()
       }).catch((err) => {
@@ -181,7 +182,7 @@ export class ApiService {
     const requestOptions = {
       headers: new HttpHeaders(headerDict),
     };
-    this.http.post(environment.turbine_ip + ":" + environment.turbine_port + "/", JSON.stringify(data), requestOptions).toPromise()
+    this.http.post(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/", JSON.stringify(data), requestOptions).toPromise()
       .then((res) => {
         this._databases_info = res;
         callback.info(res)

@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import {Router} from "@angular/router";
+import {Component, OnInit} from '@angular/core';
 import {ApiService} from "../../services/api/api.service";
 import {BasicConfigCallback} from "../../services/api/basic_config_callback";
 import {BasicConfig} from "../../services/api/basic_config";
 import {GoogleAuthService} from "../../services/google-auth/google-auth.service";
+import {AppConfigService} from "../../services/app-config/app.config.service";
 
 @Component({
   selector: 'app-admin-body',
@@ -14,6 +14,7 @@ export class AdminBodyComponent implements OnInit {
 
   static TAG: string = "admin";
   basicConfig: BasicConfig;
+  _name = AppConfigService.settings.name;
 
   constructor(public api: ApiService, public gService: GoogleAuthService) {
     // nothing to do here
@@ -26,6 +27,7 @@ export class AdminBodyComponent implements OnInit {
         basicConfig(basicConfig: BasicConfig) {
           component.basicConfig = basicConfig;
         }
+
         error(error: string) {
           console.error(error)
         }

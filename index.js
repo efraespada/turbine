@@ -2,12 +2,10 @@ const forever = require('forever-monitor');
 const rp = require('request-promise');
 const express = require('express');
 const app = express();
-const JsonDB = require('node-json-db');
 const logjs = require('logjsx');
 const fs = require('fs');
 const path = require('path');
 const logger = new logjs();
-const SLASH = "/";
 
 logger.init({
   level: "DEBUG"
@@ -153,11 +151,11 @@ function Turbine(config, application_config) {
   };
 
   this.prepareConfigFiles = function (config, callback) {
-    let content = "export const environment = " + JSON.stringify(config) + ";";
-    this.writeFile(__dirname + "/dist/turbine-app/assets/config.ts", content, (err) => {
+    let content = JSON.stringify(config);
+    this.writeFile(__dirname + "/dist/turbine-app/assets/config.json", content, (err) => {
       let devPath = __dirname + "/src/assets";
       if (fs.existsSync(devPath)) {
-        this.writeFile(devPath + "/config.ts", content, (err) => {
+        this.writeFile(devPath + "/config.json", content, (err) => {
           callback()
         });
       } else {

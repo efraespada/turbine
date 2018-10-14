@@ -2,7 +2,7 @@
   "production": true,
   "turbine_port": 4005,
   "turbine_ip": "http://localhost",
-  "name": "Turbine R",
+  "name": "Turbine RS",
   "toolbar_color": "#CD474A",
   "image": "https://github.com/efraespada/turbine/raw/feature/app/src/assets/icon_512.png",
   "firebase": {

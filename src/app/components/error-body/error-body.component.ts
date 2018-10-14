@@ -4,6 +4,7 @@ import {RouterService} from "../../services/router/router.service";
 import {BasicConfigCallback} from "../../services/api/basic_config_callback";
 import {BasicConfig} from "../../services/api/basic_config";
 import {ApiService} from "../../services/api/api.service";
+import {AppConfigService} from "../../services/app-config/app.config.service";
 
 @Component({
   selector: 'app-error-body',
@@ -15,6 +16,7 @@ export class ErrorBodyComponent implements OnInit {
 
   static TAG: string = "notification";
   basicConfig: BasicConfig;
+  _name = AppConfigService.settings.name;
 
   constructor(public messages: MessagesService, public router: RouterService, public api: ApiService) {
     // nothing to do here

@@ -136,16 +136,7 @@ router.get('/', function (req, res) {
           res.status(406).send("💥");
         }
       } else if (req.query.method === "get_basic_info") {
-        let app_profile = config.app_profile.getConfig();
-        if (app_profile === null) {
-          app_profile = {};
-        }
-        if (app_profile.name === undefined) {
-          app_profile.name = "Turbine"
-        }
-        if (app_profile.toolbar_color === undefined) {
-          app_profile.toolbar_color = "#ffffff"
-        }
+        let app_profile = {};
         app_profile.mode = config.access.isFirstRun() ? "first_run" : "manager";
         res.json(app_profile)
       } else if (req.query.method === "login") {

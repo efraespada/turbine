@@ -9,12 +9,14 @@ import {RouterService} from "./services/router/router.service";
 import {DatabasesInfoCallback} from "./services/api/databases_info_callback";
 import {MessagesService} from "./services/messages/messages.service";
 import {NewDatabaseDialogComponent} from "./components/new-database-dialog/new-database-dialog.component";
+import {AppConfigService} from "./services/app-config/app.config.service";
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
 export class AppComponent implements OnInit {
 
   navMode = 'side';
@@ -22,6 +24,8 @@ export class AppComponent implements OnInit {
   visible: boolean = false;
   siging_out: boolean;
   databases;
+
+  _name = AppConfigService.settings.name;
 
   public links = [];
 
@@ -75,7 +79,7 @@ export class AppComponent implements OnInit {
     this.gService.update((logged) => {
       if (!logged && !this.siging_out) {
         this.routerService.goSplash()
-      } else if (logged) {
+      } else if (logged && this.api._config.mode !== "first_run") {
         let view = this;
         this.api.getDatabaseInfo(new class implements DatabasesInfoCallback {
           info(data: any) {
@@ -102,7 +106,7 @@ export class AppComponent implements OnInit {
 
   headerColor() {
     return {
-      'background-color':  (this.basicConfig !== null && this.basicConfig !== undefined) ? this.basicConfig.toolbar_color : "#f5f5f5"
+      'background-color':  (AppConfigService.settings.toolbar_color !== undefined) ? AppConfigService.settings.toolbar_color : "#f5f5f5"
     }
   }
 
@@ -147,7 +151,6 @@ export class AppComponent implements OnInit {
     this.databases = [];
     let databases_name = Object.keys(data);
     for (let name in databases_name) {
-      console.log("name: " + JSON.stringify(data[databases_name[name]]));
       let collection_keys = Object.keys(data[databases_name[name]].collections);
       let size = 0;
       for (let i in collection_keys) {
