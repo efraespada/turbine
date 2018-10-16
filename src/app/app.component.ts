@@ -23,7 +23,6 @@ export class AppComponent implements OnInit {
   basicConfig: BasicConfig;
   visible: boolean = false;
   siging_out: boolean;
-  databases;
 
   _name = AppConfigService.settings.name;
 
@@ -34,7 +33,6 @@ export class AppComponent implements OnInit {
   constructor(public routerService: RouterService, public router: Router, public api: ApiService,
               public gService: GoogleAuthService, public messagesService: MessagesService,
               public dialog: MatDialog) {
-    this.databases = [];
     let csl = {
       name: "Console",
       description: "Test request",
@@ -83,7 +81,7 @@ export class AppComponent implements OnInit {
         let view = this;
         this.api.getDatabaseInfo(new class implements DatabasesInfoCallback {
           info(data: any) {
-            view.updateDatabases(data);
+            // nothing to do here
           }
           error(error: string) {
             view.messagesService.currentMessage = "Error getting databases info: " + error;
@@ -127,10 +125,9 @@ export class AppComponent implements OnInit {
       if (result !== undefined) {
         this.api.createDatabase(result, new class implements DatabasesInfoCallback {
           info(data: any) {
-            view.updateDatabases(data);
             view.api.getDatabaseInfo(new class implements DatabasesInfoCallback {
               info(data: any) {
-                view.updateDatabases(data);
+                // nothing to do here
               }
               error(error: string) {
                 view.messagesService.currentMessage = "Error getting databases info: " + error;
@@ -145,21 +142,6 @@ export class AppComponent implements OnInit {
         })
       }
     });
-  }
-
-  private updateDatabases(data: any) {
-    this.databases = [];
-    let databases_name = Object.keys(data);
-    for (let name in databases_name) {
-      let collection_keys = Object.keys(data[databases_name[name]].collections);
-      let size = 0;
-      for (let i in collection_keys) {
-        size += data[databases_name[name]].collections[collection_keys[i]].length
-      }
-      data[databases_name[name]].collections = collection_keys.length;
-      data[databases_name[name]].total_size = size;
-      this.databases.push(data[databases_name[name]])
-    }
   }
 
 }

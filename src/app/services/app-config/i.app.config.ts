@@ -1,4 +1,3 @@
-import {FirebaseAppConfig} from "@angular/fire";
 
 export interface IAppConfig {
   production: boolean;

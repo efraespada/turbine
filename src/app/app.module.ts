@@ -1,5 +1,5 @@
 import {BrowserModule} from '@angular/platform-browser';
-import {APP_INITIALIZER, Injectable, NgModule} from '@angular/core';
+import {NgModule} from '@angular/core';
 import {HttpClientModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
@@ -15,15 +15,11 @@ import {
   MatSnackBarModule,
   MatProgressSpinnerModule,
   MatFormFieldModule,
-  MatInputModule, MatAutocompleteModule, MatTabsModule, MatDialogModule
+  MatInputModule, MatAutocompleteModule, MatTabsModule, MatDialogModule, MatSelectModule
 } from '@angular/material';
 
-import { firebase } from '@firebase/app';
-
-
-
 import {AppComponent} from './app.component';
-import {AngularFireModule, FirebaseApp, FirebaseNameOrConfigToken, FirebaseOptionsToken} from '@angular/fire';
+import {AngularFireModule, FirebaseOptionsToken} from '@angular/fire';
 import {AngularFireStorageModule} from '@angular/fire/storage';
 import {AngularFireAuth, AngularFireAuthModule} from '@angular/fire/auth';
 
@@ -47,20 +43,6 @@ import {MonitorBodyComponent} from './components/monitor-body/monitor-body.compo
 import {NewDatabaseDialogComponent} from './components/new-database-dialog/new-database-dialog.component';
 import {FormsModule} from "@angular/forms";
 import {AppConfigService} from "./services/app-config/app.config.service";
-
-export const config = {
-  "apiKey": "AIzaSyAtx8E_xHmqWFh66Ru96I5XvaKJehlmC8s",
-  "authDomain": "turbine-ide.firebaseapp.com",
-  "databaseURL": "https://turbine-ide.firebaseio.com",
-  "projectId": "turbine-ide",
-  "storageBucket": "turbine-ide.appspot.com",
-  "messagingSenderId": "440386510312"
-};
-
-export function test() {
-  console.log("config B: " + JSON.stringify(window['firebase_config']));
-  return config
-}
 
 export function initializeApp(appConfig: AppConfigService) {
   return appConfig.fireConfig()
@@ -98,6 +80,7 @@ export function initializeApp(appConfig: AppConfigService) {
     MatSnackBarModule,
     MatAutocompleteModule,
     MatFormFieldModule,
+    MatSelectModule,
     MatInputModule,
     FormsModule,
     MatTabsModule,
@@ -120,13 +103,13 @@ export function initializeApp(appConfig: AppConfigService) {
     MatAutocompleteModule,
     MatDialogModule,
     MatTabsModule,
+    MatSelectModule,
     MatProgressSpinnerModule,
     MatMenuModule
   ],
   providers: [
     AppConfigService,
     { provide: FirebaseOptionsToken, deps: [AppConfigService], useFactory: initializeApp },
-    AngularFireAuth,
     GoogleAuthService,
     RouterService,
     ApiService,

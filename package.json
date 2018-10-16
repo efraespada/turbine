@@ -44,6 +44,7 @@
     "hammerjs": "^2.0.8",
     "http-server": "^0.11.1",
     "jquery": "^3.3.1",
+    "json-align": "^0.1.0",
     "logjsx": "0.0.2",
     "node-json-db": "^0.7.5",
     "popper.js": "^1.14.4",
@@ -54,6 +55,7 @@
     "set-in": "^2.0.0",
     "sha1": "^1.1.1",
     "single-line-log": "^1.1.2",
+    "stringify-object": "^3.2.2",
     "sync-node": "^1.3.1",
     "unset": "0.0.2",
     "zone.js": "~0.8.26"

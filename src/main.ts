@@ -14,6 +14,3 @@ fetch('/assets/config.json').then(resp => resp.json()).then(config => {
   window['config'] = config;
   platformBrowserDynamic().bootstrapModule(AppModule).catch(err => console.error(err));
 });
-
-// platformBrowserDynamic().bootstrapModule(AppModule).catch(err => console.error(err));
-

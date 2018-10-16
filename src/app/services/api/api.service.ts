@@ -16,6 +16,7 @@ export class ApiService {
 
   public _config: BasicConfig = null;
   public _databases_info: any = null;
+  public _databases: any = null;
   private _apiKey: string = null;
   private _user: User = null;
 
@@ -85,6 +86,7 @@ export class ApiService {
       + this._apiKey + "&uid=" + this._user.uid, requestOptions).toPromise()
       .then((res) => {
         this._databases_info = res;
+        this.updateDatabases(this._databases_info);
         callback.info(res)
       }).catch((err) => {
       console.error(err.toString());
@@ -185,10 +187,26 @@ export class ApiService {
     this.http.post(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/", JSON.stringify(data), requestOptions).toPromise()
       .then((res) => {
         this._databases_info = res;
+        this.updateDatabases(this._databases_info);
         callback.info(res)
       }).catch((err) => {
       callback.error(JSON.stringify(err))
     });
+  }
+
+  private updateDatabases(data: any) {
+    this._databases = [];
+    let databases_name = Object.keys(data);
+    for (let name in databases_name) {
+      let collection_keys = Object.keys(data[databases_name[name]].collections);
+      let size = 0;
+      for (let i in collection_keys) {
+        size += data[databases_name[name]].collections[collection_keys[i]].length
+      }
+      data[databases_name[name]].collections = collection_keys.length;
+      data[databases_name[name]].total_size = size;
+      this._databases.push(data[databases_name[name]])
+    }
   }
 
   public cleanCache() {
