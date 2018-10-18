@@ -139,6 +139,7 @@ function Turbine(config, application_config) {
   };
 
   this.startApp = async function (callback) {
+    /*
     app.use('/', express.static(path.join(__dirname, 'dist/turbine-app/')));
     app.all('/*', function(req, res, next) {
       if (req.originalUrl.indexOf(".css/") > -1 || req.originalUrl.indexOf(".js/") > -1 || req.originalUrl.indexOf(".json/") > -1) {
@@ -148,6 +149,7 @@ function Turbine(config, application_config) {
       }
     });
     o.app_process = app.listen(o.app_port, () => callback());
+    */
   };
 
   this.prepareConfigFiles = function (config, callback) {

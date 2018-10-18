@@ -6,6 +6,9 @@ import {FormControl} from "@angular/forms";
 import {ApiService} from "../../services/api/api.service";
 import {MatTabChangeEvent} from "@angular/material";
 import * as stringifyAligned from 'json-align';
+import {ITurbineGet} from "../../services/api/i.turbine.get";
+import {ITurbinePost} from "../../services/api/i.turbine.post";
+import {ITurbineQuery} from "../../services/api/i.turbine.query";
 
 
 @Component({
@@ -34,6 +37,7 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
   @ViewChild("mask_query") textAreaMaskQuery;
   @ViewChild("object_post") textAreaObjectPost;
   @ViewChild("button_request") buttonRequest;
+  @ViewChild("response") textAreaResponse;
 
   constructor(public router: RouterService, public gService: GoogleAuthService, public messages: MessagesService,
               public api: ApiService) {
@@ -46,15 +50,50 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
         // nothing to do here (yet)
       }
     }, location, ConsoleBodyComponent.TAG);
-    this.doRequest();
+    this.doRequest(true);
   }
 
-  doRequest() {
+  doRequest(auto: boolean) {
     if (this.validRequest()) {
-      console.log("request");
-      this.buttonRequest.disabled = false
+      this.buttonRequest.disabled = false;
+      if (this.method === "post" && auto) {
+        return
+      }
+      let cbc = this;
+      console.log("method: " + this.method);
+      if (this.method === "get") {
+        this.api.turbineGet(this.databaseName, this.path, this.mask, new class implements ITurbineGet {
+          response(response: any) {
+            cbc.textAreaResponse.nativeElement.value = stringifyAligned(response)
+          }
+
+          error(error: any) {
+            cbc.textAreaResponse.nativeElement.value = stringifyAligned(error)
+          }
+        });
+      } else if (this.method === "query") {
+        this.api.turbineQuery(this.databaseName, this.path, this.query, this.mask, new class implements ITurbineQuery {
+          response(response: any) {
+            cbc.textAreaResponse.nativeElement.value = stringifyAligned(response)
+          }
+
+          error(error: any) {
+            cbc.textAreaResponse.nativeElement.value = stringifyAligned(error)
+          }
+        });
+      } else if (this.method === "post") {
+        this.api.turbinePost(this.databaseName, this.path, this.obj, new class implements ITurbinePost {
+          response(response: any) {
+            cbc.textAreaResponse.nativeElement.value = stringifyAligned(response)
+          }
+
+          error(error: any) {
+            cbc.textAreaResponse.nativeElement.value = stringifyAligned(error)
+          }
+        })
+      }
+
     } else {
-      console.log("not request");
       this.buttonRequest.disabled = true
     }
 
@@ -62,7 +101,7 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
 
   private validRequest(): boolean {
     return this.validString(this.databaseName) && this.validString(this.path) && this.validString(this.method)
-      && ((this.method.toLowerCase() === "post" && this.validObject(this.obj)) ||
+      && ((this.method.toLowerCase() === "post" && this.validObjectPost(this.obj)) ||
         ((this.method.toLowerCase() === "query" && this.validObject(this.query))) ||
         (this.method.toLowerCase() === "get"));
   }
@@ -75,14 +114,19 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
     return value !== null && value !== undefined && Object.keys(value).length > 0;
   }
 
+  private validObjectPost(value: any): boolean {
+    return value !== null && value !== undefined;
+  }
+
   databaseChanged(name: string) {
     this.databaseName = name;
-    this.doRequest()
+    this.doRequest(true)
   }
 
   pathChanged(path: string) {
     this.path = path;
-    this.doRequest()
+    this.doRequest(true)
+
   }
 
   maskGetChanged(mask: string) {
@@ -92,7 +136,7 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
     } catch (e) {
       this.mask = null;
     }
-    this.doRequest()
+    this.doRequest(true)
   }
 
   maskQueryChanged(mask: string) {
@@ -102,7 +146,7 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
     } catch (e) {
       this.mask = null;
     }
-    this.doRequest()
+    this.doRequest(true)
   }
 
   queryChanged(query: string) {
@@ -112,7 +156,7 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
     } catch (e) {
       this.query = null;
     }
-    this.doRequest()
+    this.doRequest(true)
   }
 
   objectChanged(obj: string) {
@@ -122,7 +166,7 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
     } catch (e) {
       this.obj = null;
     }
-    this.doRequest()
+    this.doRequest(true)
   }
 
   methodChanged(tabChangeEvent: MatTabChangeEvent): void {
@@ -130,9 +174,10 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
     if (this.method === "get") {
       this.maskGetChanged(this.textAreaMaskGet.nativeElement.value);
     } else if (this.method === "query") {
+      this.queryChanged(this.textAreaQueryQuery.nativeElement.value);
       this.maskQueryChanged(this.textAreaMaskQuery.nativeElement.value);
     } else {
-      this.doRequest()
+      this.doRequest(true)
     }
   }
 

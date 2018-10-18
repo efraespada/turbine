@@ -13,6 +13,11 @@
   width: 100%;
 }
 
+.full-width {
+  height: 400px;
+  min-width: 600px;
+}
+
 .inline {
   display: inline-block;
   vertical-align: top;

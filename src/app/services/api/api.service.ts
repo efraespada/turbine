@@ -7,6 +7,9 @@ import {CreateAdminCallback} from "./create_admin_callback";
 import {LoginCallback} from "./login_callback";
 import {DatabasesInfoCallback} from "./databases_info_callback";
 import {AppConfigService} from "../app-config/app.config.service";
+import {ITurbinePost} from "./i.turbine.post";
+import {ITurbineGet} from "./i.turbine.get";
+import {ITurbineQuery} from "./i.turbine.query";
 
 @Injectable({
   providedIn: 'root'
@@ -191,6 +194,103 @@ export class ApiService {
         callback.info(res)
       }).catch((err) => {
       callback.error(JSON.stringify(err))
+    });
+  }
+
+  public turbineGet(database: string, path: string, mask: any, callback: ITurbineGet) {
+    const headerDict = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Origin': '*'
+    };
+
+    const requestOptions = {
+      headers: new HttpHeaders(headerDict),
+    };
+
+    let params = "database=" + database + "&method=get"
+      + "&path=" + path + "&apiKey=" + this._apiKey + "&uid=" + this._user.uid;
+    if (mask != null && mask !== undefined) {
+      params += "&mask=" + JSON.stringify(mask)
+    }
+    this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/?" + params, requestOptions).toPromise()
+      .then((res: any) => {
+        if (res["headers"] !== undefined) {
+          res["headers"] = undefined;
+        }
+        callback.response(res)
+      }).catch((err) => {
+      if (err["headers"] !== undefined) {
+        err["headers"] = undefined;
+      }
+      callback.error(err);
+    });
+
+  }
+
+  public turbineQuery(database: string, path: string, query: any, mask: any, callback: ITurbineQuery) {
+    const headerDict = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Origin': '*'
+    };
+
+    const requestOptions = {
+      headers: new HttpHeaders(headerDict),
+    };
+
+    let params = "database=" + database + "&method=query"
+      + "&path=" + path + "&query=" + JSON.stringify(query) + "&apiKey=" + this._apiKey + "&uid=" + this._user.uid;
+    if (mask != null && mask !== undefined) {
+      params += "&mask=" + JSON.stringify(mask)
+    }
+    this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/?" + params, requestOptions).toPromise()
+      .then((res: any) => {
+        if (res["headers"] !== undefined) {
+          res["headers"] = undefined;
+        }
+        callback.response(res)
+      }).catch((err) => {
+      if (err["headers"] !== undefined) {
+        err["headers"] = undefined;
+      }
+      callback.error(err);
+    });
+
+  }
+
+  public turbinePost(database: string, path: string, obj: any, callback: ITurbinePost) {
+    let data = {
+      method: "post",
+      database: database,
+      path: path,
+      value: obj,
+      uid: this._user.uid,
+      apiKey: this._apiKey
+    };
+    const headerDict = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Origin': '*'
+    };
+
+    const requestOptions = {
+      headers: new HttpHeaders(headerDict),
+    };
+    this.http.post(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/", JSON.stringify(data), requestOptions).toPromise()
+      .then((res) => {
+        if (res["headers"] !== undefined) {
+          res["headers"] = undefined;
+        }
+        callback.response(res)
+      }).catch((err) => {
+      if (err["headers"] !== undefined) {
+        err["headers"] = undefined;
+      }
+      callback.error(err)
     });
   }
 

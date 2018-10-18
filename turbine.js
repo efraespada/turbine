@@ -86,7 +86,13 @@ router.post('/', function (req, res) {
               console.error(result);
               res.status(406).send(result);
             } else {
-              res.json({})
+              let r;
+              try {
+                r = JSON.parse(req.body.value)
+              } catch (e) {
+                r = req.body.value;
+              }
+              res.json(r)
             }
           });
         } else {
