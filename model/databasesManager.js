@@ -165,6 +165,14 @@ function DatabasesManager(configuration) {
     }
   };
 
+  /*
+
+  {
+    "name" : "luke"
+  }
+
+   */
+
   /**
    * Returns an object from a instance for the given query and path (value)
    * @param database
@@ -203,6 +211,8 @@ function DatabasesManager(configuration) {
                 let pathOfValue = pathsToCheck[p];
                 for (let innerPath in metaQuery[keysQuery[kQ]]) {
                   let queryPathValue = metaQuery[keysQuery[kQ]][innerPath];
+                  console.log("pathOfValue: " + pathOfValue);
+                  console.log("queryPathValue: " + queryPathValue);
                   if (queryPathValue.indexOf("/*") > -1 && pathOfValue.indexOf(orPath) > -1) {
                     let pQPVs = queryPathValue.split("/*");
                     let valid = true;

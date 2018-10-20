@@ -5,7 +5,7 @@
     "dev-prod": "rm -rf dist && ng build --prod",
     "dev-prod-runner": "rm -rf dist && ng build --prod && node launcher.js",
     "dev-server": "rm -rf dist && ng serve --port 4006 && node launcher.js",
-    "dev": "ng serve -o",
+    "dev": "ng serve --port 4006",
     "start": "ng serve",
     "build": "ng build",
     "test": "mocha",
