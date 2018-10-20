@@ -27,10 +27,10 @@ function Utils() {
    *      parts: [...]
    *  }
    * @param objects
+   * @param interf
    * @returns {*}
    */
   this.mergeObjects = function (objects, interf = {}) {
-    let inter = interf !== undefined && Object.keys(interf).length > 0 ? interf : false;
     let object = {};
     if (objects.parts !== undefined && objects.parts.length > 1) {
       for (let p in objects.parts) {
@@ -102,23 +102,13 @@ function Utils() {
             let maskPath = maskInter[maskValue][maskValueIndex];
             // path contains *.
             if (maskPath.indexOf("*") > -1) {
-              let pM = maskPath.split("/*");
-              let valid = false;
-              for (let iPM in pM) {
-                let pToCheck = pM[iPM];
-                let pathValues = pathValue.split("/");
-                for (let value in pathValues) {
-                  if ("/" + pathValues[value] == pToCheck) {
-                    valid = true;
-                  }
-                }
+              let insert = pathValue.split("/");
+              if (insert[0] === "") {
+                insert = insert.slice(1, insert.length);
               }
-              if (valid) {
-                let insert = pathValue.split("/");
-                if (insert[0] === "") {
-                  insert = insert.slice(1, insert.length);
-                }
-                setIn(result, insert, this.getTypeFromInterface(insert, interf, value));
+              let val = this.getTypeFromInterface(insert, interf, value);
+              if (val !== null) {
+                setIn(result, insert, val);
               }
             } else if (maskValue === "{}" && pathValue.indexOf(maskPath) > -1) {
               let insert = pathValue.split("/");
@@ -148,11 +138,13 @@ function Utils() {
     for (let i in keys) {
       let key = keys[i];
       if (key === "*") {
-          if (typeof mask[key] === "object") {
-            return this.getTypeFromInterface(a.splice(1, a.length), mask[key], value)
-          }
-      } else if (path.indexOf(key) > -1){
-        if (typeof mask[key] === "string") {
+        if (typeof mask[key] === "object") {
+          return this.getTypeFromInterface(a.splice(1, a.length), mask[key], value)
+        }
+      } else if (path.indexOf(key) > -1) {
+        if (typeof mask[key] === "object") {
+          return this.getTypeFromInterface(a.splice(1, a.length), mask[key], value)
+        } else if (typeof mask[key] === "string") {
           return "" + value;
         } else if (typeof mask[key] === "number") {
           return parseInt(value);
