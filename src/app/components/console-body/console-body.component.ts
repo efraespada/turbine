@@ -173,9 +173,11 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
     this.method = this.options[tabChangeEvent.index].toLowerCase();
     if (this.method === "get") {
       this.maskGetChanged(this.textAreaMaskGet.nativeElement.value);
+      this.doRequest(true)
     } else if (this.method === "query") {
       this.queryChanged(this.textAreaQueryQuery.nativeElement.value);
       this.maskQueryChanged(this.textAreaMaskQuery.nativeElement.value);
+      this.doRequest(true)
     } else {
       this.doRequest(true)
     }

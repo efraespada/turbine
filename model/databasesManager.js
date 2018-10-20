@@ -165,14 +165,6 @@ function DatabasesManager(configuration) {
     }
   };
 
-  /*
-
-  {
-    "name" : "luke"
-  }
-
-   */
-
   /**
    * Returns an object from a instance for the given query and path (value)
    * @param database
@@ -189,7 +181,6 @@ function DatabasesManager(configuration) {
     } else if (!value.startsWith(SLASH)) {
       return value + " don't start with slash (/)"
     } else if (value.startsWith(SLASH) && value.length > SLASH.length) {
-      let result = [];
       let metaQuery = utils.getPathsOfQuery(query);
       let keysQuery = Object.keys(metaQuery);
       let branchs = value.split(SLASH);
@@ -211,8 +202,6 @@ function DatabasesManager(configuration) {
                 let pathOfValue = pathsToCheck[p];
                 for (let innerPath in metaQuery[keysQuery[kQ]]) {
                   let queryPathValue = metaQuery[keysQuery[kQ]][innerPath];
-                  console.log("pathOfValue: " + pathOfValue);
-                  console.log("queryPathValue: " + queryPathValue);
                   if (queryPathValue.indexOf("/*") > -1 && pathOfValue.indexOf(orPath) > -1) {
                     let pQPVs = queryPathValue.split("/*");
                     let valid = true;
@@ -266,11 +255,13 @@ function DatabasesManager(configuration) {
       for (let i in refsKeys) {
         let reference = suggestedReferences[refsKeys[i]];
         if (reference.found == keysQuery.length && reference.value !== {}) {
-          if (typeof interf === "string") {
+          if (interf === undefined || interf === null || ((typeof interf === "object" && Object.keys(interf).length == 0)
+            || (typeof interf === "string" && interf === "{}"))) {
+            res.push(reference.value)
+          } else if (typeof interf === "string") {
             let obj = utils.maskObject(reference.value, JSON.parse(interf));
             res.push(obj)
-          }
-          if (typeof interf === "object") {
+          } else if (typeof interf === "object") {
             let obj = utils.maskObject(reference.value, interf);
             res.push(obj)
           } else {

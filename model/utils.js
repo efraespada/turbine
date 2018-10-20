@@ -172,13 +172,16 @@ function Utils() {
 
   this.getPathsOfQuery = function (query) {
     let paths = {};
-    for (let {parent, node, key, path, deep} of new RecursiveIterator(query)) {
+    let q = query;
+    if (typeof query === "string") {
+      q = JSON.parse(query)
+    }
+    for (let {parent, node, key, path, deep} of new RecursiveIterator(q)) {
       if (typeof node !== "object") {
         if (!paths[node]) {
           paths[node] = [];
         }
         let build = "/" + path.join("/");
-        //console.log("build path: " + builded + " for " + node);
         paths[node].push(build)
       } else if (Object.keys(node).length == 0) {
         if (!paths["{}"]) {
@@ -188,7 +191,6 @@ function Utils() {
         paths["{}"].push(build);
       }
     }
-    //console.log("paths: " + JSON.stringify(paths));
     return paths;
   };
 
