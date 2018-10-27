@@ -1,5 +1,9 @@
 const Turbine = require('./index.js');
-let turbine = new Turbine();
+let turbine = new Turbine({
+  app: {
+    name: "Awesome DB ✊"
+  }
+});
 const client = turbine.client();
 
 

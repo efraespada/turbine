@@ -1,5 +1,7 @@
 const forever = require('forever-monitor');
 const logjs = require('logjsx');
+const setIn = require('set-in');
+const RecursiveIterator = require('recursive-iterator');
 const TClient = require('./model/client');
 const fs = require('fs');
 const path = require('path');
@@ -40,13 +42,19 @@ logger.init({
 
 function Turbine(config) {
 
-  this.config = config || DEFAULT_CONFIG;
   this.turbine_process = null;
-  if (this.debug) {
+
+  this.mergeConfig = () => {
+    this.config = DEFAULT_CONFIG;
+    for (let {parent, node, key, path, deep} of new RecursiveIterator(config)) {
+      if (typeof node !== "object") {
+        setIn(this.config, path, node);
+      }
+    }
     logger.init({
-      level: "DEBUG"
+      level: this.config.server.debug ? "DEBUG" : "INFO"
     });
-  }
+  };
 
   /**
    * Initializes Turbine process
@@ -73,9 +81,9 @@ function Turbine(config) {
       watchIgnorePatterns: null,
       watchDirectory: null,
 
-      logFile: __dirname + "/" + this.config.server.log_dir + process + "/logFile.log",
-      outFile: __dirname + "/" + this.config.server.log_dir + process + "/outFile.log",
-      errFile: __dirname + "/" + this.config.server.log_dir + process + "/errFile.log"
+      logFile: this.config.server.log_dir + process + "/logFile.log",
+      outFile: this.config.server.log_dir + process + "/outFile.log",
+      errFile: this.config.server.log_dir + process + "/errFile.log"
     };
 
     let c = this.config.app;
@@ -126,9 +134,11 @@ function Turbine(config) {
     return new TClient(this.config.server)
   };
 
+  this.mergeConfig();
   if (this.config.server.auto_start) {
     this.server()
   }
+
 }
 
 module.exports = Turbine;

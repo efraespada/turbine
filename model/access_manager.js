@@ -4,10 +4,6 @@ const logjs = require('logjsx');
 const logger = new logjs();
 const SLASH = "/";
 
-logger.init({
-  level: "DEBUG"
-});
-
 function AccessManager(env_config) {
 
   logger.init({
@@ -28,8 +24,6 @@ function AccessManager(env_config) {
         this.config = null;
         logger.info("No administrator found; the access.json file has generated. Open " + env_config.ip + ":" + env_config.port +
           "/app/ to define an administrator");
-      } else {
-        logger.info("administrator found")
       }
     } catch (e) {
       // no admins

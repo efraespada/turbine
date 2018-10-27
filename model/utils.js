@@ -1,7 +1,6 @@
 const RecursiveIterator = require('recursive-iterator');
 const setIn = require('set-in');
 
-
 function Utils() {
 
   /**
