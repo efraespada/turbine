@@ -9,7 +9,7 @@ if (environment.production) {
   enableProdMode();
 }
 
-fetch('/assets/config.json').then(resp => resp.json()).then(config => {
+fetch(environment.base + '/assets/config.json').then(resp => resp.json()).then(config => {
   window['firebase_config'] = config.firebase;
   window['config'] = config;
   platformBrowserDynamic().bootstrapModule(AppModule).catch(err => console.error(err));

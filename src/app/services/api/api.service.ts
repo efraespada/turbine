@@ -41,7 +41,7 @@ export class ApiService {
       const requestOptions = {
         headers: new HttpHeaders(headerDict),
       };
-      this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/?method=get_basic_info", requestOptions).toPromise()
+      this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/database?method=get_basic_info", requestOptions).toPromise()
         .then((res) => {
           this._config = new BasicConfig().fromJSON(res);
           callback.basicConfig(this._config)
@@ -85,7 +85,7 @@ export class ApiService {
     const requestOptions = {
       headers: new HttpHeaders(headerDict),
     };
-    this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/?method=get_databases_info&apiKey="
+    this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/database?method=get_databases_info&apiKey="
       + this._apiKey + "&uid=" + this._user.uid, requestOptions).toPromise()
       .then((res) => {
         this._databases_info = res;
@@ -109,7 +109,7 @@ export class ApiService {
       headers: new HttpHeaders(headerDict),
     };
 
-    this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/?method=login&user=" + JSON.stringify(user), requestOptions).toPromise()
+    this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/database?method=login&user=" + JSON.stringify(user), requestOptions).toPromise()
       .then((res: any) => {
         try {
           callback.apiKey(res.apiKey)
@@ -139,7 +139,7 @@ export class ApiService {
     const requestOptions = {
       headers: new HttpHeaders(headerDict),
     };
-    this.http.post(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/", JSON.stringify(data), requestOptions).toPromise()
+    this.http.post(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/database", JSON.stringify(data), requestOptions).toPromise()
       .then((res) => {
         callback.created()
       }).catch((err) => {
@@ -187,7 +187,7 @@ export class ApiService {
     const requestOptions = {
       headers: new HttpHeaders(headerDict),
     };
-    this.http.post(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/", JSON.stringify(data), requestOptions).toPromise()
+    this.http.post(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/database", JSON.stringify(data), requestOptions).toPromise()
       .then((res) => {
         this._databases_info = res;
         this.updateDatabases(this._databases_info);
@@ -214,7 +214,7 @@ export class ApiService {
     if (mask != null && mask !== undefined) {
       params += "&mask=" + JSON.stringify(mask)
     }
-    this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/?" + params, requestOptions).toPromise()
+    this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/database?" + params, requestOptions).toPromise()
       .then((res: any) => {
         if (res["headers"] !== undefined) {
           res["headers"] = undefined;
@@ -246,7 +246,7 @@ export class ApiService {
     if (mask != null && mask !== undefined) {
       params += "&mask=" + JSON.stringify(mask)
     }
-    this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/?" + params, requestOptions).toPromise()
+    this.http.get(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/database?" + params, requestOptions).toPromise()
       .then((res: any) => {
         if (res["headers"] !== undefined) {
           res["headers"] = undefined;
@@ -280,7 +280,7 @@ export class ApiService {
     const requestOptions = {
       headers: new HttpHeaders(headerDict),
     };
-    this.http.post(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/", JSON.stringify(data), requestOptions).toPromise()
+    this.http.post(AppConfigService.settings.turbine_ip + ":" + AppConfigService.settings.turbine_port + "/database", JSON.stringify(data), requestOptions).toPromise()
       .then((res) => {
         if (res["headers"] !== undefined) {
           res["headers"] = undefined;

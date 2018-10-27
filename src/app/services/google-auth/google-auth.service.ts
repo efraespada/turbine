@@ -9,6 +9,7 @@ import {MatSnackBar} from "@angular/material";
 import {RouterService} from "../router/router.service";
 import {MessagesService} from "../messages/messages.service";
 import {LoginCallback} from "../api/login_callback";
+import {environment} from "../../../environments/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -149,7 +150,7 @@ export class GoogleAuthService {
   update(callback, location, tag) {
     this.afAuth.authState.subscribe((auth) => {
       this.api.user = auth;
-      if (location.pathname.startsWith("/" + tag))
+      if (location.pathname.startsWith(environment.base + "/" + tag))
         callback(auth !== null);
     });
   }

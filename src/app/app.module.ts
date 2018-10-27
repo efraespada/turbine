@@ -43,6 +43,7 @@ import {MonitorBodyComponent} from './components/monitor-body/monitor-body.compo
 import {NewDatabaseDialogComponent} from './components/new-database-dialog/new-database-dialog.component';
 import {FormsModule} from "@angular/forms";
 import {AppConfigService} from "./services/app-config/app.config.service";
+import {APP_BASE_HREF} from "@angular/common";
 
 export function initializeApp(appConfig: AppConfigService) {
   return appConfig.fireConfig()
@@ -109,7 +110,8 @@ export function initializeApp(appConfig: AppConfigService) {
   ],
   providers: [
     AppConfigService,
-    { provide: FirebaseOptionsToken, deps: [AppConfigService], useFactory: initializeApp },
+    {provide: FirebaseOptionsToken, deps: [AppConfigService], useFactory: initializeApp},
+    {provide: APP_BASE_HREF, useValue: '/app'},
     GoogleAuthService,
     RouterService,
     ApiService,

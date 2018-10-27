@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const timeout = require('connect-timeout');
 const SN = require('sync-node');
 const boxen = require('boxen');
+const path = require('path');
 const DatabasesManager = require('./model/databasesManager.js');
 const AccessManager = require('./model/access_manager.js');
 const ApplicationProfile = require('./model/app_profile.js');
@@ -167,7 +168,15 @@ router.get('/', function (req, res) {
   }
 });
 
-app.use('/', router);
+app.use('/database', router);
+app.use('/app/', express.static(path.join(__dirname, 'dist/turbine-app/')));
+app.all('/app/*', function(req, res, next) {
+  if (req.originalUrl.indexOf(".css/") > -1 || req.originalUrl.indexOf(".js/") > -1 || req.originalUrl.indexOf(".json/") > -1) {
+    res.sendFile('dist/turbine-app/' + req.originalUrl.substring(0, req.originalUrl.length - 1) , { root: __dirname });
+  } else {
+    res.sendFile('dist/turbine-app/index.html' , { root: __dirname });
+  }
+});
 app.listen(turbine_port, function () {
   logger.info("Turbine database started (" + turbine_port + ")");
 });

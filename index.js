@@ -1,7 +1,5 @@
 const forever = require('forever-monitor');
 const rp = require('request-promise');
-const express = require('express');
-const app = express();
 const logjs = require('logjsx');
 const fs = require('fs');
 const path = require('path');
@@ -10,7 +8,6 @@ const logger = new logjs();
 logger.init({
   level: "DEBUG"
 });
-
 
 function Turbine(config, application_config) {
 
@@ -126,9 +123,6 @@ function Turbine(config, application_config) {
     this.prepareConfigFiles(this.application_config, () => {
       o.createDir(o.log_dir + process + "/").then(function () {
         o.turbine_process = forever.start('./turbine.js', turbine_config);
-        o.startApp(function () {
-          logger.info(`Turbine app started (${o.app_port})`);
-        });
       });
     });
   };
@@ -136,20 +130,6 @@ function Turbine(config, application_config) {
   this.stopServer = () => {
     this.turbine_process.stop();
     this.app_process.close();
-  };
-
-  this.startApp = async function (callback) {
-    /*
-    app.use('/', express.static(path.join(__dirname, 'dist/turbine-app/')));
-    app.all('/*', function(req, res, next) {
-      if (req.originalUrl.indexOf(".css/") > -1 || req.originalUrl.indexOf(".js/") > -1 || req.originalUrl.indexOf(".json/") > -1) {
-        res.sendFile('dist/turbine-app/' + req.originalUrl.substring(0, req.originalUrl.length - 1) , { root: __dirname });
-      } else {
-        res.sendFile('dist/turbine-app/index.html' , { root: __dirname });
-      }
-    });
-    o.app_process = app.listen(o.app_port, () => callback());
-    */
   };
 
   this.prepareConfigFiles = function (config, callback) {
@@ -184,7 +164,7 @@ function Turbine(config, application_config) {
       path: path,
       interface: mask
     };
-    return await this.getRequest(this.turbine_ip + ":" + this.turbine_port + "/", data)
+    return await this.getRequest(this.turbine_ip + ":" + this.turbine_port + "/database", data)
   };
 
   /**
@@ -201,7 +181,7 @@ function Turbine(config, application_config) {
       path: path,
       value: value
     };
-    let response, err = await this.postRequest(this.turbine_ip + ":" + this.turbine_port + "/", data);
+    let response, err = await this.postRequest(this.turbine_ip + ":" + this.turbine_port + "/database", data);
     if (err) {
       return err
     }
@@ -225,7 +205,7 @@ function Turbine(config, application_config) {
       mask: interf,
       token: ""
     };
-    return await this.getRequest(this.turbine_ip + ":" + this.turbine_port + "/", data)
+    return await this.getRequest(this.turbine_ip + ":" + this.turbine_port + "/database", data)
   };
 
   this.createDir = async function (dirPath) {
