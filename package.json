@@ -3,7 +3,7 @@
   "version": "0.2.0-beta",
   "scripts": {
     "dev-prod": "rm -rf dist && ng build --base-href=/app/ --deploy-url=/app/ --prod",
-    "dev-prod-runner": "rm -rf dist && ng build --prod && node launcher.js",
+    "dev-prod-runner": "rm -rf dist && ng build --prod --base-href=/app/ --deploy-url=/app/ && node launcher.js",
     "dev-server": "rm -rf dist && ng serve --port 4006 && node launcher.js",
     "dev": "ng serve --base-href=/app/ --deploy-url=/app/ --port 4006",
     "start": "ng serve",

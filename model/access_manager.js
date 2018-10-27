@@ -8,7 +8,11 @@ logger.init({
   level: "DEBUG"
 });
 
-function AccessManager() {
+function AccessManager(env_config) {
+
+  logger.init({
+    level: env_config.debug ? "DEBUG" : "INFO"
+  });
 
   this.jsondb = null;
   this.config = null;
@@ -22,7 +26,8 @@ function AccessManager() {
       this.config = this.jsondb.getData(SLASH);
       if (Object.keys(this.config).length == 0) {
         this.config = null;
-        logger.info("administrator not found")
+        logger.info("No administrator found; the access.json file has generated. Open " + env_config.ip + ":" + env_config.port +
+          "/app/ to define an administrator");
       } else {
         logger.info("administrator found")
       }
@@ -30,8 +35,15 @@ function AccessManager() {
       // no admins
       this.config = null;
       this.jsondb = null;
-      logger.error("no administrator defined");
+      this.writeFile("access.json", "{}", (err) => {
+        logger.info("No administrator found; the access.json file has generated. Open " + env_config.ip + ":" + env_config.port +
+          "/app/ to define an administrator");
+      });
     }
+  };
+
+  this.writeFile = (path_file, content, callback) => {
+    fs.writeFile(path_file, content, callback);
   };
 
   /**

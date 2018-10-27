@@ -1,10 +1,11 @@
 
 export interface IAppConfig {
   production: boolean;
-  turbine_port: number;
-  turbine_ip: string;
+  port: number;
+  ip: string;
   name: string;
-  toolbar_color: string;
+  toolbar_text_color: string;
+  toolbar_background_color: string;
   image: string;
   firebase: {
     apiKey: string;

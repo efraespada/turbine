@@ -9,51 +9,34 @@ const AccessManager = require('./model/access_manager.js');
 const ApplicationProfile = require('./model/app_profile.js');
 const logjs = require('logjsx');
 const logger = new logjs();
-logger.init({
-  level: "DEBUG"
-});
 
 String.prototype.replaceAll = function (search, replacement) {
   let target = this;
   return target.replace(new RegExp(search, 'g'), replacement);
 };
 
-const expectedDBNEnvVar = "DATABASES";
-const expectedTPORTEnvVar = "TURBINE_PORT";
-const expectedDebugKeyEnvVar = "DEBUG";
-const expectedProtectedKeyEnvVar = "PROTECTED";
+const expectedConfigEnvVar = "CONFIG";
 
-let databaseNames = null;
-let debug = false;
-let turbine_port = false;
-let protect = true;
+let env_config = null;
 
 process.argv.forEach(function (val, index, array) {
-  if (val.indexOf(expectedDBNEnvVar) > -1) {
-    databaseNames = val.replaceAll(expectedDBNEnvVar + "=", "").split(",");
-  }
-  if (val.indexOf(expectedDebugKeyEnvVar) > -1) {
-    debug = val.replaceAll(expectedDebugKeyEnvVar + "=", "").toLocaleLowerCase() === "true";
-  }
-  if (val.indexOf(expectedTPORTEnvVar) > -1) {
-    turbine_port = val.replaceAll(expectedTPORTEnvVar + "=", "");
-  }
-  if (val.indexOf(expectedProtectedKeyEnvVar) > -1) {
-    protect = val.replaceAll(expectedProtectedKeyEnvVar + "=", "").toLocaleLowerCase()  === "true";
+  if (val.indexOf(expectedConfigEnvVar) > -1) {
+    env_config = JSON.parse(val.replaceAll(expectedConfigEnvVar + "=", ""));
   }
 });
 
+logger.init({
+  level: env_config.server.debug ? "DEBUG" : "INFO"
+});
+
 let config = {
-  databaseManager: new DatabasesManager(require("./config")),
-  access: new AccessManager(),
-  app_profile: new ApplicationProfile()
+  databaseManager: new DatabasesManager(env_config.server),
+  access: new AccessManager(env_config.server),
+  app_profile: new ApplicationProfile(env_config.app)
 };
 
 // access manager
 config.access.init();
-
-// application profile
-config.app_profile.init();
 
 /**
  * check if given databases has own folder and collections, if not they are created.
@@ -78,7 +61,7 @@ app.use(function(req, res, next) {
   next();
 });
 router.post('/', function (req, res) {
-  if (config.access.validRequest(req.body) || !protect) {
+  if (config.access.validRequest(req.body) || !env_config.server.protect) {
     queue.pushJob(function () {
       if (req.body.method !== undefined && req.body.path !== undefined && req.body.database !== undefined) {
         if (req.body.method === "post" && req.body.value !== undefined) {
@@ -118,7 +101,7 @@ router.post('/', function (req, res) {
   }
 });
 router.get('/', function (req, res) {
-  if (config.access.validRequest(req.query) || !protect) {
+  if (config.access.validRequest(req.query) || !env_config.server.protect) {
     queue.pushJob(function () {
       if (req.query.method !== undefined && req.query.path !== undefined && req.query.database !== undefined) {
         if (req.query.method === "get") {
@@ -177,6 +160,6 @@ app.all('/app/*', function(req, res, next) {
     res.sendFile('dist/turbine-app/index.html' , { root: __dirname });
   }
 });
-app.listen(turbine_port, function () {
-  logger.info("Turbine database started (" + turbine_port + ")");
+app.listen(env_config.server.port, function () {
+  logger.info("Turbine database started (" + env_config.server.port + ")");
 });

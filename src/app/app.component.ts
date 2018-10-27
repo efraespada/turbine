@@ -104,7 +104,14 @@ export class AppComponent implements OnInit {
 
   headerColor() {
     return {
-      'background-color':  (AppConfigService.settings.toolbar_color !== undefined) ? AppConfigService.settings.toolbar_color : "#f5f5f5"
+      'color':  (AppConfigService.settings.toolbar_text_color !== undefined) ? AppConfigService.settings.toolbar_text_color : "#4a4a4a",
+      'background-color':  (AppConfigService.settings.toolbar_background_color !== undefined) ? AppConfigService.settings.toolbar_background_color : "#f5f5f5"
+    }
+  }
+
+  imgProfile() {
+    return {
+      'background-image':  "url(" + ((this.gService.afAuth.auth.currentUser != null && this.gService.afAuth.auth.currentUser.photoURL !== undefined && this.gService.afAuth.auth.currentUser.photoURL !== null) ? this.gService.afAuth.auth.currentUser.photoURL : "https://material.angular.io/assets/img/examples/shiba1.jpg") + ")"
     }
   }
 

@@ -1,6 +1,5 @@
 const Turbine = require('../turbine/index.js');
-let turbine = new Turbine({config: require("../turbine/config.json")});
-turbine.server();
+let turbine = new Turbine();
 
 /*
 setTimeout(async function () {
