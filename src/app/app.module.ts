@@ -55,9 +55,6 @@ export function ioConfig(appConfig: AppConfigService) {
   return appConfig.ioConfig()
 }
 
-//const config: SocketIoConfig = { url: 'http://localhost:4006/status', options: {} };
-
-
 @NgModule({
   declarations: [
     AppComponent,

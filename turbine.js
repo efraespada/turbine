@@ -173,15 +173,26 @@ server.listen(env_config.server.port, function () {
   logger.info("Turbine database started (" + env_config.server.port + ")");
 });
 
-const chat = io
+const status = io
   .of('/status')
   .on('connection', function (socket) {
-    socket.emit('a message', {
+
+    socket.on('message', function (data) {
+      socket.emit('status', {
+        that: 'refreshhhhhh'
+        , '/chat': 'will get'
+      });
+      console.log("message event: " + JSON.stringify(data))
+    });
+
+    socket.emit('status', {
       that: 'only'
       , '/chat': 'will get'
     });
-    chat.emit('a message', {
-      everyone: 'in'
-      , '/chat': 'will get'
-    });
+    console.log("connection event")
+    /*
+        status.emit('status', {
+          everyone: 'in'
+          , '/chat': 'will get'
+        });*/
   });

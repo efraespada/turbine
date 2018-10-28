@@ -15,6 +15,9 @@ export class MonitorBodyComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.socket.update((data) => {
+      console.log("monitor status on socket => " + JSON.stringify(data));
+    }, location, MonitorBodyComponent.TAG)
   }
 
 }
