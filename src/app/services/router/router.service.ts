@@ -47,6 +47,10 @@ export class RouterService {
     });
   }
 
+  public goToUrl(url: string) {
+    window.open(url, '_blank');
+  }
+
 }
 
 

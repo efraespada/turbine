@@ -46,6 +46,7 @@
     "jquery": "^3.3.1",
     "json-align": "^0.1.0",
     "logjsx": "0.0.2",
+    "ngx-socket-io": "^2.0.0",
     "node-json-db": "^0.7.5",
     "popper.js": "^1.14.4",
     "recursive-iterator": "^3.3.0",

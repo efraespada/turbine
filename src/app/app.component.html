@@ -11,6 +11,10 @@
       <div mat-card-avatar="" class="mat-icon material-icons img_profile" [ngStyle]="imgProfile()"></div>
       <span>{{ gService.afAuth.auth.currentUser?.displayName }}</span>
     </button>
+    <button href mat-menu-item (click)="routerService.goToUrl('https://github.com/efraespada/turbine/issues')">
+      <mat-icon>bug_report</mat-icon>
+      <span>Report Issue</span>
+    </button>
     <button mat-menu-item (click)="logout()">
       <mat-icon>power_settings_new</mat-icon>
       <span>Logout</span>

@@ -26,8 +26,8 @@
 
 .img_profile {
   /* display: block; */
-  height: 40px;
-  width: 40px;
+  height: 20px;
+  width: 20px;
   border-radius: 50%;
   /* flex-shrink: 0; */
   /* object-fit: cover; */

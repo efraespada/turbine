@@ -1,5 +1,4 @@
 import {BrowserModule} from '@angular/platform-browser';
-import {NgModule} from '@angular/core';
 import {HttpClientModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
@@ -21,7 +20,7 @@ import {
 import {AppComponent} from './app.component';
 import {AngularFireModule, FirebaseOptionsToken} from '@angular/fire';
 import {AngularFireStorageModule} from '@angular/fire/storage';
-import {AngularFireAuth, AngularFireAuthModule} from '@angular/fire/auth';
+import {AngularFireAuthModule} from '@angular/fire/auth';
 
 // routes
 import {APP_ROUTING} from "./app.routes";
@@ -44,10 +43,20 @@ import {NewDatabaseDialogComponent} from './components/new-database-dialog/new-d
 import {FormsModule} from "@angular/forms";
 import {AppConfigService} from "./services/app-config/app.config.service";
 import {APP_BASE_HREF} from "@angular/common";
+import {NgModule} from "@angular/core";
+import {SOCKET_CONFIG_TOKEN, SocketFactory, SocketIoModule} from "ngx-socket-io/src/socket-io.module";
+import {WrappedSocket} from "ngx-socket-io/src/socket-io.service";
+
 
 export function initializeApp(appConfig: AppConfigService) {
   return appConfig.fireConfig()
 }
+export function ioConfig(appConfig: AppConfigService) {
+  return appConfig.ioConfig()
+}
+
+//const config: SocketIoConfig = { url: 'http://localhost:4006/status', options: {} };
+
 
 @NgModule({
   declarations: [
@@ -86,6 +95,7 @@ export function initializeApp(appConfig: AppConfigService) {
     FormsModule,
     MatTabsModule,
     MatProgressSpinnerModule,
+    SocketIoModule,
     APP_ROUTING
   ],
   exports: [
@@ -110,8 +120,25 @@ export function initializeApp(appConfig: AppConfigService) {
   ],
   providers: [
     AppConfigService,
-    {provide: FirebaseOptionsToken, deps: [AppConfigService], useFactory: initializeApp},
-    {provide: APP_BASE_HREF, useValue: '/app'},
+    {
+      provide: FirebaseOptionsToken,
+      deps: [AppConfigService],
+      useFactory: initializeApp
+    },
+    {
+      provide: APP_BASE_HREF,
+      useValue: '/app'
+    },
+    {
+      provide: SOCKET_CONFIG_TOKEN,
+      deps: [AppConfigService],
+      useFactory: ioConfig
+    },
+    {
+      provide: WrappedSocket,
+      deps: [SOCKET_CONFIG_TOKEN],
+      useFactory: SocketFactory
+    },
     GoogleAuthService,
     RouterService,
     ApiService,

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {SocketService} from "../../services/socket/socket.service";
 
 @Component({
   selector: 'app-monitor-body',
@@ -9,7 +10,7 @@ export class MonitorBodyComponent implements OnInit {
 
   static TAG: string = "monitor";
 
-  constructor() {
+  constructor(private socket: SocketService) {
     console.log("monitor")
   }
 

@@ -60,6 +60,7 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Headers, Access-Control-Allow-Origin");
   next();
 });
+
 router.post('/', function (req, res) {
   if (config.access.validRequest(req.body) || !env_config.server.protect) {
     queue.pushJob(function () {
@@ -97,7 +98,7 @@ router.post('/', function (req, res) {
       }
     });
   } else {
-    res.status(403).send("🖕");
+    res.status(403).send("🧙‍♂️");
   }
 });
 router.get('/', function (req, res) {
@@ -133,12 +134,12 @@ router.get('/', function (req, res) {
         if (config.access.verifyAccount(req.query)) {
           let api = config.access.getApiKey(req.query);
           if (api === null) {
-            res.status(403).send("🖕");
+            res.status(403).send("🧙‍♂️");
           } else {
             res.json(api)
           }
         } else {
-          res.status(403).send("🖕");
+          res.status(403).send("🧙‍♂️");
         }
       } else if (req.query.method === "get_databases_info") {
         res.json(config.databaseManager.getDatabasesInfo());
@@ -147,19 +148,40 @@ router.get('/', function (req, res) {
       }
     });
   } else {
-    res.status(403).send("🖕");
+    res.status(403).send("🧙‍♂️");
   }
 });
 
 app.use('/database', router);
-app.use('/app/', express.static(path.join(__dirname, 'dist/turbine-app/')));
-app.all('/app/*', function(req, res, next) {
-  if (req.originalUrl.indexOf(".css/") > -1 || req.originalUrl.indexOf(".js/") > -1 || req.originalUrl.indexOf(".json/") > -1) {
-    res.sendFile('dist/turbine-app/' + req.originalUrl.substring(0, req.originalUrl.length - 1) , { root: __dirname });
-  } else {
-    res.sendFile('dist/turbine-app/index.html' , { root: __dirname });
-  }
-});
-app.listen(env_config.server.port, function () {
+if (env_config.app.production) {
+  app.use('/app/', express.static(path.join(__dirname, 'dist/turbine-app/')));
+  app.all('/app/*', function(req, res, next) {
+    if (req.originalUrl.indexOf(".css/") > -1 || req.originalUrl.indexOf(".js/") > -1 || req.originalUrl.indexOf(".json/") > -1) {
+      res.sendFile('dist/turbine-app/' + req.originalUrl.substring(0, req.originalUrl.length - 1) , { root: __dirname });
+    } else {
+      res.sendFile('dist/turbine-app/index.html' , { root: __dirname });
+    }
+  });
+} else {
+  logger.debug("Run ng serve --port " + (env_config.server.port + 1) + " --base-href=/app/ --deploy-url=/app/ ")
+}
+
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+
+server.listen(env_config.server.port, function () {
   logger.info("Turbine database started (" + env_config.server.port + ")");
 });
+
+const chat = io
+  .of('/status')
+  .on('connection', function (socket) {
+    socket.emit('a message', {
+      that: 'only'
+      , '/chat': 'will get'
+    });
+    chat.emit('a message', {
+      everyone: 'in'
+      , '/chat': 'will get'
+    });
+  });
