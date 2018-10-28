@@ -7,7 +7,7 @@ import {Socket} from "ngx-socket-io";
 export class SocketService {
 
   constructor(private socket: Socket) {
-    this.socket.on('status', () => {
+    this.socket.on('connect', () => {
       console.log("connected to socket");
     });
   }
