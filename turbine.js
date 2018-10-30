@@ -38,6 +38,8 @@ let config = {
 // access manager
 config.access.init();
 
+let status = null;
+
 /**
  * check if given databases has own folder and collections, if not they are created.
  * also loads databases as associative arrays
@@ -173,22 +175,24 @@ server.listen(env_config.server.port, function () {
   logger.info("Turbine database started (" + env_config.server.port + ")");
 });
 
-const status = io
+status = io
   .of('/status')
-  .on('connection', function (socket) {
+  .on('connection', (socket) => {
 
-    socket.on('message', function (data) {
-      socket.emit('status', {
-        that: 'refreshhhhhh'
-        , '/chat': 'will get'
-      });
-      console.log("message event: " + JSON.stringify(data))
+    // on message event, returns streaming data
+    socket.on('message', (data) => {
+      if ((data.access !== undefined && config.access.validRequest(data.access)) || !env_config.server.protect) {
+        let d = config.databaseManager.prepareStreamingData();
+        console.log("message event: " + JSON.stringify(d));
+        socket.emit('status', d);
+      } else {
+        logger.error("not authorized");
+        socket.disconnect()
+      }
     });
 
-    socket.emit('status', {
-      that: 'only'
-      , '/chat': 'will get'
-    });
+    // when the client connects, returns streaming data
+    // socket.emit('status', config.databaseManager.prepareStreamingData());
     console.log("connection event")
     /*
         status.emit('status', {
@@ -196,3 +200,5 @@ const status = io
           , '/chat': 'will get'
         });*/
   });
+
+config.databaseManager.ioStatus(status);

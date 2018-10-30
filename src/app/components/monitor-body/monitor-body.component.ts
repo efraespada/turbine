@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {SocketService} from "../../services/socket/socket.service";
+import {GoogleAuthService} from "../../services/google-auth/google-auth.service";
 
 @Component({
   selector: 'app-monitor-body',
@@ -10,14 +10,19 @@ export class MonitorBodyComponent implements OnInit {
 
   static TAG: string = "monitor";
 
-  constructor(private socket: SocketService) {
+  constructor(public gService: GoogleAuthService) {
     console.log("monitor")
   }
 
   ngOnInit() {
-    this.socket.update((data) => {
-      console.log("monitor status on socket => " + JSON.stringify(data));
-    }, location, MonitorBodyComponent.TAG)
+    this.gService.update((logged) => {
+      if (logged) {
+
+      }
+    }, location, MonitorBodyComponent.TAG);
+    this.gService.statusIO(location, MonitorBodyComponent.TAG, (data) => {
+      console.log("monitor message: " + JSON.stringify(data));
+    });
   }
 
 }

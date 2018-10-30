@@ -10,6 +10,7 @@ import {AppConfigService} from "../app-config/app.config.service";
 import {ITurbinePost} from "./i.turbine.post";
 import {ITurbineGet} from "./i.turbine.get";
 import {ITurbineQuery} from "./i.turbine.query";
+import {GoogleAuthService} from "../google-auth/google-auth.service";
 
 @Injectable({
   providedIn: 'root'
@@ -23,33 +24,27 @@ export class ApiService {
   private _apiKey: string = null;
   private _user: User = null;
 
-  constructor(public http: HttpClient) {
+  constructor(private http: HttpClient) {
     // nothing to do here
   }
 
-  public getBasicInfo(callback: BasicConfigCallback) {
-    if (this._config !== null) {
-      callback.basicConfig(this._config)
-    } else {
-      const headerDict = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Origin': '*'
-      };
-
-      const requestOptions = {
-        headers: new HttpHeaders(headerDict),
-      };
-      this.http.get(AppConfigService.settings.ip + ":" + AppConfigService.settings.port + "/database?method=get_basic_info", requestOptions).toPromise()
-        .then((res) => {
-          this._config = new BasicConfig().fromJSON(res);
-          callback.basicConfig(this._config)
-        }).catch((err) => {
-        console.error(JSON.stringify(err));
-        callback.error(JSON.stringify(err))
-      });
-    }
+  /**
+   * Returns Turbine mode
+   */
+  async getMode() : Mode {
+    const headerDict = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Origin': '*'
+    };
+    const requestOptions = {
+      headers: new HttpHeaders(headerDict),
+    };
+    let response = await this.http.get(AppConfigService.settings.ip + ":"+ AppConfigService.settings.port
+      + "/database?method=get_basic_info", requestOptions).toPromise();
+    this._config = new BasicConfig().fromJSON(response);
+    return this._config.mode
   }
 
   public getDatabaseInfo(callback: DatabasesInfoCallback) {

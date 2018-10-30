@@ -10,6 +10,7 @@ import {RouterService} from "../router/router.service";
 import {MessagesService} from "../messages/messages.service";
 import {LoginCallback} from "../api/login_callback";
 import {environment} from "../../../environments/environment";
+import {SocketService} from "../socket/socket.service";
 
 @Injectable({
   providedIn: 'root'
@@ -17,11 +18,9 @@ import {environment} from "../../../environments/environment";
 
 export class GoogleAuthService {
 
-  authState: any = null;
-  private _apiKey: string;
+  private authState: any = null;
 
-  constructor(public afAuth: AngularFireAuth, private api: ApiService, public snackBar: MatSnackBar
-    , public router: RouterService, public messages: MessagesService) {
+  constructor(public afAuth: AngularFireAuth) {
     this.afAuth.authState.subscribe((auth) => {
       this.authState = auth
     });
@@ -47,7 +46,7 @@ export class GoogleAuthService {
     return this.authenticated ? this.authState.uid : '';
   }
 
-  login(adminLogin: boolean) {
+  login(success, err) {
     let provider = new auth.GoogleAuthProvider();
     provider.addScope('profile');
     provider.addScope('email');
@@ -56,18 +55,10 @@ export class GoogleAuthService {
       'login_hint': 'your_mail@gmail.com'
     });
 
-    if (!adminLogin) {
-      this.snackBar.open('Login with Google account', null, {
-        duration: 2000
-      });
-    }
-    let g = this;
     this.afAuth.auth.signInWithPopup(provider).then((result) => {
-      if (!adminLogin) {
-        this.internalLogin(result.user);
-      }
-    }).catch(function (error) {
-      // TODO go error page
+      success(result.user);
+    }).catch((error) => {
+      err(error)
     });
   }
 
@@ -147,15 +138,22 @@ export class GoogleAuthService {
     }
   }
 
-  update(callback, location, tag) {
-    this.afAuth.authState.subscribe((auth) => {
-      this.api.user = auth;
-      if (location.pathname.startsWith(environment.base + "/" + tag))
-        callback(auth !== null);
+  status(callback) {
+    this.afAuth.authState.subscribe(() => {
+      callback(this.logged());
     });
   }
 
+  /**
+   * Returns true if app has credentials
+   */
+  private logged(): boolean {
+    return this.api.user !== null && this.api.user !== undefined && this.api.apiKey !== null && this.api.apiKey !== undefined;
+  }
 
+  /**
+   *
+   */
   get apiKey(): string {
     return this._apiKey;
   }
@@ -163,4 +161,14 @@ export class GoogleAuthService {
   set apiKey(value: string) {
     this._apiKey = value;
   }
+
+  get access(): any {
+    return {
+      access: {
+        apiKey: this.api.apiKey,
+        uid: this.api.user.uid
+      }
+    };
+  }
+
 }

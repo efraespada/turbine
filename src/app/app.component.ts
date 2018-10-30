@@ -63,10 +63,6 @@ export class AppComponent implements OnInit {
         console.error(error)
       }
     });
-    router.events.subscribe((val) => {
-      this.visible = !(location.href.indexOf("/splash") > -1 || location.href.indexOf("/login") > -1 ||
-        location.href.indexOf("/admin") > -1 || location.href.indexOf("/notification") > -1);
-    });
   }
 
 

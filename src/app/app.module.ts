@@ -46,6 +46,8 @@ import {APP_BASE_HREF} from "@angular/common";
 import {NgModule} from "@angular/core";
 import {SOCKET_CONFIG_TOKEN, SocketFactory, SocketIoModule} from "ngx-socket-io/src/socket-io.module";
 import {WrappedSocket} from "ngx-socket-io/src/socket-io.service";
+import {SocketService} from "./services/socket/socket.service";
+import {DataService} from "./services/data/data.service";
 
 
 export function initializeApp(appConfig: AppConfigService) {
@@ -139,7 +141,9 @@ export function ioConfig(appConfig: AppConfigService) {
     GoogleAuthService,
     RouterService,
     ApiService,
-    MessagesService
+    MessagesService,
+    SocketService,
+    DataService
   ],
   entryComponents: [
     NewDatabaseDialogComponent

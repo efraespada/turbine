@@ -9,8 +9,6 @@ import * as stringifyAligned from 'json-align';
 import {ITurbineGet} from "../../services/api/i.turbine.get";
 import {ITurbinePost} from "../../services/api/i.turbine.post";
 import {ITurbineQuery} from "../../services/api/i.turbine.query";
-import {SocketService} from "../../services/socket/socket.service";
-
 
 @Component({
   selector: 'app-console-body',
@@ -41,19 +39,19 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
   @ViewChild("response") textAreaResponse;
 
   constructor(public router: RouterService, public gService: GoogleAuthService, public messages: MessagesService,
-              public api: ApiService, private socket: SocketService) {
+              public api: ApiService) {
     // nothing to do here
   }
 
   ngOnInit() {
     this.gService.update((logged) => {
-      if (!logged) {
-        // nothing to do here (yet)
+      if (logged) {
+
       }
     }, location, ConsoleBodyComponent.TAG);
-    this.socket.update((data) => {
-      console.log("console status on socket => " + JSON.stringify(data));
-    }, location, ConsoleBodyComponent.TAG);
+    this.gService.statusIO(location, ConsoleBodyComponent.TAG, (data) => {
+      console.log("console message: " + JSON.stringify(data));
+    });
     this.doRequest(true);
   }
 

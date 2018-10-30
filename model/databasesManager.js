@@ -35,6 +35,7 @@ function DatabasesManager(configuration) {
   this.indexed = 0;
   this.processed = 0;
   this.configuration = configuration;
+  this._io_status = null;
 
   this.createDir = async function (dirPath) {
     if (!await fs.existsSync(dirPath)) {
@@ -411,6 +412,18 @@ function DatabasesManager(configuration) {
     for (let d in databases) {
       this.databases[databases[d]].save();
     }
+    if (this._io_status !== null) {
+      this._io_status.emit('status', this.prepareStreamingData());
+    }
+  };
+
+  this.prepareStreamingData = () => {
+    let data = {
+      databases: this.getDatabasesInfo(),
+      processed: this.processed
+    };
+
+    return data;
   };
 
   /**
@@ -457,6 +470,10 @@ function DatabasesManager(configuration) {
       })
     }, interval * 1000);
   });
+
+  this.ioStatus = (status_io_instance) => {
+    this._io_status = status_io_instance;
+  }
 
 }
 
