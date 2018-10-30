@@ -10,6 +10,7 @@ import {DatabasesInfoCallback} from "./services/api/databases_info_callback";
 import {MessagesService} from "./services/messages/messages.service";
 import {NewDatabaseDialogComponent} from "./components/new-database-dialog/new-database-dialog.component";
 import {AppConfigService} from "./services/app-config/app.config.service";
+import {SessionService} from "./services/session/session.service";
 
 @Component({
   selector: 'app-root',
@@ -20,7 +21,6 @@ import {AppConfigService} from "./services/app-config/app.config.service";
 export class AppComponent implements OnInit {
 
   navMode = 'side';
-  basicConfig: BasicConfig;
   visible: boolean = false;
   siging_out: boolean;
 
@@ -30,16 +30,14 @@ export class AppComponent implements OnInit {
 
   @ViewChild('drawer') matDrawer: MatDrawer;
 
-  constructor(public routerService: RouterService, public router: Router, public api: ApiService,
-              public gService: GoogleAuthService, public messagesService: MessagesService,
-              public dialog: MatDialog) {
+  constructor(private session: SessionService, private messagesService: MessagesService, private dialog: MatDialog) {
     let csl = {
       name: "Console",
       description: "Test request",
       icon: "http",
       path: "['console']",
       click: () => {
-        this.routerService.goConsole()
+        session.navigation.goConsole()
       }
     };
     let mon = {
@@ -48,7 +46,7 @@ export class AppComponent implements OnInit {
       icon: "show_chart",
       path: "['monitor']",
       click: () => {
-        this.routerService.goMonitor()
+        session.navigation.goMonitor()
       }
     };
     let component = this;

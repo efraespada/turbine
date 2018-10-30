@@ -31,7 +31,7 @@ export class ApiService {
   /**
    * Returns Turbine mode
    */
-  async getMode() : Mode {
+  async getMode(): Promise<Mode> {
     const headerDict = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -44,7 +44,11 @@ export class ApiService {
     let response = await this.http.get(AppConfigService.settings.ip + ":"+ AppConfigService.settings.port
       + "/database?method=get_basic_info", requestOptions).toPromise();
     this._config = new BasicConfig().fromJSON(response);
-    return this._config.mode
+    if (this._config.mode in Mode) {
+      return Mode[this._config.mode];
+    } else {
+      return Mode.Off
+    }
   }
 
   public getDatabaseInfo(callback: DatabasesInfoCallback) {
@@ -335,6 +339,10 @@ export class ApiService {
 
   set databases_info(value: any) {
     this._databases_info = value;
+  }
+
+  get authenticated(): boolean {
+    return this._apiKey !== null;
   }
 
 }
