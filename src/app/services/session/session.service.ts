@@ -11,7 +11,7 @@ export class SessionService {
   private _screen: Screens;
   private _mode: Mode;
 
-  constructor(private google: GoogleAuthService, private turbine: ApiService, private router: RouterService) {
+  constructor(private _google: GoogleAuthService, private _turbine: ApiService, private router: RouterService) {
     this.analyze().then(() => {
       router.screenChanged(() => {
         this.analyze().then(() => {
@@ -42,7 +42,7 @@ export class SessionService {
    * It doesn't require credentials
    */
   async mode() {
-    this._mode = await this.turbine.getMode();
+    this._mode = await this._turbine.getMode();
   }
 
   /**
@@ -53,7 +53,7 @@ export class SessionService {
       this.router.goAdmin();
     } else if (this._mode === Mode.Off && this._screen !== Screens.Notification) {
       this.router.goError();
-    } else if ((!this.google.authenticated || !this.turbine.authenticated) && (this._screen !== Screens.Login && this._screen !== Screens.Notification)) {
+    } else if ((!this.google.authenticated || !this._turbine.authenticated) && (this._screen !== Screens.Login && this._screen !== Screens.Notification)) {
       this.router.goLogin();
     } else {
       // work!
@@ -65,6 +65,14 @@ export class SessionService {
 
   get navigation(): RouterService {
     return this.router
+  }
+
+  get google(): GoogleAuthService {
+    return this._google
+  }
+
+  get turbine(): ApiService {
+    return this._turbine
   }
 
 
