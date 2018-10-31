@@ -51,30 +51,7 @@ export class ApiService {
     }
   }
 
-  public getDatabaseInfo(callback: DatabasesInfoCallback) {
-    if (this._user === null) {
-      callback.error("not_logged_yet");
-      return
-    }
-    if (this._apiKey !== null && this._apiKey !== undefined) {
-      this.internalGetDatabasesInfo(callback)
-    } else {
-      let a = this;
-      this.login(this._user, new class implements LoginCallback {
-        apiKey(apiKey: string) {
-          a._apiKey = apiKey;
-          console.info("apiKey 2: " + apiKey);
-          a.internalGetDatabasesInfo(callback)
-        }
-
-        error(error: string) {
-          callback.error(error)
-        }
-      })
-    }
-  }
-
-  private internalGetDatabasesInfo(callback: DatabasesInfoCallback) {
+  async getDatabasesInfo() {
     const headerDict = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -84,16 +61,10 @@ export class ApiService {
     const requestOptions = {
       headers: new HttpHeaders(headerDict),
     };
-    this.http.get(AppConfigService.settings.ip + ":" + AppConfigService.settings.port + "/database?method=get_databases_info&apiKey="
-      + this._apiKey + "&uid=" + this._user.uid, requestOptions).toPromise()
-      .then((res) => {
-        this._databases_info = res;
-        this.updateDatabases(this._databases_info);
-        callback.info(res)
-      }).catch((err) => {
-      console.error(err.toString());
-      callback.error(JSON.stringify(err))
-    });
+    let response = await this.http.get(AppConfigService.settings.ip + ":" + AppConfigService.settings.port + "/database?method=get_databases_info&apiKey="
+      + this._apiKey + "&uid=" + this._user.uid, requestOptions).toPromise();
+
+    return this.updateDatabases(response);
   }
 
   public login(user: User, callback: LoginCallback) {
@@ -123,7 +94,7 @@ export class ApiService {
 
   }
 
-  public createAdmin(user: User, callback: CreateAdminCallback) {
+  async createAdmin(user: User) {
     let data = {
       method: "add_member",
       user: user
@@ -134,42 +105,13 @@ export class ApiService {
       'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Allow-Origin': '*'
     };
-
     const requestOptions = {
       headers: new HttpHeaders(headerDict),
     };
-    this.http.post(AppConfigService.settings.ip + ":" + AppConfigService.settings.port + "/database", JSON.stringify(data), requestOptions).toPromise()
-      .then((res) => {
-        callback.created()
-      }).catch((err) => {
-      callback.error(JSON.stringify(err))
-    });
+    return await this.http.post(AppConfigService.settings.ip + ":" + AppConfigService.settings.port + "/database", JSON.stringify(data), requestOptions).toPromise()
   }
 
-  public createDatabase(name: string, callback: DatabasesInfoCallback) {
-    if (this._user === null) {
-      callback.error("not_logged_yet");
-      return
-    }
-    if (this._apiKey !== null && this._apiKey !== undefined) {
-      this.internalCreateDatabase(name, this._user, callback)
-    } else {
-      let a = this;
-      this.login(this._user, new class implements LoginCallback {
-        apiKey(apiKey: string) {
-          a._apiKey = apiKey;
-          console.info("apiKey 3: " + apiKey);
-          a.internalCreateDatabase(name, a._user, callback)
-        }
-
-        error(error: string) {
-          callback.error(error)
-        }
-      })
-    }
-  }
-
-  private internalCreateDatabase(name: string, user: User, callback: DatabasesInfoCallback) {
+  public async createDatabase(name: string, user: User) {
     let data = {
       method: "create_database",
       uid: user.uid,
@@ -182,119 +124,14 @@ export class ApiService {
       'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Allow-Origin': '*'
     };
-
     const requestOptions = {
       headers: new HttpHeaders(headerDict),
     };
-    this.http.post(AppConfigService.settings.ip + ":" + AppConfigService.settings.port + "/database", JSON.stringify(data), requestOptions).toPromise()
-      .then((res) => {
-        this._databases_info = res;
-        this.updateDatabases(this._databases_info);
-        callback.info(res)
-      }).catch((err) => {
-      callback.error(JSON.stringify(err))
-    });
-  }
-
-  public turbineGet(database: string, path: string, mask: any, callback: ITurbineGet) {
-    const headerDict = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Allow-Origin': '*'
-    };
-
-    const requestOptions = {
-      headers: new HttpHeaders(headerDict),
-    };
-
-    let params = "database=" + database + "&method=get"
-      + "&path=" + path + "&apiKey=" + this._apiKey + "&uid=" + this._user.uid;
-    if (mask != null && mask !== undefined) {
-      params += "&mask=" + JSON.stringify(mask)
-    }
-    this.http.get(AppConfigService.settings.ip + ":" + AppConfigService.settings.port + "/database?" + params, requestOptions).toPromise()
-      .then((res: any) => {
-        if (res["headers"] !== undefined) {
-          res["headers"] = undefined;
-        }
-        callback.response(res)
-      }).catch((err) => {
-      if (err["headers"] !== undefined) {
-        err["headers"] = undefined;
-      }
-      callback.error(err);
-    });
-
-  }
-
-  public turbineQuery(database: string, path: string, query: any, mask: any, callback: ITurbineQuery) {
-    const headerDict = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Allow-Origin': '*'
-    };
-
-    const requestOptions = {
-      headers: new HttpHeaders(headerDict),
-    };
-
-    let params = "database=" + database + "&method=query"
-      + "&path=" + path + "&query=" + JSON.stringify(query) + "&apiKey=" + this._apiKey + "&uid=" + this._user.uid;
-    if (mask != null && mask !== undefined) {
-      params += "&mask=" + JSON.stringify(mask)
-    }
-    this.http.get(AppConfigService.settings.ip + ":" + AppConfigService.settings.port + "/database?" + params, requestOptions).toPromise()
-      .then((res: any) => {
-        if (res["headers"] !== undefined) {
-          res["headers"] = undefined;
-        }
-        callback.response(res)
-      }).catch((err) => {
-      if (err["headers"] !== undefined) {
-        err["headers"] = undefined;
-      }
-      callback.error(err);
-    });
-
-  }
-
-  public turbinePost(database: string, path: string, obj: any, callback: ITurbinePost) {
-    let data = {
-      method: "post",
-      database: database,
-      path: path,
-      value: obj,
-      uid: this._user.uid,
-      apiKey: this._apiKey
-    };
-    const headerDict = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Allow-Origin': '*'
-    };
-
-    const requestOptions = {
-      headers: new HttpHeaders(headerDict),
-    };
-    this.http.post(AppConfigService.settings.ip + ":" + AppConfigService.settings.port + "/database", JSON.stringify(data), requestOptions).toPromise()
-      .then((res) => {
-        if (res["headers"] !== undefined) {
-          res["headers"] = undefined;
-        }
-        callback.response(res)
-      }).catch((err) => {
-      if (err["headers"] !== undefined) {
-        err["headers"] = undefined;
-      }
-      callback.error(err)
-    });
+    return await this.http.post(AppConfigService.settings.ip + ":" + AppConfigService.settings.port + "/database", JSON.stringify(data), requestOptions).toPromise();
   }
 
   private updateDatabases(data: any) {
-    this._databases = [];
+    let _databases = [];
     let databases_name = Object.keys(data);
     for (let name in databases_name) {
       let collection_keys = Object.keys(data[databases_name[name]].collections);
@@ -304,8 +141,9 @@ export class ApiService {
       }
       data[databases_name[name]].collections = collection_keys.length;
       data[databases_name[name]].total_size = size;
-      this._databases.push(data[databases_name[name]])
+      _databases.push(data[databases_name[name]])
     }
+    return _databases;
   }
 
   public cleanCache() {

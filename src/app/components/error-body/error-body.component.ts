@@ -1,10 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {MessagesService} from "../../services/messages/messages.service";
-import {RouterService} from "../../services/router/router.service";
-import {BasicConfigCallback} from "../../services/api/basic_config_callback";
-import {BasicConfig} from "../../services/api/basic_config";
-import {ApiService} from "../../services/api/api.service";
 import {AppConfigService} from "../../services/app-config/app.config.service";
+import {SessionService} from "../../services/session/session.service";
 
 @Component({
   selector: 'app-error-body',
@@ -15,24 +12,14 @@ import {AppConfigService} from "../../services/app-config/app.config.service";
 export class ErrorBodyComponent implements OnInit {
 
   static TAG: string = "notification";
-  basicConfig: BasicConfig;
   _name = AppConfigService.settings.name;
 
-  constructor(public messages: MessagesService, public router: RouterService, public api: ApiService) {
+  constructor(private session: SessionService, public messages: MessagesService) {
     // nothing to do here
   }
 
   ngOnInit() {
-    let component = this;
-    this.api.getBasicInfo(new class implements BasicConfigCallback {
-      basicConfig(basicConfig: BasicConfig) {
-        component.basicConfig = basicConfig;
-      }
-
-      error(error: string) {
-        console.error(error)
-      }
-    });
+    // nothing to do here
   }
 
 }

@@ -5,6 +5,7 @@ import {MessagesService} from "./services/messages/messages.service";
 import {NewDatabaseDialogComponent} from "./components/new-database-dialog/new-database-dialog.component";
 import {AppConfigService} from "./services/app-config/app.config.service";
 import {SessionService} from "./services/session/session.service";
+import {DataService} from "./services/data/data.service";
 
 @Component({
   selector: 'app-root',
@@ -24,7 +25,7 @@ export class AppComponent implements OnInit {
 
   @ViewChild('drawer') matDrawer: MatDrawer;
 
-  constructor(private session: SessionService, private messagesService: MessagesService, private dialog: MatDialog) {
+  constructor(private session: SessionService, private data: DataService, private messagesService: MessagesService, private dialog: MatDialog) {
     let csl = {
       name: "Console",
       description: "Test request",
@@ -81,7 +82,7 @@ export class AppComponent implements OnInit {
 
   logout() {
     this.siging_out = true;
-    this.session.google.logout(true)
+    this.session.google.logout()
   }
 
   openDialog(): void {
@@ -90,26 +91,10 @@ export class AppComponent implements OnInit {
       data: {name: "sample"}
     });
 
-    let view = this;
-
     dialogRef.afterClosed().subscribe(result => {
       if (result !== undefined) {
-        this.api.createDatabase(result, new class implements DatabasesInfoCallback {
-          info(data: any) {
-            view.api.getDatabaseInfo(new class implements DatabasesInfoCallback {
-              info(data: any) {
-                // nothing to do here
-              }
-              error(error: string) {
-                view.messagesService.currentMessage = "Error getting databases info: " + error;
-                view.routerService.goError()
-              }
-            })
-          }
-          error(error: string) {
-            view.messagesService.currentMessage = "Error getting databases info: " + error;
-            view.routerService.goError()
-          }
+        this.data.createDatabase(result).then(() => {
+          // TODO show snackbar
         })
       }
     });

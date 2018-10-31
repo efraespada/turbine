@@ -9,6 +9,8 @@ import * as stringifyAligned from 'json-align';
 import {ITurbineGet} from "../../services/api/i.turbine.get";
 import {ITurbinePost} from "../../services/api/i.turbine.post";
 import {ITurbineQuery} from "../../services/api/i.turbine.query";
+import {SessionService} from "../../services/session/session.service";
+import {DataService} from "../../services/data/data.service";
 
 @Component({
   selector: 'app-console-body',
@@ -38,21 +40,17 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
   @ViewChild("button_request") buttonRequest;
   @ViewChild("response") textAreaResponse;
 
-  constructor(public router: RouterService, public gService: GoogleAuthService, public messages: MessagesService,
-              public api: ApiService) {
+  constructor(private session: SessionService, private data: DataService) {
     // nothing to do here
   }
 
   ngOnInit() {
-    this.gService.update((logged) => {
-      if (logged) {
-
-      }
-    }, location, ConsoleBodyComponent.TAG);
+    /*
     this.gService.statusIO(location, ConsoleBodyComponent.TAG, (data) => {
       console.log("console message: " + JSON.stringify(data));
     });
     this.doRequest(true);
+    */
   }
 
   doRequest(auto: boolean) {

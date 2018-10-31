@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {GoogleAuthService} from "../google-auth/google-auth.service";
 import {ApiService} from "../api/api.service";
 import {RouterService} from "../router/router.service";
+import {MessagesService} from "../messages/messages.service";
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,8 @@ export class SessionService {
   private _screen: Screens;
   private _mode: Mode;
 
-  constructor(private _google: GoogleAuthService, private _turbine: ApiService, private router: RouterService) {
+  constructor(private _google: GoogleAuthService, private _turbine: ApiService, private router: RouterService,
+              private _messages: MessagesService) {
     this.analyze().then(() => {
       router.screenChanged(() => {
         this.analyze().then(() => {
@@ -73,6 +75,10 @@ export class SessionService {
 
   get turbine(): ApiService {
     return this._turbine
+  }
+
+  get notify(): MessagesService {
+    return this._messages
   }
 
 
