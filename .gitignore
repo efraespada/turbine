@@ -48,4 +48,4 @@ logs/
 access.json
 config.json
 
-data/
+/data
