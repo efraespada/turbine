@@ -5,6 +5,7 @@ let turbine = new Turbine({
     name: "Awesome DB ✊"
   },
   server: {
+    memory: 8192,
     protect: false
   }
 });

@@ -26,7 +26,7 @@ String.prototype.replaceAll = function (search, replacement) {
 };
 
 
-function DatabasesManager(configuration) {
+function Databases_manager(configuration) {
 
   let interval = 5; // secs
   let _this = this;
@@ -439,10 +439,10 @@ function DatabasesManager(configuration) {
       db.collections = {};
       let collectionsKeys = database.collectionKeys();
       for (let c in collectionsKeys) {
-        let data = database.getData(collectionsKeys[c]);
         db.collections[collectionsKeys[c]] = {};
-        db.collections[collectionsKeys[c]].length = database.size;
+        db.collections[collectionsKeys[c]].size = database.database[collectionsKeys[c]].size;
       }
+      db.size = database.size;
       data[db.name] = db;
     }
     return data;
@@ -477,4 +477,4 @@ function DatabasesManager(configuration) {
 
 }
 
-module.exports = DatabasesManager;
+module.exports = Databases_manager;

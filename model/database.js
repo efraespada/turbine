@@ -34,7 +34,7 @@ function Database(params) {
         this.database[collectionNumber].size = 0;
       }
       this.database[collectionNumber].values = {};
-      console.log("Indexing " + this.name);
+      console.log("Indexing " + this.name + " col " + collectionNumber);
       this.reindexValues(this.database[collectionNumber]);
     } else {
       console.error("collection already added")

@@ -87,13 +87,7 @@ export class ApiService {
     let _databases = [];
     let databases_name = Object.keys(data);
     for (let name in databases_name) {
-      let collection_keys = Object.keys(data[databases_name[name]].collections);
-      let size = 0;
-      for (let i in collection_keys) {
-        size += data[databases_name[name]].collections[collection_keys[i]].length
-      }
-      data[databases_name[name]].collections = collection_keys.length;
-      data[databases_name[name]].total_size = (size / 10000000.0) / 1024;
+      data[databases_name[name]].total_size = (data[databases_name[name]].size / 1000000.0) / 1024;
       _databases.push(data[databases_name[name]])
     }
     return _databases;

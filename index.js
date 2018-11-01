@@ -6,6 +6,7 @@ const TClient = require('./model/client');
 const fs = require('fs');
 const path = require('path');
 const logger = new logjs();
+const { exec } = require('child_process');
 const DEFAULT_CONFIG = {
   "server": {
     "databases": [
@@ -17,6 +18,7 @@ const DEFAULT_CONFIG = {
     "active": true,
     "auto_start": true,
     "port": 4005,
+    "memory": 4096,
     "ip": "http://localhost",
     "log_dir": "logs/"
   },
@@ -65,26 +67,20 @@ function Turbine(config) {
       return;
     }
     let process = "server";
-
     let turbine_config = {
       silent: false,
       uid: process,
       pidFile: "./" + process + ".pid",
       max: 10,
       killTree: true,
-
       minUptime: 2000,
       spinSleepTime: 1000,
-
       sourceDir: __dirname,
-
       args: ['CONFIG=' + JSON.stringify(this.config)],
-
       watch: false,
       watchIgnoreDotFiles: null,
       watchIgnorePatterns: null,
       watchDirectory: null,
-
       logFile: this.config.server.log_dir + process + "/logFile.log",
       outFile: this.config.server.log_dir + process + "/outFile.log",
       errFile: this.config.server.log_dir + process + "/errFile.log"
@@ -95,8 +91,14 @@ function Turbine(config) {
     c.port = this.config.server.port;
 
     this.prepareConfigFiles(c, () => {
-      this.createDir(this.config.server.log_dir + process + "/").then(() => {
-        this.turbine_process = forever.start('./turbine.js', turbine_config);
+      exec('export NODE_OPTIONS=--max_old_space_size=' + this.config.server.memory, (err, stdout, stderr) => {
+        if (err) {
+          logger.error("Error defining " + '--max_old_space_size=' + this.config.server.memory);
+          return;
+        }
+        this.createDir(this.config.server.log_dir + process + "/").then(() => {
+          this.turbine_process = forever.start('./turbine.js', turbine_config);
+        });
       });
     });
   };
