@@ -37,7 +37,8 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
     // nothing to do here
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.data.updateDatabases();
     /*
     this.gService.statusIO(location, ConsoleBodyComponent.TAG, (data) => {
       console.log("console message: " + JSON.stringify(data));
@@ -62,7 +63,7 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
         this.data.query(this.databaseName, this.path, this.query, this.mask).then((res) => {
           this.textAreaResponse.nativeElement.value = stringifyAligned(res)
         }).catch((err) => {
-          this.textAreaResponse.nativeElement.value = stringifyAligned(err)
+          this.textAreaResponse.nativeElement.value = stringifyAligned(err.message)
         });
       } else if (this.method === "post") {
         this.data.post(this.databaseName, this.path, this.obj).then((res) => {

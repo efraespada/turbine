@@ -25,7 +25,8 @@ export class AppComponent implements OnInit {
 
   @ViewChild('drawer') matDrawer: MatDrawer;
 
-  constructor(private session: SessionService, private data: DataService, private messagesService: MessagesService, private dialog: MatDialog) {
+  constructor(public session: SessionService, public data: DataService, private messagesService: MessagesService,
+              private dialog: MatDialog) {
     let csl = {
       name: "Console",
       description: "Test request",
@@ -99,5 +100,7 @@ export class AppComponent implements OnInit {
       }
     });
   }
+
+
 
 }

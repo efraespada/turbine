@@ -48,6 +48,7 @@ import {SOCKET_CONFIG_TOKEN, SocketFactory, SocketIoModule} from "ngx-socket-io/
 import {WrappedSocket} from "ngx-socket-io/src/socket-io.service";
 import {SocketService} from "./services/socket/socket.service";
 import {DataService} from "./services/data/data.service";
+import {SessionService} from "./services/session/session.service";
 
 
 export function initializeApp(appConfig: AppConfigService) {
@@ -143,6 +144,7 @@ export function ioConfig(appConfig: AppConfigService) {
     ApiService,
     MessagesService,
     SocketService,
+    SessionService,
     DataService
   ],
   entryComponents: [

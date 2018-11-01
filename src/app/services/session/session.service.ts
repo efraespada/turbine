@@ -58,8 +58,8 @@ export class SessionService {
     } else if (this._mode === Mode.Off && this._screen !== Screens.Notification) {
       console.log("error");
       this.router.goError();
-    } else if ((!this.google.authenticated || !this._turbine.authenticated) && (this._screen !== Screens.Login && this._screen !== Screens.Notification)) {
-      console.log("login");
+    } else if ((!await this.google.authenticated || !this._turbine.authenticated) && (this._screen !== Screens.Login && this._screen !== Screens.Notification)) {
+      console.log("login from " + this._screen);
       this.router.goLogin();
       try {
         if (await this.turbine.login()) {
@@ -94,6 +94,11 @@ export class SessionService {
 
   get notify(): MessagesService {
     return this._messages
+  }
+
+  get isMainContent(): boolean {
+    this.screen();
+    return this._screen === Screens.Console || this._screen === Screens.Monitor
   }
 
 

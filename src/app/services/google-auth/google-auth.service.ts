@@ -1,8 +1,6 @@
 import {Injectable} from '@angular/core';
 import {AngularFireAuth} from "@angular/fire/auth";
 import {auth} from "firebase";
-import UserCredential = firebase.auth.UserCredential;
-
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +12,8 @@ export class GoogleAuthService {
 
   constructor(public afAuth: AngularFireAuth) {
     this.afAuth.authState.subscribe((auth) => {
-      this.authState = auth
+      this.authState = auth;
+      this.afAuth.auth.setPersistence(this.authState).then(() => {})
     });
   }
 
@@ -48,6 +47,18 @@ export class GoogleAuthService {
     });
 
     this.afAuth.auth.signInWithPopup(provider).then(() => {});
+  }
+
+  async alogin() {
+    let provider = new auth.GoogleAuthProvider();
+    provider.addScope('profile');
+    provider.addScope('email');
+    provider.addScope('openid');
+    provider.setCustomParameters({
+      'login_hint': 'your_mail@gmail.com'
+    });
+
+    await this.afAuth.auth.signInWithPopup(provider);
   }
 
   logout() {

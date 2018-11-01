@@ -51,6 +51,9 @@ export class ApiService {
   }
 
   async login() : Promise<boolean> {
+    if (!this.google.authenticated) {
+      await this.google.alogin()
+    }
     if (this.google.authenticated) {
       let res: any = await this.http.get(AppConfigService.settings.ip + ":" + AppConfigService.settings.port + "/database?method=login&user=" + JSON.stringify(this.google.currentUser), this.requestOptions).toPromise();
       this._apiKey = res.apiKey;

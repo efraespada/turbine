@@ -4,5 +4,5 @@ export enum Screens {
   Login = "login",
   Console = "console",
   Monitor = "monitor",
-  Notification = "notify"
+  Notification = "notification"
 }

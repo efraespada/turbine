@@ -27,11 +27,27 @@ export class RouterService {
 
   get screen(): Screens {
     let l = location.pathname.replace(environment.base + "/", "");
-    if (Util.existValueInEnum(Screens, l)) {
-      return Screens[l];
-    } else {
-      return Screens.Splash
+    let m = null;
+    switch (l) {
+      case Screens.Admin:
+        m = Screens.Admin;
+        break;
+      case Screens.Login:
+        m = Screens.Login;
+        break;
+      case Screens.Console:
+        m = Screens.Console;
+        break;
+      case Screens.Monitor:
+        m = Screens.Monitor;
+        break;
+      case Screens.Notification:
+        m = Screens.Notification;
+        break;
+      default:
+        m = Screens.Splash
     }
+    return m;
   }
 
   public goSplash() {
