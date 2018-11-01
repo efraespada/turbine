@@ -1,11 +1,8 @@
 import {Injectable} from '@angular/core';
 import {SocketService} from "../socket/socket.service";
 import {SessionService} from "../session/session.service";
-import {ITurbineGet} from "../api/i.turbine.get";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {AppConfigService} from "../app-config/app.config.service";
-import {ITurbineQuery} from "../api/i.turbine.query";
-import {ITurbinePost} from "../api/i.turbine.post";
 
 @Injectable({
   providedIn: 'root'
@@ -32,9 +29,9 @@ export class DataService {
   }
 
   async createDatabase(name: string) {
-    if (this.session.turbine.apiKey !== null && this.session.turbine.authenticated) {
+    if (this.session.turbine.authenticated) {
       try {
-        await this.session.turbine.createDatabase(name, this.session.google.currentUser);
+        await this.session.turbine.createDatabase(name);
         this._databases = await this.session.turbine.getDatabasesInfo()
       } catch (e) {
         // TODO notify error
@@ -43,7 +40,7 @@ export class DataService {
   }
 
   async updateDatabases() {
-    if (this.session.turbine.apiKey !== null && this.session.turbine.authenticated) {
+    if (this.session.turbine.authenticated) {
       try {
         this._databases = await this.session.turbine.getDatabasesInfo()
       } catch (e) {
@@ -69,6 +66,7 @@ export class DataService {
     if (response["headers"] !== undefined) {
       response["headers"] = undefined;
     }
+    await this.updateDatabases();
     return response
   }
 
@@ -83,6 +81,7 @@ export class DataService {
     if (response["headers"] !== undefined) {
       response["headers"] = undefined;
     }
+    await this.updateDatabases();
     return response
   }
 
@@ -99,6 +98,7 @@ export class DataService {
     if (response["headers"] !== undefined) {
       response["headers"] = undefined;
     }
+    await this.updateDatabases();
     return response;
   }
 

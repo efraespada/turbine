@@ -1,4 +1,4 @@
-enum Screens {
+export enum Screens {
   Splash = "splash",
   Admin = "admin",
   Login = "login",

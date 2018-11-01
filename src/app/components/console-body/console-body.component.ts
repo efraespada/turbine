@@ -1,14 +1,7 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
-import {GoogleAuthService} from "../../services/google-auth/google-auth.service";
-import {RouterService} from "../../services/router/router.service";
-import {MessagesService} from "../../services/messages/messages.service";
 import {FormControl} from "@angular/forms";
-import {ApiService} from "../../services/api/api.service";
 import {MatTabChangeEvent} from "@angular/material";
 import * as stringifyAligned from 'json-align';
-import {ITurbineGet} from "../../services/api/i.turbine.get";
-import {ITurbinePost} from "../../services/api/i.turbine.post";
-import {ITurbineQuery} from "../../services/api/i.turbine.query";
 import {SessionService} from "../../services/session/session.service";
 import {DataService} from "../../services/data/data.service";
 
@@ -40,7 +33,7 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
   @ViewChild("button_request") buttonRequest;
   @ViewChild("response") textAreaResponse;
 
-  constructor(private session: SessionService, private data: DataService) {
+  constructor(private session: SessionService, public data: DataService) {
     // nothing to do here
   }
 
@@ -59,63 +52,35 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
       if (this.method === "post" && auto) {
         return
       }
-      let cbc = this;
-      console.log("method: " + this.method);
       if (this.method === "get") {
-        this.api.turbineGet(this.databaseName, this.path, this.mask, new class implements ITurbineGet {
-          response(response: any) {
-            cbc.textAreaResponse.nativeElement.value = stringifyAligned(response)
-          }
-
-          error(error: any) {
-            cbc.textAreaResponse.nativeElement.value = stringifyAligned(error)
-          }
+        this.data.get(this.databaseName, this.path, this.mask).then((res) => {
+          this.textAreaResponse.nativeElement.value = stringifyAligned(res)
+        }).catch((err) => {
+          this.textAreaResponse.nativeElement.value = stringifyAligned(err)
         });
       } else if (this.method === "query") {
-        this.api.turbineQuery(this.databaseName, this.path, this.query, this.mask, new class implements ITurbineQuery {
-          response(response: any) {
-            cbc.textAreaResponse.nativeElement.value = stringifyAligned(response)
-          }
-
-          error(error: any) {
-            cbc.textAreaResponse.nativeElement.value = stringifyAligned(error)
-          }
+        this.data.query(this.databaseName, this.path, this.query, this.mask).then((res) => {
+          this.textAreaResponse.nativeElement.value = stringifyAligned(res)
+        }).catch((err) => {
+          this.textAreaResponse.nativeElement.value = stringifyAligned(err)
         });
       } else if (this.method === "post") {
-        this.api.turbinePost(this.databaseName, this.path, this.obj, new class implements ITurbinePost {
-          response(response: any) {
-            cbc.textAreaResponse.nativeElement.value = stringifyAligned(response)
-          }
-
-          error(error: any) {
-            cbc.textAreaResponse.nativeElement.value = stringifyAligned(error)
-          }
-        })
+        this.data.post(this.databaseName, this.path, this.obj).then((res) => {
+          this.textAreaResponse.nativeElement.value = stringifyAligned(res)
+        }).catch((err) => {
+          this.textAreaResponse.nativeElement.value = stringifyAligned(err)
+        });
       }
-
     } else {
       this.buttonRequest.disabled = true
     }
-
   }
 
   private validRequest(): boolean {
-    return this.validString(this.databaseName) && this.validString(this.path) && this.validString(this.method)
-      && ((this.method.toLowerCase() === "post" && this.validObjectPost(this.obj)) ||
-        ((this.method.toLowerCase() === "query" && this.validObject(this.query))) ||
+    return ConsoleBodyComponent.validString(this.databaseName) && ConsoleBodyComponent.validString(this.path) && ConsoleBodyComponent.validString(this.method)
+      && ((this.method.toLowerCase() === "post" && ConsoleBodyComponent.validObjectPost(this.obj)) ||
+        ((this.method.toLowerCase() === "query" && ConsoleBodyComponent.validObject(this.query))) ||
         (this.method.toLowerCase() === "get"));
-  }
-
-  private validString(value: string): boolean {
-    return value !== null && value !== undefined && value.length > 0;
-  }
-
-  private validObject(value: any): boolean {
-    return value !== null && value !== undefined && Object.keys(value).length > 0;
-  }
-
-  private validObjectPost(value: any): boolean {
-    return value !== null && value !== undefined;
   }
 
   databaseChanged(name: string) {
@@ -185,6 +150,18 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.method = this.options[this.methodsGroup.selectedIndex].toLowerCase();
+  }
+
+  private static validString(value: string): boolean {
+    return value !== null && value !== undefined && value.length > 0;
+  }
+
+  private static validObject(value: any): boolean {
+    return value !== null && value !== undefined && Object.keys(value).length > 0;
+  }
+
+  private static validObjectPost(value: any): boolean {
+    return value !== null && value !== undefined;
   }
 
 }

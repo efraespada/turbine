@@ -78,7 +78,7 @@ function AccessManager(env_config) {
     }
     if (params.user !== undefined) {
       let u = JSON.parse(params.user);
-      if (u.uid !== undefined && this.config[u.uid] !== undefined) {
+      if (u !== null && u.uid !== undefined && this.config[u.uid] !== undefined) {
         if (this.config[u.uid].locked !== undefined) {
           u.locked = this.config[u.uid].locked;
         }

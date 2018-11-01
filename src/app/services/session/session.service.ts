@@ -3,6 +3,8 @@ import {GoogleAuthService} from "../google-auth/google-auth.service";
 import {ApiService} from "../api/api.service";
 import {RouterService} from "../router/router.service";
 import {MessagesService} from "../messages/messages.service";
+import {Mode} from "../../enums/mode";
+import {Screens} from "../../enums/screens";
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +31,7 @@ export class SessionService {
   async analyze() {
     this.screen();
     await this.mode();
-    this.move()
+    await this.move()
   }
 
   /**
@@ -50,13 +52,26 @@ export class SessionService {
   /**
    * Moves the application to the needed place
    */
-  move() {
+  async move() {
     if (this._mode === Mode.FirstRun && this._screen !== Screens.Admin) {
       this.router.goAdmin();
     } else if (this._mode === Mode.Off && this._screen !== Screens.Notification) {
+      console.log("error");
       this.router.goError();
     } else if ((!this.google.authenticated || !this._turbine.authenticated) && (this._screen !== Screens.Login && this._screen !== Screens.Notification)) {
+      console.log("login");
       this.router.goLogin();
+      try {
+        if (await this.turbine.login()) {
+          this.router.goConsole();
+        } else {
+          this.router.goError()
+        }
+      } catch (e) {
+        console.log(JSON.stringify(e));
+        // TODO set error menssage
+        this.router.goError();
+      }
     } else {
       // work!
       if (this._screen === Screens.Splash || this._screen === Screens.Login || this._screen === Screens.Notification) {

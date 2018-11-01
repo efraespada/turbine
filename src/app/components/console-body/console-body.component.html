@@ -3,7 +3,7 @@
 
     <mat-form-field class="example-full-width">
       <mat-select #database (selectionChange)="databaseChanged($event.value)" placeholder="Database">
-        <mat-option *ngFor="let database of api._databases" [value]="database.name">
+        <mat-option *ngFor="let database of data.databases" [value]="database.name">
           {{database.name}}
         </mat-option>
       </mat-select>

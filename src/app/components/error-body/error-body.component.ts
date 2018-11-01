@@ -14,7 +14,7 @@ export class ErrorBodyComponent implements OnInit {
   static TAG: string = "notification";
   _name = AppConfigService.settings.name;
 
-  constructor(private session: SessionService, public messages: MessagesService) {
+  constructor(public session: SessionService, public messages: MessagesService) {
     // nothing to do here
   }
 

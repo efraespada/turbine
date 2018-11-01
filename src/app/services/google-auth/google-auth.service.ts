@@ -38,7 +38,7 @@ export class GoogleAuthService {
     return this.authenticated ? this.authState.uid : '';
   }
 
-  async login(): Promise<UserCredential> {
+  login() {
     let provider = new auth.GoogleAuthProvider();
     provider.addScope('profile');
     provider.addScope('email');
@@ -47,12 +47,12 @@ export class GoogleAuthService {
       'login_hint': 'your_mail@gmail.com'
     });
 
-    return await this.afAuth.auth.signInWithPopup(provider);
+    this.afAuth.auth.signInWithPopup(provider).then(() => {});
   }
 
-  async logout() {
+  logout() {
     if (this.authenticated) {
-      await this.afAuth.auth.signOut();
+      this.afAuth.auth.signOut().then(() => {});
     }
   }
 
