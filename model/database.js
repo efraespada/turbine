@@ -1,8 +1,8 @@
 const RecursiveIterator = require('recursive-iterator');
-const log = require('single-line-log').stdout;
 const JsonDB = require('node-json-db');
+const fs = require("fs");
 const SLASH = "/";
-const MAX_SIZE = 100000;
+const MAX_SIZE = 5 * 1000000;
 
 function Database(params) {
 
@@ -10,6 +10,7 @@ function Database(params) {
   this.utils = params.utils || new Utils();
   this.database = {};
   this.indexed = 0;
+  this.size = 0;
 
   this.collectionKeys = function () {
     return Object.keys(this.database);
@@ -25,6 +26,13 @@ function Database(params) {
       this.database[collectionNumber] = {};
       this.database[collectionNumber].jsondb = new JsonDB("data/" + this.name + SLASH + collectionName, true, true);
       this.database[collectionNumber].data = this.database[collectionNumber].jsondb.getData(SLASH);
+      try {
+        const col = fs.statSync("data/" + this.name + "/col_" + collectionName + ".json");
+        this.size += col.size;
+        this.database[collectionNumber].size = col.size;
+      } catch (e) {
+        this.database[collectionNumber].size = 0;
+      }
       this.database[collectionNumber].values = {};
       console.log("Indexing " + this.name);
       this.reindexValues(this.database[collectionNumber]);
@@ -39,10 +47,6 @@ function Database(params) {
 
   this.getData = function (collection) {
     return this.database[collection].data;
-  };
-
-  this.enoughtSpace = function (collection) {
-    return JSON.stringify(this.database[collection].data).length < MAX_SIZE;
   };
 
   this.hasObject = function (collection, path) {
@@ -100,7 +104,7 @@ function Database(params) {
         suggested = collections[c];
         break;
       } else {
-        let size = Object.keys(this.database[collections[c]].values).length;
+        let size = this.database[collections[c]].size;
         if ((length === null || length > size) && size < MAX_SIZE) {
           length = size;
           suggestedForSize = collections[c];
@@ -117,10 +121,14 @@ function Database(params) {
   /**
    * Saves every collection's content in its JSON file
    */
-  this.save = function () {
+  this.save = () => {
     try {
       let collections = this.collectionKeys();
+      this.size = 0;
       for (let c in collections) {
+        const col = fs.statSync("data/" + this.name + "/col_" + collections[c] + ".json");
+        this.size += col.size;
+        this.database[collections[c]].size = col.size;
         this.database[collections[c]].jsondb.push(SLASH, this.database[collections[c]].data)
       }
     } catch (e) {

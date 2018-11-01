@@ -42,7 +42,7 @@
       <a mat-list-item href="" *ngFor="let database of data.databases">
         <mat-icon mat-list-icon>note</mat-icon>
         <h4 mat-line>{{database.name}}</h4>
-        <p mat-line> {{database.total_size}} </p>
+        <p mat-line> {{database.total_size | number: '1.1-2'}} GB</p>
       </a>
     </mat-nav-list>
   </mat-drawer>

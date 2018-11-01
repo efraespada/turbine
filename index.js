@@ -14,6 +14,7 @@ const DEFAULT_CONFIG = {
     ],
     "debug": true,
     "protect": true,
+    "active": true,
     "auto_start": true,
     "port": 4005,
     "ip": "http://localhost",
@@ -60,6 +61,9 @@ function Turbine(config) {
    * Initializes Turbine process
    */
   this.server = () => {
+    if (!this.config.server.active) {
+      return;
+    }
     let process = "server";
 
     let turbine_config = {

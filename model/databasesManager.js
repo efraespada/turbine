@@ -303,7 +303,7 @@ function DatabasesManager(configuration) {
     } else if (value.startsWith(SLASH) && value.length > SLASH.length) {
       let collection = this.databases[database].getCollectionToInsert(value);
       if (collection === null) {
-        collection = await this.createCollectionOn("data/" + database)
+        collection = await this.createCollectionOn("data/" + database);
         this.databases[database].addCollection("col_" + collection);
       }
       this.updateValueMap(database, collection, value, store);
@@ -441,7 +441,7 @@ function DatabasesManager(configuration) {
       for (let c in collectionsKeys) {
         let data = database.getData(collectionsKeys[c]);
         db.collections[collectionsKeys[c]] = {};
-        db.collections[collectionsKeys[c]].length = Buffer.byteLength(JSON.stringify(data), 'utf8');
+        db.collections[collectionsKeys[c]].length = database.size;
       }
       data[db.name] = db;
     }

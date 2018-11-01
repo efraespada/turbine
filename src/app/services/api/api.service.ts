@@ -93,7 +93,7 @@ export class ApiService {
         size += data[databases_name[name]].collections[collection_keys[i]].length
       }
       data[databases_name[name]].collections = collection_keys.length;
-      data[databases_name[name]].total_size = size;
+      data[databases_name[name]].total_size = (size / 10000000.0) / 1024;
       _databases.push(data[databases_name[name]])
     }
     return _databases;
