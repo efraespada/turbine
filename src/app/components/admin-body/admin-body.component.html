@@ -1,0 +1,21 @@
+<mat-card class="example-card">
+  <mat-card-header *ngIf=" session.google.authenticated ">
+    <mat-card-title>{{ session.google.currentUser?.displayName }}</mat-card-title>
+    <mat-card-subtitle>{{ session.google.currentUser?.email }}</mat-card-subtitle>
+  </mat-card-header>
+  <img *ngIf=" session.google.authenticated " mat-card-image src="{{ session.google.currentUser?.photoURL }}" alt="{{ session.google.currentUser?.displayName }}">
+  <mat-card-content>
+    <p *ngIf=" session.google.authenticated " class="p_with_link">
+      You will administrate {{ _name }}. Keep in mind this backend GI is in <mat-chip-list class="inline">
+      <a mat-stroked-button class="link l_extra" color="primary" href="https://github.com/efraespada/turbine/releases" target="_blank">beta</a> phase. Any issue can be reported on <a mat-button class="link" color="warn" href="https://github.com/efraespada/turbine/issues" target="_blank">issues</a> Git page
+    </mat-chip-list>
+    </p>
+    <p *ngIf=" !session.google.authenticated " class="p_with_link">
+      {{ _name }} is on <strong>first run</strong> mode and needs an administrator for starting working. The first login will define the administrator profile.
+    </p>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-button color="primary" (click)="!session.google.authenticated ? session.google.login() : session.turbine.createAdmin()">NEXT</button>
+    <button *ngIf=" session.google.authenticated " (click)="session.google.logout(false)" mat-button>CANCEL</button>
+  </mat-card-actions>
+</mat-card>

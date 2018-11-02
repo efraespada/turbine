@@ -1,0 +1,49 @@
+<mat-card class="inline m8">
+  <form class="example-form">
+
+    <mat-form-field class="example-full-width">
+      <mat-select #database (selectionChange)="databaseChanged($event.value)" placeholder="Database">
+        <mat-option *ngFor="let database of data.databases" [value]="database.name">
+          {{database.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="example-full-width">
+      <input matInput #path (input)="pathChanged($event.target.value)" placeholder="Path">
+    </mat-form-field>
+
+    <mat-tab-group #methods (selectedTabChange)="methodChanged($event)">
+      <mat-tab label="GET">
+        <mat-form-field class="example-full-width">
+          <textarea matInput class="text-area-min" name="mask" (input)="maskGetChanged($event.target.value)" #mask_get placeholder="Mask"></textarea>
+        </mat-form-field>
+      </mat-tab>
+      <mat-tab label="QUERY">
+        <mat-form-field class="example-full-width">
+          <textarea matInput class="text-area-min" name="query" (input)="queryChanged($event.target.value)" #query_query placeholder="Query"></textarea>
+        </mat-form-field>
+        <mat-form-field class="example-full-width">
+          <textarea matInput class="text-area-min"  name="mask" (input)="maskQueryChanged($event.target.value)" #mask_query placeholder="Mask"></textarea>
+        </mat-form-field>
+      </mat-tab>
+      <mat-tab label="POST">
+        <mat-form-field class="example-full-width">
+          <textarea matInput class="text-area-min" name="obj" (input)="objectChanged($event.target.value)" #object_post placeholder="Object"></textarea>
+        </mat-form-field>
+      </mat-tab>
+    </mat-tab-group>
+  </form>
+  <mat-card-actions>
+    <button mat-button #button_request color="primary" (click)="doRequest(false)">DO REQUEST</button>
+    <button mat-button>TRY A SAMPLE</button>
+  </mat-card-actions>
+</mat-card>
+
+<mat-card class="inline">
+  <form class="example-form">
+    <mat-form-field class="example-full-width">
+      <textarea matInput class="text-area-min full-width" #response placeholder="Response"></textarea>
+    </mat-form-field>
+  </form>
+</mat-card>

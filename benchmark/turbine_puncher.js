@@ -14,15 +14,16 @@ const surname = ["Espada", "Fraile", "Martinez", "Fernandez", "Molina", "Espinel
 logger.init({
     level: "DEBUG"
 });
-const numReq = 1;
+const numReq = 100;
 const EMPTY_OBJECT = "{}";
 
 const Turbine = require('../index.js');
 let turbine = new Turbine({
-    "turbine_port": 4005,
-    "turbine_ip": "http://localhost",
-    "debug": true
+  server: {
+    active: false
+  }
 });
+let client = turbine.client();
 
 function randomString(lenght) {
     let text = "";
@@ -38,7 +39,7 @@ function randomInt(max) {
 
 async function get(i = 0) {
     if (i < numReq) {
-        let user = await turbine.get("database", "/users/" + randomString(28));
+        let user = await client.get("database", "/users/" + randomString(28));
         // if (user && JSON.stringify(user) !== EMPTY_OBJECT) console.log(JSON.stringify(user));
         printProgress(i + 1, numReq);
         await get(i + 1)
@@ -55,7 +56,7 @@ async function post(i = 0) {
         } else {
             name = randomOf(namesW) + " " + randomOf(surname) + " " + randomOf(surname)
         }
-        await turbine.post("database", "/users/" + uid, {
+        await client.post("database", "/users/" + uid, {
             email: randomString(7) + "@gmail.com",
             name: name,
             age: randomInt(100),
@@ -93,7 +94,7 @@ async function post(i = 0) {
 
 async function query(i = 0) {
     if (i < numReq) {
-        let users = await turbine.query("database", "/users/*", {
+        let users = await client.query("database", "/users/*", {
             age: randomInt(100)
         }, {
             uid: ""
@@ -119,9 +120,9 @@ async function query(i = 0) {
 
 async function test() {
     let started = new Date();
-    await get();
-    let duration = new Date() - started;
-    console.log("");
+   // await get();
+    let duration = new Date(); // - started;
+   /* console.log("");
     logger.info("get " + numReq + " times [" + (duration / 1000) + " secs]");
 
     started = new Date();
@@ -130,7 +131,7 @@ async function test() {
     console.log("");
     logger.info("query " + numReq + " times [" + (duration / 1000) + " secs]");
 
-    started = new Date();
+    started = new Date();*/
     await post(0);
     duration = new Date() - started;
     console.log("");

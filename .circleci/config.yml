@@ -6,6 +6,7 @@ version: 2
 jobs:
   build:
     docker:
+
       # specify the version you desire here
       - image: buildpack-deps:trusty
 
@@ -22,8 +23,8 @@ jobs:
 
       - run: curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
       - run: sudo apt-get install -y nodejs
-
       - run: npm install
+      - run: npm run dev-prod
       - run: npm test
 
 workflows:
@@ -35,7 +36,8 @@ workflows:
           branches:
             only:
               - develop
-              - feature/*
+              - feature/app
+              - master
 
 
 

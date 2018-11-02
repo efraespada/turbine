@@ -1,191 +1,149 @@
-const forever =             require('forever-monitor');
-const rp =                  require('request-promise');
-const logjs =               require('logjsx');
-const fs =                  require('fs');
-const path =                require('path');
+const forever = require('forever-monitor');
+const logjs = require('logjsx');
+const setIn = require('set-in');
+const RecursiveIterator = require('recursive-iterator');
+const TClient = require('./model/client');
+const fs = require('fs');
+const path = require('path');
 const logger = new logjs();
+const { exec } = require('child_process');
+const DEFAULT_CONFIG = {
+  "server": {
+    "databases": [
+      "database",
+      "sample"
+    ],
+    "debug": true,
+    "protect": true,
+    "active": true,
+    "auto_start": true,
+    "port": 4005,
+    "memory": 4096,
+    "ip": "http://localhost",
+    "log_dir": "logs/"
+  },
+  "app": {
+    "production": true,
+    "name": "Turbine",
+    "toolbar_text_color": "#f5f5f5",
+    "toolbar_background_color": "#0075cd",
+    "image": "https://github.com/efraespada/turbine/raw/feature/app/src/assets/icon_512.png",
+    "firebase": {
+      "apiKey": "AIzaSyAtx8E_xHmqWFh66Ru96I5XvaKJehlmC8s",
+      "authDomain": "turbine-ide.firebaseapp.com",
+      "databaseURL": "https://turbine-ide.firebaseio.com",
+      "projectId": "turbine-ide",
+      "storageBucket": "turbine-ide.appspot.com",
+      "messagingSenderId": "440386510312"
+    }
+  }
+};
+
 logger.init({
-    level: "DEBUG"
+  level: "DEBUG"
 });
 
 function Turbine(config) {
 
-    let o = this;
-    this.config = config;
-    this.turbine_ip = "http://localhost";
-    this.turbine_port = 7285;
-    this.databases = ["myDatabase"];
-    this.uid = "turbine";
-    this.log_dir = "";
-    this.debug = false;
-    this.turbine_process = null;
+  this.turbine_process = null;
 
-    if (this.config !== undefined) {
-        if (this.config.databases !== undefined && this.config.databases.length > 0) {
-            this.databases = this.config.databases;
-        }
-        if (this.config.turbine_port !== undefined && this.config.turbine_port > 0) {
-            this.turbine_port = this.config.turbine_port;
-        }
-        if (this.config.turbine_ip !== undefined) {
-            this.turbine_ip = this.config.turbine_ip;
-        }
-        if (this.config.debug !== undefined && this.config.debug) {
-            this.debug = this.config.debug;
-        }
-        if (this.config.log_dir !== undefined && this.config.log_dir) {
-            this.log_dir = this.config.log_dir;
-        }
+  this.mergeConfig = () => {
+    this.config = DEFAULT_CONFIG;
+    for (let {parent, node, key, path, deep} of new RecursiveIterator(config)) {
+      if (typeof node !== "object") {
+        setIn(this.config, path, node);
+      }
     }
+    logger.init({
+      level: this.config.server.debug ? "DEBUG" : "INFO"
+    });
+  };
 
-    if (this.debug) {
-        logger.init({
-            level: "DEBUG"
-        });
+  /**
+   * Initializes Turbine process
+   */
+  this.server = () => {
+    if (!this.config.server.active) {
+      return;
     }
-
-    this.getRequest = function (url, data) {
-        return new Promise(function (resolve, reject) {
-            let options = {
-                uri: url,
-                qs: data,
-                json: true
-            };
-            rp(options)
-                .then(function (parsedBody) {
-                    resolve(parsedBody)
-                })
-                .catch(function (err) {
-                    logger.error(err);
-                    reject(err)
-                });
-        });
+    let process = "server";
+    let turbine_config = {
+      silent: false,
+      uid: process,
+      pidFile: "./" + process + ".pid",
+      max: 10,
+      killTree: true,
+      minUptime: 2000,
+      spinSleepTime: 1000,
+      sourceDir: __dirname,
+      args: ['CONFIG=' + JSON.stringify(this.config)],
+      watch: false,
+      watchIgnoreDotFiles: null,
+      watchIgnorePatterns: null,
+      watchDirectory: null,
+      logFile: this.config.server.log_dir + process + "/logFile.log",
+      outFile: this.config.server.log_dir + process + "/outFile.log",
+      errFile: this.config.server.log_dir + process + "/errFile.log"
     };
 
-    this.postRequest = function (url, data) {
-        return new Promise(function (resolve, reject) {
-            let options = {
-                method: 'POST',
-                uri: url,
-                body: data,
-                json: true
-            };
-            rp(options)
-                .then(function (parsedBody) {
-                    resolve(parsedBody)
-                })
-                .catch(function (err) {
-                    logger.error(err);
-                    reject(err)
-                });
-        });
-    };
+    let c = this.config.app;
+    c.ip = this.config.server.ip;
+    c.port = this.config.server.port;
 
-
-    /**
-     * Initializes Turbine process
-     */
-    this.server = () => {
-        let turbine_config = {
-            silent: false,
-            uid: o.uid,
-            pidFile: "./" + o.uid + ".pid",
-            max: 10,
-            killTree: true,
-
-            minUptime: 2000,
-            spinSleepTime: 1000,
-
-            sourceDir: __dirname,
-
-            args: ['DATABASES=' + this.databases, 'TURBINE_PORT=' + this.turbine_port, 'DEBUG=' + this.debug.toString()],
-
-            watch: false,
-            watchIgnoreDotFiles: null,
-            watchIgnorePatterns: null,
-            watchDirectory: null,
-
-
-            logFile: __dirname + "/logFile.log",
-            outFile: __dirname + "/outFile.log",
-            errFile: __dirname + "/errFile.log"
-        };
-
-        this.createDir(o.log_dir + o.uid + "/").then(() => {
-            this.turbine_process = forever.start('./turbine.js', turbine_config);
-        });
-    };
-
-    this.stopServer = () => this.turbine_process.stop();
-
-    /**
-     * Returns the object of the given path
-     * @param database -> myDatabase
-     * @param path
-     * @param mask
-     * @returns {Promise<*>}
-     */
-    this.get = async function(database, path, mask = {}) {
-        let data = {
-            method: "get",
-            database: database,
-            path: path,
-            interface: mask
-        };
-        return await this.getRequest(this.turbine_ip + ":" + this.turbine_port + "/", data)
-    };
-
-    /**
-     * Stores data in the given path. Removes if data is null or empty
-     * @param database -> myDatabase
-     * @param path
-     * @param value
-     * @returns {Promise<void>}
-     */
-    this.post = async function(database, path, value) {
-        let data = {
-            method: "post",
-            database: database,
-            path: path,
-            value: value
-        };
-        let response, err = await this.postRequest(this.turbine_ip + ":" + this.turbine_port + "/", data);
+    this.prepareConfigFiles(c, () => {
+      exec('export NODE_OPTIONS=--max_old_space_size=' + this.config.server.memory, (err, stdout, stderr) => {
         if (err) {
-            return err
+          logger.error("Error defining " + '--max_old_space_size=' + this.config.server.memory);
+          return;
         }
-        return response
-    };
+        this.createDir(this.config.server.log_dir + process + "/").then(() => {
+          this.turbine_process = forever.start('./turbine.js', turbine_config);
+        });
+      });
+    });
+  };
 
-    /**
-     * Returns a list of objects that contains the given fields and values
-     * @param database -> myDatabase
-     * @param path -> /users/*
-     * @param query -> { name: "Mark" }
-     * @param interf -> { name: type("string) }
-     * @returns {Promise<*>}
-     */
-    this.query = async function(database, path, query, interf = {}) {
-        let data = {
-            method: "query",
-            database: database,
-            path: path,
-            query: query,
-            mask: interf,
-            token: ""
-        };
-        return await this.getRequest(this.turbine_ip + ":" + this.turbine_port + "/", data)
-    };
+  this.stopServer = () => {
+    this.turbine_process.stop();
+  };
 
-    this.createDir = async function (dirPath) {
-        if (!await fs.existsSync(dirPath)) {
-            try {
-                await fs.mkdirSync(dirPath);
-            } catch (e) {
-                await this.createDir(path.dirname(dirPath));
-                await this.createDir(dirPath);
-            }
-        }
-    };
+  this.prepareConfigFiles = (config, callback) => {
+    let content = JSON.stringify(config);
+    this.writeFile(__dirname + "/dist/turbine-app/assets/config.json", content, (err) => {
+      let devPath = __dirname + "/src/assets";
+      if (fs.existsSync(devPath)) {
+        this.writeFile(devPath + "/config.json", content, (err) => {
+          callback()
+        });
+      } else {
+        callback();
+      }
+    });
+  };
+
+  this.writeFile = (path_file, content, callback) => {
+    fs.writeFile(path_file, content, callback);
+  };
+
+  this.createDir = async (dirPath) => {
+    if (!await fs.existsSync(dirPath)) {
+      try {
+        await fs.mkdirSync(dirPath);
+      } catch (e) {
+        await this.createDir(path.dirname(dirPath));
+        await this.createDir(dirPath);
+      }
+    }
+  };
+
+  this.client = () => {
+    return new TClient(this.config.server)
+  };
+
+  this.mergeConfig();
+  if (this.config.server.auto_start) {
+    this.server()
+  }
 
 }
 

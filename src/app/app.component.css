@@ -1,0 +1,52 @@
+.float-right {
+  position: fixed;
+  right: 0;
+}
+
+.example-container {
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.example-sidenav-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.example-sidenav {
+  padding: 20px;
+}
+
+.menu {
+  margin-right: 10px;
+}
+
+.img_profile {
+  /* display: block; */
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  /* flex-shrink: 0; */
+  /* object-fit: cover; */
+  background-size: cover;
+}
+
+.mat-menu-item .mat-icon {
+  margin-right: auto;
+  border-radius: 50%;
+}
+
+.mat-list-icon {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.mat-menu-item[_ngcontent-c0] .mat-icon[_ngcontent-c0] {
+  margin-right: 15px;
+}
+
+p {
+  letter-spacing: .5px;
+}

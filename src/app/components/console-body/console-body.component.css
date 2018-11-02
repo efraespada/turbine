@@ -1,0 +1,23 @@
+.example-form {
+  min-height: 390px;
+  width: 528px;
+}
+.text-area-min {
+  height: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.example-full-width {
+  width: 100%;
+}
+
+.full-width {
+  height: 400px;
+}
+
+.inline {
+  display: inline-block;
+  vertical-align: top;
+  margin: 8px;
+}
