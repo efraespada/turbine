@@ -26,7 +26,7 @@ String.prototype.replaceAll = function (search, replacement) {
 };
 
 
-function Databases_manager(configuration) {
+function DatabasesManager(configuration, cpus, cluster_id) {
 
   let interval = 5; // secs
   let _this = this;
@@ -89,23 +89,44 @@ function Databases_manager(configuration) {
     return f;
   };
 
-  this.loadCollectionsOn = async function (database) {
+  this.loadCollectionsOn = async (database) => {
     if (this.databases[database] === undefined) {
       let folder = "data/" + database;
       let items = await fs.readdirSync(folder);
-      this.databases[database] = new Database({name: database, utils: utils});
+      this.databases[database] = new Database({name: database, utils: utils, worker: cluster_id});
       let cols = false;
       for (let i in items) {
-        if (items[i].indexOf("col_") > -1) {
+        if (items[i].indexOf("col_") > -1 && this.isForCluster(items[i])) {
+          logger.debug("cluster " + cluster_id + " => " + database +" indexing " + items[i]);
           this.databases[database].addCollection(utils.getCollectionName(items[i]));
           cols = true;
         }
       }
       if (!cols) {
-        throw new Error("no collections found in " + folder);
+        // throw new Error("no collections found in " + folder);
+        logger.debug("no collections found in " + folder + " for cluster: " + cluster_id);
       }
     } else {
       console.error("database already loaded")
+    }
+  };
+
+  this.isForCluster = (collection) => {
+    let c;
+    if (typeof collection === "string") {
+      if (collection.indexOf("col_") > -1) {
+        c = +(collection.replace("col_", "").replace(".json", ""))
+      } else {
+        c = +collection;
+      }
+    } else {
+      c = collection;
+    }
+    c++;
+    if (c <= cpus) {
+      return c == cluster_id
+    } else {
+      return cluster_id == (c % cpus) + 1
     }
   };
 
@@ -461,7 +482,8 @@ function Databases_manager(configuration) {
 
     // init databases
   this.loadDatabases().then(function () {
-    console.log("database manager ready in " + ((new Date().getTime() - _this.initOn) / 1000) + " secs");
+    logger.warn("cluster " + cluster_id + " => database manager ready in " + ((new Date().getTime() - _this.initOn) / 1000) + " secs");
+    /*
     Interval.run(function () {
       queue.pushJob(function () {
         _this.save().then(function () {
@@ -469,6 +491,7 @@ function Databases_manager(configuration) {
         })
       })
     }, interval * 1000);
+    */
   });
 
   this.ioStatus = (status_io_instance) => {
@@ -477,4 +500,4 @@ function Databases_manager(configuration) {
 
 }
 
-module.exports = Databases_manager;
+module.exports = DatabasesManager;

@@ -7,6 +7,7 @@ const MAX_SIZE = 5 * 1000000;
 function Database(params) {
 
   this.name = params.name;
+  this.cluster_id = params.worker;
   this.utils = params.utils || new Utils();
   this.database = {};
   this.indexed = 0;
@@ -34,8 +35,8 @@ function Database(params) {
         this.database[collectionNumber].size = 0;
       }
       this.database[collectionNumber].values = {};
-      console.log("Indexing " + this.name + " col " + collectionNumber);
       this.reindexValues(this.database[collectionNumber]);
+      console.log("cluster " + this.cluster_id + " => " + this.name + " indexed col_" + collectionNumber + ".json");
     } else {
       console.error("collection already added")
     }
@@ -91,7 +92,6 @@ function Database(params) {
         }
       }
     }
-    console.log((this.indexed > 0 ? "\n" : "") + "👍")
   };
 
   this.getCollectionToInsert = function (path) {
