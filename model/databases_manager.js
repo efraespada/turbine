@@ -97,7 +97,7 @@ function DatabasesManager(configuration, cpus, cluster_id) {
       let cols = false;
       for (let i in items) {
         if (items[i].indexOf("col_") > -1 && this.isForCluster(items[i])) {
-          logger.debug("cluster " + cluster_id + " => " + database +" indexing " + items[i]);
+          //logger.debug("cluster " + cluster_id + " => " + database +" indexing " + items[i]);
           this.databases[database].addCollection(utils.getCollectionName(items[i]));
           cols = true;
         }
@@ -483,7 +483,6 @@ function DatabasesManager(configuration, cpus, cluster_id) {
     // init databases
   this.loadDatabases().then(function () {
     logger.warn("cluster " + cluster_id + " => database manager ready in " + ((new Date().getTime() - _this.initOn) / 1000) + " secs");
-    /*
     Interval.run(function () {
       queue.pushJob(function () {
         _this.save().then(function () {
@@ -491,7 +490,6 @@ function DatabasesManager(configuration, cpus, cluster_id) {
         })
       })
     }, interval * 1000);
-    */
   });
 
   this.ioStatus = (status_io_instance) => {
