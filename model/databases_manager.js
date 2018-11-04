@@ -35,7 +35,7 @@ function DatabasesManager(configuration, cpus, cluster_id) {
   this.indexed = 0;
   this.processed = 0;
   this.configuration = configuration;
-  this._io_status = null;
+  this._socket_client = null;
 
   this.createDir = async function (dirPath) {
     if (!await fs.existsSync(dirPath)) {
@@ -433,9 +433,11 @@ function DatabasesManager(configuration, cpus, cluster_id) {
     for (let d in databases) {
       this.databases[databases[d]].save();
     }
+    /*
     if (this._io_status !== null) {
       this._io_status.emit('status', this.prepareStreamingData());
     }
+    */
   };
 
   this.prepareStreamingData = () => {
@@ -492,8 +494,8 @@ function DatabasesManager(configuration, cpus, cluster_id) {
     }, interval * 1000);
   });
 
-  this.ioStatus = (status_io_instance) => {
-    this._io_status = status_io_instance;
+  this.socket_client = (socket_client_instance) => {
+    this._socket_client = socket_client_instance;
   }
 
 }

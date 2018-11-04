@@ -72,7 +72,7 @@ if (cluster.isMaster) {
   app.use(bodyParser.urlencoded({extended: true}));
   app.use(bodyParser.json({limit: '50mb'}));
   app.use(timeout('120s'));
-  app.use(function(req, res, next) {
+  app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Access-Control-Allow-Headers, Access-Control-Allow-Origin");
     next();
@@ -181,11 +181,11 @@ if (cluster.isMaster) {
   app.use('/database', router);
   if (env_config.app.production) {
     app.use('/app/', express.static(path.join(__dirname, 'dist/turbine-app/')));
-    app.all('/app/*', function(req, res, next) {
+    app.all('/app/*', function (req, res, next) {
       if (req.originalUrl.indexOf(".css/") > -1 || req.originalUrl.indexOf(".js/") > -1 || req.originalUrl.indexOf(".json/") > -1) {
-        res.sendFile('dist/turbine-app/' + req.originalUrl.substring(0, req.originalUrl.length - 1) , { root: __dirname });
+        res.sendFile('dist/turbine-app/' + req.originalUrl.substring(0, req.originalUrl.length - 1), {root: __dirname});
       } else {
-        res.sendFile('dist/turbine-app/index.html' , { root: __dirname });
+        res.sendFile('dist/turbine-app/index.html', {root: __dirname});
       }
     });
   } else {
@@ -205,6 +205,8 @@ if (cluster.isMaster) {
 
       // on message event, returns streaming data
       socket.on('message', (data) => {
+
+
         if ((data.access !== undefined && config.access.validRequest(data.access)) || !env_config.server.protect) {
           /*
           let d = config.databaseManager.prepareStreamingData();
@@ -217,6 +219,10 @@ if (cluster.isMaster) {
         }
       });
 
+      socket.on('cluster_connection', (data) => {
+        console.log("data: " + data);
+      });
+
       // when the client connects, returns streaming data
       // socket.emit('status', config.databaseManager.prepareStreamingData());
       console.log("connection event")
@@ -227,10 +233,35 @@ if (cluster.isMaster) {
           });*/
     });
 
+  // clusters
+  let sockect_cluster = io
+    .of('/cluster')
+    .on('connection', (socket) => {
+      // connect cluster to room
+      socket.on('join', (room) => {
+        logger.debug("master => cluster " + room.cluster + " connected");
+        socket.join(room.name);
+      });
+    });
+
   // config.databaseManager.ioStatus(status);
 
 } else {
+  let socket = require('socket.io-client')(env_config.server.ip + ':' + env_config.server.port + "/cluster");
   let config = {
     databaseManager: new DatabasesManager(env_config.server, numCPUs, cluster.worker.id)
   };
+  socket.on('connect', () => {
+    socket.emit('join', {
+      name: "cluster",
+      cluster: cluster.worker.id
+    });
+  });
+  socket.on('event', (data) => {
+    logger.debug("cluster " + cluster.worker.id + " => event received from master")
+  });
+  socket.on('disconnect', () => {
+    logger.debug("cluster " + cluster.worker.id + " => disconnected of master")
+  });
+  config.databaseManager.socket_client(socket);
 }
