@@ -199,6 +199,7 @@ if (cluster.isMaster) {
     logger.info("Turbine database started (" + env_config.server.port + ")");
   });
 
+  /*
   let status = io
     .of('/status')
     .on('connection', (socket) => {
@@ -208,11 +209,11 @@ if (cluster.isMaster) {
 
 
         if ((data.access !== undefined && config.access.validRequest(data.access)) || !env_config.server.protect) {
-          /*
+
           let d = config.databaseManager.prepareStreamingData();
           console.log("message event: " + JSON.stringify(d));
           socket.emit('status', d);
-          */
+
         } else {
           logger.error("not authorized");
           socket.disconnect()
@@ -226,12 +227,9 @@ if (cluster.isMaster) {
       // when the client connects, returns streaming data
       // socket.emit('status', config.databaseManager.prepareStreamingData());
       console.log("connection event")
-      /*
-          status.emit('status', {
-            everyone: 'in'
-            , '/chat': 'will get'
-          });*/
+
     });
+    */
 
   // config.databaseManager.ioStatus(status);
 
