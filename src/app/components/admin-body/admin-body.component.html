@@ -16,6 +16,6 @@
   </mat-card-content>
   <mat-card-actions>
     <button mat-button color="primary" (click)="!session.google.authenticated ? session.google.login() : session.turbine.createAdmin()">NEXT</button>
-    <button *ngIf=" session.google.authenticated " (click)="session.google.logout(false)" mat-button>CANCEL</button>
+    <button *ngIf=" session.google.authenticated " (click)="session.logout()" mat-button>CANCEL</button>
   </mat-card-actions>
 </mat-card>

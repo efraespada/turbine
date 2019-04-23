@@ -1,6 +1,8 @@
 import {Injectable} from '@angular/core';
 import {AngularFireAuth} from "@angular/fire/auth";
-import {auth} from "firebase";
+import {auth, User} from "firebase";
+import Auth = auth.Auth;
+import {first} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -8,13 +10,15 @@ import {auth} from "firebase";
 
 export class GoogleAuthService {
 
-  private authState: any = null;
+  private authState: User = null;
+  private gParams: any = {
+    'login_hint': 'your_mail@gmail.com',
+    'access_type': 'offline',
+    'include_granted_scopes': 'true'
+  };
 
   constructor(public afAuth: AngularFireAuth) {
-    this.afAuth.authState.subscribe((auth) => {
-      this.authState = auth;
-      this.afAuth.auth.setPersistence(this.authState).then(() => {})
-    });
+    // nothing to do here
   }
 
   // Returns true if user is logged in
@@ -23,8 +27,12 @@ export class GoogleAuthService {
   }
 
   // Returns current user data
-  get currentUser(): any {
+  get currentUser(): User {
     return this.authenticated ? this.authState : null;
+  }
+
+  set currentUser(value: User) {
+    this.authState = value;
   }
 
   // Returns
@@ -42,28 +50,44 @@ export class GoogleAuthService {
     provider.addScope('profile');
     provider.addScope('email');
     provider.addScope('openid');
-    provider.setCustomParameters({
-      'login_hint': 'your_mail@gmail.com'
-    });
+    provider.setCustomParameters(this.gParams);
 
-    this.afAuth.auth.signInWithPopup(provider).then(() => {});
+    //this.afAuth.auth.signInWithPopup(provider).then(() => {});
+    this.afAuth.auth.setPersistence(Auth.Persistence.LOCAL).then(() => {
+      // Existing and future Auth states are now persisted in the current
+      // session only. Closing the window would clear any existing state even
+      // if a user forgets to sign out.
+      // ...
+      // New sign-in will be persisted with session persistence.
+      return this.afAuth.auth.signInWithRedirect(provider);
+    }).catch(function(error) {
+      let errorCode = error.code;
+      let errorMessage = error.message;
+    });
   }
 
-  async alogin() {
+  async asyncLogin() {
     let provider = new auth.GoogleAuthProvider();
     provider.addScope('profile');
     provider.addScope('email');
     provider.addScope('openid');
-    provider.setCustomParameters({
-      'login_hint': 'your_mail@gmail.com'
-    });
+    provider.setCustomParameters(this.gParams);
+    try {
+      await this.afAuth.auth.setPersistence(Auth.Persistence.LOCAL);
+      return await this.afAuth.auth.signInWithRedirect(provider);
+    } catch (e) {
+      return null;
+    }
 
-    await this.afAuth.auth.signInWithPopup(provider);
   }
 
-  logout() {
+  async verifySession() {
+    this.authState = await this.afAuth.authState.pipe(first()).toPromise();
+  }
+
+  async logout() {
     if (this.authenticated) {
-      this.afAuth.auth.signOut().then(() => {});
+      await this.afAuth.auth.signOut()
     }
   }
 

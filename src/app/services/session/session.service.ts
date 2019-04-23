@@ -16,20 +16,18 @@ export class SessionService {
 
   constructor(private _google: GoogleAuthService, private _turbine: ApiService, private router: RouterService,
               private _messages: MessagesService) {
-    this.analyze().then(() => {
-      router.screenChanged(() => {
-        this.analyze().then(() => {
-          // nothing to do here
-        })
-      });
-    })
+    _google.currentUserObservable.subscribe((auth) => {
+      this._google.currentUser = auth;
+      this.analyze().then(() => {})
+    });
   }
 
   /**
    * Let's go
    */
   async analyze() {
-    this.screen();
+    await this._google.verifySession();
+    await this._turbine.verifySession();
     await this.mode();
     await this.move()
   }
@@ -55,28 +53,16 @@ export class SessionService {
   async move() {
     if (this._mode === Mode.FirstRun && this._screen !== Screens.Admin) {
       this.router.goAdmin();
+    } else if (this._mode === Mode.Logout && this._screen !== Screens.Notification) {
+      this.router.goMainMessage();
     } else if (this._mode === Mode.Off && this._screen !== Screens.Notification) {
       console.log("error");
-      this.router.goError();
-    } else if ((!await this.google.authenticated || !this._turbine.authenticated) && (this._screen !== Screens.Login && this._screen !== Screens.Notification)) {
-      console.log("login from " + this._screen);
-      this.router.goLogin();
-      try {
-        if (await this.turbine.login()) {
-          this.router.goConsole();
-        } else {
-          this.router.goError()
-        }
-      } catch (e) {
-        console.log(JSON.stringify(e));
-        // TODO set error menssage
-        this.router.goError();
-      }
-    } else {
-      // work!
-      if (this._screen === Screens.Splash || this._screen === Screens.Login || this._screen === Screens.Notification) {
-        this.router.goConsole()
-      }
+      this.router.goMainMessage();
+    } else if ((!this.google.authenticated || !this._turbine.authenticated) && !this.isOnPageForLogedOut) {
+      this._messages.currentMessage = "You are not logged";
+      this.router.goMainMessage();
+    } else if (this.google.authenticated && this._turbine.authenticated && this.isOnPageForLogedOut) {
+      this.router.goConsole()
     }
   }
 
@@ -92,6 +78,17 @@ export class SessionService {
     return this._turbine
   }
 
+  login() {
+    this._google.asyncLogin().then(() => {});
+  }
+
+  logout() {
+    this._google.logout().then(() => {
+      this.notify.currentMessage = "See you soon";
+      this.navigation.goMainMessage()
+    });
+  }
+
   get notify(): MessagesService {
     return this._messages
   }
@@ -101,5 +98,8 @@ export class SessionService {
     return this._screen === Screens.Console || this._screen === Screens.Monitor
   }
 
+  get isOnPageForLogedOut(): boolean {
+    return this._screen === Screens.Splash || this._screen === Screens.Login || this._screen === Screens.Notification
+  }
 
 }

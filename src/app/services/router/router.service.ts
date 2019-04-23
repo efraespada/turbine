@@ -16,15 +16,6 @@ export class RouterService {
     // nothing to do here
   }
 
-  public screenChanged(callback) {
-    this.router.events.subscribe(() => {
-      if (this.auto) {
-        this.auto = false;
-        callback()
-      }
-    });
-  }
-
   get screen(): Screens {
     let l = location.pathname.replace(environment.base + "/", "");
     let m = null;
@@ -78,7 +69,7 @@ export class RouterService {
     });
   }
 
-  public goError() {
+  public goMainMessage() {
     this.auto = true;
     this.router.navigateByUrl('/notification').then(function () {
       // nothing to do here

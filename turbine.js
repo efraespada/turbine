@@ -233,35 +233,11 @@ if (cluster.isMaster) {
           });*/
     });
 
-  // clusters
-  let sockect_cluster = io
-    .of('/cluster')
-    .on('connection', (socket) => {
-      // connect cluster to room
-      socket.on('join', (room) => {
-        logger.debug("master => cluster " + room.cluster + " connected");
-        socket.join(room.name);
-      });
-    });
-
   // config.databaseManager.ioStatus(status);
 
 } else {
-  let socket = require('socket.io-client')(env_config.server.ip + ':' + env_config.server.port + "/cluster");
   let config = {
     databaseManager: new DatabasesManager(env_config.server, numCPUs, cluster.worker.id)
   };
-  socket.on('connect', () => {
-    socket.emit('join', {
-      name: "cluster",
-      cluster: cluster.worker.id
-    });
-  });
-  socket.on('event', (data) => {
-    logger.debug("cluster " + cluster.worker.id + " => event received from master")
-  });
-  socket.on('disconnect', () => {
-    logger.debug("cluster " + cluster.worker.id + " => disconnected of master")
-  });
-  config.databaseManager.socket_client(socket);
+
 }

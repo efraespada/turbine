@@ -16,8 +16,6 @@ import {DataService} from "./services/data/data.service";
 export class AppComponent implements OnInit {
 
   navMode = 'side';
-  visible: boolean = false;
-  siging_out: boolean;
 
   _name = AppConfigService.settings.name;
 
@@ -79,11 +77,6 @@ export class AppComponent implements OnInit {
         && this.session.google.currentUser.photoURL !== undefined && this.session.google.currentUser.photoURL !== null) ?
         this.session.google.currentUser.photoURL : "https://material.angular.io/assets/img/examples/shiba1.jpg") + ")"
     }
-  }
-
-  logout() {
-    this.siging_out = true;
-    this.session.google.logout()
   }
 
   openDialog(): void {

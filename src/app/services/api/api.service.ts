@@ -50,9 +50,15 @@ export class ApiService {
     return this.updateDatabases(response);
   }
 
+  async verifySession() {
+    if (!this.authenticated && this.google.authenticated) {
+      await this.login();
+    }
+  }
+
   async login() : Promise<boolean> {
-    if (!this.google.authenticated) {
-      await this.google.alogin()
+    if (!this.google.authenticated && await this.google.asyncLogin() === null) {
+      return false;
     }
     if (this.google.authenticated) {
       let res: any = await this.http.get(AppConfigService.settings.ip + ":" + AppConfigService.settings.port + "/database?method=login&user=" + JSON.stringify(this.google.currentUser), this.requestOptions).toPromise();

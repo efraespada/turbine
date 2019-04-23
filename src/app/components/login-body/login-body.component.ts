@@ -15,7 +15,9 @@ export class LoginBodyComponent implements OnInit {
   }
 
   ngOnInit() {
-    // nothing to do here
+    if (!this.session.google.authenticated) {
+      this.session.login()
+    }
   }
 
 }
