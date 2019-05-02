@@ -5,17 +5,25 @@ const SN = require('sync-node');
 const boxen = require('boxen');
 const path = require('path');
 const numCPUs = require('os').cpus().length;
+const computerName = require('computer-name');
 const cluster = require('cluster');
+const EventBus = require('cluster-eventbus');
 const DatabasesManager = require('./model/databases_manager.js');
 const AccessManager = require('./model/access_manager.js');
 const ApplicationProfile = require('./model/app_profile.js');
 const logjs = require('logjsx');
 const logger = new logjs();
+const machineName = computerName();
 
 String.prototype.replaceAll = function (search, replacement) {
   let target = this;
   return target.replace(new RegExp(search, 'g'), replacement);
 };
+
+let eventBus = new EventBus({
+  core: `MacBook Pro (914)`,
+  debug: true
+}).cluster(cluster);
 
 const expectedConfigEnvVar = "CONFIG";
 
@@ -82,39 +90,14 @@ if (cluster.isMaster) {
     if (config.access.validRequest(req.body) || !env_config.server.protect) {
       queue.pushJob(function () {
         if (req.body.method !== undefined && req.body.path !== undefined && req.body.database !== undefined) {
-          if (req.body.method === "post" && req.body.value !== undefined) {
-            /*
-            config.databaseManager.saveObject(req.body.database, req.body.path, req.body.value === null ? null : req.body.value).then(function (result) {
-              if (typeof result === "string") {
-                console.error(result);
-                res.status(406).send(result);
-              } else {
-                let r;
-                try {
-                  r = JSON.parse(req.body.value)
-                } catch (e) {
-                  r = req.body.value;
-                }
-                res.json(r)
-              }
-            });*/
-          } else {
-            res.status(406).send("💥");
-          }
+          // TODO check where to POST data
+          res.status(406).send("💥");
         } else if (req.body.method === "add_member" && req.body.user !== undefined) {
-          /*
           config.access.addUser(req.body.user);
           res.json(req.body.user)
-          */
         } else if (req.body.method === "create_database" && req.body.name !== undefined) {
-          /*
-          if (config.databaseManager.createDatabase(req.body.name)) {
-            let data = config.databaseManager.getDatabasesInfo();
-            res.json(data);
-          } else {
-            res.status(406).json({error: "database " + req.body.name + " already exists"});
-          }
-          */
+          // TODO check where to create the db
+          res.status(406).send("💥");
         } else {
           res.status(406).send("💥");
         }
@@ -123,56 +106,43 @@ if (cluster.isMaster) {
       res.status(403).send("🧙‍♂️");
     }
   });
-  router.get('/', function (req, res) {
+  router.get('/', async (req, res) => {
     if (config.access.validRequest(req.query) || !env_config.server.protect) {
-      queue.pushJob(function () {
-        if (req.query.method !== undefined && req.query.path !== undefined && req.query.database !== undefined) {
-          if (req.query.method === "get") {
-            let interf = req.query.mask || {};
-            /*
-            let object = config.databaseManager.getObject(req.query.database, req.query.path, "", interf);
-            if (typeof object === "string") {
-              console.error(object);
-              res.status(406).send(object);
-            } else {
-              res.json(object)
-            }
-            */
-          } else if (req.query.method === "query" && req.query.query !== undefined) {
-            let interf = req.query.mask || {};
-            /*
-            let object = config.databaseManager.getObjectFromQuery(req.query.database, req.query.path, req.query.query, interf);
-            if (typeof object === "string") {
-              console.error(object);
-              res.status(406).send(object);
-            } else {
-              res.json(object)
-            }
-            */
-          } else {
-            res.status(406).send("💥");
-          }
-        } else if (req.query.method === "get_basic_info") {
-          let app_profile = {};
-          app_profile.mode = config.access.isFirstRun() ? "first_run" : "manager";
-          res.json(app_profile)
-        } else if (req.query.method === "login") {
-          if (config.access.verifyAccount(req.query)) {
-            let api = config.access.getApiKey(req.query);
-            if (api === null) {
-              res.status(403).send("🧙‍♂️");
-            } else {
-              res.json(api)
-            }
-          } else {
-            res.status(403).send("🧙‍♂️");
-          }
-        } else if (req.query.method === "get_databases_info") {
-          // res.json(config.databaseManager.getDatabasesInfo());
+      if (req.query.method !== undefined && req.query.path !== undefined && req.query.database !== undefined) {
+        let response = await eventBus.eventAll(req.query);
+        if (response.error) {
+          res.status(406).send(response.error_messages);
         } else {
-          res.status(406).send("💥");
+          // TODO process multiple responses
+
+          res.json(response.responses)
         }
-      });
+      } else if (req.query.method === "get_basic_info") {
+        let app_profile = {};
+        app_profile.mode = config.access.isFirstRun() ? "first_run" : "manager";
+        res.json(app_profile)
+      } else if (req.query.method === "login") {
+        if (config.access.verifyAccount(req.query)) {
+          let api = config.access.getApiKey(req.query);
+          if (api === null) {
+            res.status(403).send("🧙‍♂️");
+          } else {
+            res.json(api)
+          }
+        } else {
+          res.status(403).send("🧙‍♂️");
+        }
+      } else if (req.query.method === "get_databases_info") {
+        let response = await eventBus.eventAll(req.query);
+        if (response.error) {
+          res.status(406).send(response.error_messages);
+        } else {
+          // TODO process multiple responses
+          res.json(response.responses)
+        }
+      } else {
+        res.status(406).send("💥");
+      }
     } else {
       res.status(403).send("🧙‍♂️");
     }
@@ -237,5 +207,120 @@ if (cluster.isMaster) {
   let config = {
     databaseManager: new DatabasesManager(env_config.server, numCPUs, cluster.worker.id)
   };
+
+  eventBus.prepareWorker(cluster, (params) => {
+      if (params.method !== undefined && params.path !== undefined && params.database !== undefined) {
+        if (params.method === "get") {
+          let _interface = params.mask || {};
+          let object = config.databaseManager.getObject(params.database, params.path, "", _interface);
+          if (typeof object === "string") {
+            return {
+              machine: machineName,
+              worker_id: `worker_${cluster.worker.id}`,
+              error: true,
+              error_body: {
+                code: 406,
+                message: object
+              }
+            }
+          } else {
+            return {
+              machine: machineName,
+              worker_id: `worker_${cluster.worker.id}`,
+              response: object,
+              error: false
+            }
+          }
+        } else if (params.method === "query" && params.query !== undefined) {
+          let _interface = params.mask || {};
+          let object = config.databaseManager.getObjectFromQuery(params.database, params.path, params.query, _interface);
+          if (typeof object === "string") {
+            return {
+              machine: machineName,
+              worker_id: `worker_${cluster.worker.id}`,
+              error: true,
+              error_body: {
+                code: 406,
+                message: object
+              }
+            }
+          } else {
+            return {
+              machine: machineName,
+              worker_id: `worker_${cluster.worker.id}`,
+              response: object,
+              error: false
+            }
+          }
+
+        } else if (params.method === "get_databases_info") {
+          return {
+            machine: machineName,
+            worker_id: `worker_${cluster.worker.id}`,
+            response: config.databaseManager.getDatabasesInfo(),
+            error: false
+          };
+        } else if (params.method === "post" && params.value !== undefined) {
+          config.databaseManager.saveObject(params.database, params.path, params.value === null ? null : params.value).then(function (result) {
+            if (typeof result === "string") {
+              return {
+                machine: machineName,
+                worker_id: `worker_${cluster.worker.id}`,
+                error: true,
+                error_body: {
+                  code: 406,
+                  message: result
+                }
+              }
+            } else {
+              let r;
+              try {
+                r = JSON.parse(params.value)
+              } catch (e) {
+                r = params.value;
+              }
+              return {
+                machine: machineName,
+                worker_id: `worker_${cluster.worker.id}`,
+                response: r,
+                error: false
+              }
+            }
+          });
+        } else if (params.method === "create_database" && params.name !== undefined) {
+          if (config.databaseManager.createDatabase(params.name)) {
+            let data = config.databaseManager.getDatabasesInfo();
+            return {
+              machine: machineName,
+              worker_id: `worker_${cluster.worker.id}`,
+              response: data,
+              error: false
+            }
+          } else {
+            return {
+              machine: machineName,
+              worker_id: `worker_${cluster.worker.id}`,
+              error: true,
+              error_body: {
+                code: 406,
+                message: `database ${params.name} already exists`
+              }
+            }
+          }
+        }
+      }
+
+      // default response
+      return {
+        machine: machineName,
+        worker_id: `worker_${cluster.worker.id}`,
+        error: true,
+        error_body: {
+          code: 406,
+          message: `missing params 💥`
+        }
+      }
+    }
+  );
 
 }

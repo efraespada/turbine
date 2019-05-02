@@ -3,6 +3,7 @@ import {AngularFireAuth} from "@angular/fire/auth";
 import {auth, User} from "firebase";
 import Auth = auth.Auth;
 import {first} from "rxjs/operators";
+import {OperatorFunction} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -76,13 +77,24 @@ export class GoogleAuthService {
       await this.afAuth.auth.setPersistence(Auth.Persistence.LOCAL);
       return await this.afAuth.auth.signInWithRedirect(provider);
     } catch (e) {
+      console.error(e);
       return null;
     }
 
   }
 
   async verifySession() {
-    this.authState = await this.afAuth.authState.pipe(first()).toPromise();
+    try {
+      let f: OperatorFunction<User, User> = first();
+      this.authState = await this.afAuth.authState.pipe(f).toPromise();
+      if (this.authState !== null) {
+        console.log(this.authState.email)
+      } else {
+        console.log("not connected")
+      }
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   async logout() {

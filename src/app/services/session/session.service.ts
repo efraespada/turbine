@@ -53,16 +53,17 @@ export class SessionService {
   async move() {
     if (this._mode === Mode.FirstRun && this._screen !== Screens.Admin) {
       this.router.goAdmin();
-    } else if (this._mode === Mode.Logout && this._screen !== Screens.Notification) {
-      this.router.goMainMessage();
-    } else if (this._mode === Mode.Off && this._screen !== Screens.Notification) {
-      console.log("error");
-      this.router.goMainMessage();
-    } else if ((!this.google.authenticated || !this._turbine.authenticated) && !this.isOnPageForLogedOut) {
-      this._messages.currentMessage = "You are not logged";
+    } else if ((this._mode === Mode.Logout || this._mode === Mode.Off) && this._screen !== Screens.Notification) {
       this.router.goMainMessage();
     } else if (this.google.authenticated && this._turbine.authenticated && this.isOnPageForLogedOut) {
       this.router.goConsole()
+    }
+
+    if ((!this.google.authenticated || !this._turbine.authenticated) && !this.isOnPageForLogedOut) {
+      this._messages.currentMessage = "You are not logged";
+      this.router.goMainMessage()
+    } else if ((!this.google.authenticated || !this._turbine.authenticated) && this._screen === Screens.Splash) {
+      this.router.goLogin()
     }
   }
 

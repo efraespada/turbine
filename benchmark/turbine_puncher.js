@@ -1,6 +1,8 @@
 const log = require('single-line-log').stdout;
 const logjs = require('logjsx');
 const logger = new logjs();
+JSON.stringifyAligned = require('json-align');
+
 
 const namesM = ["Marcos", "Hugo", "Juan", "Pablo", "Mario", "Adrian", "Walter", "Antonio", "Manolo", "Miguel",
     "Julio", "Pau", "Kobe", "Ted", "Harry", "Harrison", "Efraín", "Javier", "Alberto", "Albert", "Luis", "Bruno", "Fernando"];
@@ -39,8 +41,10 @@ function randomInt(max) {
 
 async function get(i = 0) {
     if (i < numReq) {
-        let user = await client.get("database", "/users/" + randomString(28));
-        // if (user && JSON.stringify(user) !== EMPTY_OBJECT) console.log(JSON.stringify(user));
+        let response = await client.get("database", "/users/0NyEso2Mj6Wk53xO6EL5AcykoraZ");
+        if (response.response && JSON.stringify(response.response) !== EMPTY_OBJECT) {
+          console.log(JSON.stringifyAligned(response.response));
+        }
         printProgress(i + 1, numReq);
         await get(i + 1)
     }
@@ -120,7 +124,7 @@ async function query(i = 0) {
 
 async function test() {
     let started = new Date();
-   // await get();
+   await get();
     let duration = new Date(); // - started;
    /* console.log("");
     logger.info("get " + numReq + " times [" + (duration / 1000) + " secs]");
@@ -131,11 +135,13 @@ async function test() {
     console.log("");
     logger.info("query " + numReq + " times [" + (duration / 1000) + " secs]");
 
-    started = new Date();*/
+    started = new Date();
     await post(0);
     duration = new Date() - started;
     console.log("");
     logger.info("post " + numReq + " times [" + (duration / 1000) + " secs]");
+
+    */
 }
 
 function randomOf(list = []) {

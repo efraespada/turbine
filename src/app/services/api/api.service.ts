@@ -44,10 +44,15 @@ export class ApiService {
   }
 
   async getDatabasesInfo() {
-    let response = await this.http.get(AppConfigService.settings.ip + ":" + AppConfigService.settings.port + "/database?method=get_databases_info&apiKey="
-      + this._apiKey + "&uid=" + this.google.currentUser.uid, this.requestOptions).toPromise();
+    try {
+      let response = await this.http.get(AppConfigService.settings.ip + ":" + AppConfigService.settings.port + "/database?method=get_databases_info&apiKey="
+        + this._apiKey + "&uid=" + this.google.currentUser.uid, this.requestOptions).toPromise();
 
-    return this.updateDatabases(response);
+      return this.updateDatabases(response);
+    } catch (e) {
+      console.error(e.message);
+      return null
+    }
   }
 
   async verifySession() {

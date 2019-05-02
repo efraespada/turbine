@@ -26,7 +26,11 @@ function Database(params) {
     if (this.database[collectionNumber] === undefined) {
       this.database[collectionNumber] = {};
       this.database[collectionNumber].jsondb = new JsonDB("data/" + this.name + SLASH + collectionName, true, true);
-      this.database[collectionNumber].data = this.database[collectionNumber].jsondb.getData(SLASH);
+      try {
+        this.database[collectionNumber].data = this.database[collectionNumber].jsondb.getData(SLASH);
+      } catch (e) {
+        console.error(`collection_number: ${collectionNumber}`)
+      }
       try {
         const col = fs.statSync("data/" + this.name + "/col_" + collectionName + ".json");
         this.size += col.size;
