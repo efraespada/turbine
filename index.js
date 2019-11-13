@@ -2,7 +2,7 @@ const forever = require('forever-monitor');
 const logjs = require('logjsx');
 const setIn = require('set-in');
 const RecursiveIterator = require('recursive-iterator');
-const TClient = require('./model/client');
+const TClient = require('./component/client');
 const fs = require('fs');
 const path = require('path');
 const logger = new logjs();
@@ -20,7 +20,9 @@ const DEFAULT_CONFIG = {
     "port": 4005,
     "memory": 4096,
     "ip": "http://localhost",
-    "log_dir": "logs/"
+    "log_dir": "logs/",
+    "cluster_core": "MacBook Pro (914)",
+    "cluster_debug": true
   },
   "app": {
     "production": true,
@@ -147,4 +149,5 @@ function Turbine(config) {
 
 }
 
-module.exports = Turbine;
+exports = module.exports = Turbine;
+exports.DEFAULT_CONFIG = DEFAULT_CONFIG;

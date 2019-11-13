@@ -21,7 +21,7 @@ export class AppComponent implements OnInit {
 
   public links = [];
 
-  @ViewChild('drawer') matDrawer: MatDrawer;
+  @ViewChild('drawer', { static: false }) matDrawer: MatDrawer;
 
   constructor(public session: SessionService, public data: DataService, private messagesService: MessagesService,
               private dialog: MatDialog) {

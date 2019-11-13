@@ -10,7 +10,7 @@ import {DialogData} from "./data_dialog_new_database";
 
 export class NewDatabaseDialogComponent implements OnInit {
 
-  @ViewChild("database_name") textArea;
+  @ViewChild("database_name", { static: true }) textArea;
 
   constructor(public dialogRef: MatDialogRef<NewDatabaseDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: DialogData) {

@@ -23,15 +23,15 @@ export class ConsoleBodyComponent implements OnInit, AfterViewInit {
   mask: any;
   obj: any;
 
-  @ViewChild("database") databaseTextSelect;
-  @ViewChild("path") pathInput;
-  @ViewChild("methods") methodsGroup;
-  @ViewChild("mask_get") textAreaMaskGet;
-  @ViewChild("query_query") textAreaQueryQuery;
-  @ViewChild("mask_query") textAreaMaskQuery;
-  @ViewChild("object_post") textAreaObjectPost;
-  @ViewChild("button_request") buttonRequest;
-  @ViewChild("response") textAreaResponse;
+  @ViewChild("database", { static: true }) databaseTextSelect;
+  @ViewChild("path", { static: true }) pathInput;
+  @ViewChild("methods", { static: true }) methodsGroup;
+  @ViewChild("mask_get", { static: true }) textAreaMaskGet;
+  @ViewChild("query_query", { static: true }) textAreaQueryQuery;
+  @ViewChild("mask_query", { static: true }) textAreaMaskQuery;
+  @ViewChild("object_post", { static: true }) textAreaObjectPost;
+  @ViewChild("button_request", { static: true }) buttonRequest;
+  @ViewChild("response", { static: true }) textAreaResponse;
 
   constructor(private session: SessionService, public data: DataService) {
     // nothing to do here

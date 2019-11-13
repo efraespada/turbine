@@ -8,36 +8,35 @@ const numCPUs = require('os').cpus().length;
 const computerName = require('computer-name');
 const cluster = require('cluster');
 const EventBus = require('cluster-eventbus');
-const DatabasesManager = require('./model/databases_manager.js');
-const AccessManager = require('./model/access_manager.js');
-const ApplicationProfile = require('./model/app_profile.js');
+const DatabasesManager = require('./component/databases_manager.js');
+const AccessManager = require('./component/access_manager.js');
+const ApplicationProfile = require('./component/app_profile.js');
 const logjs = require('logjsx');
-const logger = new logjs();
-const machineName = computerName();
 
 String.prototype.replaceAll = function (search, replacement) {
   let target = this;
   return target.replace(new RegExp(search, 'g'), replacement);
 };
 
-let eventBus = new EventBus({
-  core: `MacBook Pro (914)`,
-  debug: true
-}).cluster(cluster);
-
+// --------------- CONFIGURATION ---------------
 const expectedConfigEnvVar = "CONFIG";
-
 let env_config = null;
-
 process.argv.forEach(function (val, index, array) {
   if (val.indexOf(expectedConfigEnvVar) > -1) {
     env_config = JSON.parse(val.replaceAll(expectedConfigEnvVar + "=", ""));
+  } else {
+    env_config = require(`./index`).DEFAULT_CONFIG;
   }
 });
 
-logger.init({
-  level: env_config.server.debug ? "DEBUG" : "INFO"
-});
+// --------------- MAIN ---------------
+const logger = new logjs();
+logger.init({ level: env_config.server.debug ? "DEBUG" : "INFO" });
+const machineName = computerName();
+const eventBus = new EventBus({
+  core: env_config.server.cluster_core,
+  debug: env_config.server.cluster_debug
+}).cluster(cluster);
 
 if (cluster.isMaster) {
 
@@ -261,8 +260,12 @@ if (cluster.isMaster) {
             error: false
           };
         } else if (params.method === "post" && params.value !== undefined) {
-          config.databaseManager.saveObject(params.database, params.path, params.value === null ? null : params.value).then(function (result) {
-            if (typeof result === "string") {
+          config.databaseManager.saveObject(
+            params.database,
+            params.path,
+            params.value === null || params.value === undefined ? null : params.value).then(function (result) {
+
+              if (typeof result === "string") {
               return {
                 machine: machineName,
                 worker_id: `worker_${cluster.worker.id}`,
