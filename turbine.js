@@ -31,7 +31,7 @@ process.argv.forEach(function (val, index, array) {
 
 // --------------- MAIN ---------------
 const logger = new logjs();
-logger.init({ level: env_config.server.debug ? "DEBUG" : "INFO" });
+logger.init({level: env_config.server.debug ? "DEBUG" : "INFO"});
 const machineName = computerName();
 const eventBus = new EventBus({
   core: env_config.server.cluster_core,
@@ -40,13 +40,16 @@ const eventBus = new EventBus({
 
 if (cluster.isMaster) {
 
+  let shuttingDown = false;
   let workers = [];
 
   let spawn = function (i) {
     workers[i] = cluster.fork();
     workers[i].on('exit', function (code, signal) {
-      logger.debug('respawning worker ' + i);
-      spawn(i);
+      if (!shuttingDown) {
+        logger.debug('respawning worker ' + i);
+        spawn(i);
+      }
     });
   };
 
@@ -202,6 +205,19 @@ if (cluster.isMaster) {
 
   // config.databaseManager.ioStatus(status);
 
+  process.on('SIGINT', async () => {
+    shuttingDown = true;
+    logger.debug(`asking for shutting down clusters`);
+    let response = await eventBus.eventAll({
+      method: "shutdown"
+    });
+    logger.debug(`error shutting down: ${response.error}`);
+    for (let err in response.error_messages) {
+      logger.error(response.error_messages[err]);
+    }
+    process.exit(response.error ? 1 : 0);
+  });
+
 } else {
   let config = {
     databaseManager: new DatabasesManager(env_config.server, numCPUs, cluster.worker.id)
@@ -229,6 +245,15 @@ if (cluster.isMaster) {
               response: object,
               error: false
             }
+          }
+        } else if (params.method === "shutdown") {
+          logger.debug(`shutting down cluster ${cluster.worker.id}`);
+          config.databaseManager.shuttingDown = true;
+          return {
+            machine: machineName,
+            worker_id: `worker_${cluster.worker.id}`,
+            response: {},
+            error: false
           }
         } else if (params.method === "query" && params.query !== undefined) {
           let _interface = params.mask || {};
@@ -265,7 +290,7 @@ if (cluster.isMaster) {
             params.path,
             params.value === null || params.value === undefined ? null : params.value).then(function (result) {
 
-              if (typeof result === "string") {
+            if (typeof result === "string") {
               return {
                 machine: machineName,
                 worker_id: `worker_${cluster.worker.id}`,
@@ -325,5 +350,14 @@ if (cluster.isMaster) {
       }
     }
   );
+
+  process.on('SIGINT', async () => {
+    logger.debug(`[SIGINT] shutting down cluster ${cluster.worker.id}`);
+    config.databaseManager.shuttingDown = true;
+    config.databaseManager.save().then(() => {
+      logger.debug(`exit ${cluster.worker.id}`);
+      process.exit(0);
+    });
+  });
 
 }

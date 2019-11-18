@@ -30,6 +30,7 @@ function DatabasesManager(configuration, cpus, cluster_id) {
 
   let interval = 5; // secs
   let _this = this;
+  this.shuttingDown = false;
   this.initOn = new Date().getTime();
   this.databases = {};
   this.indexed = 0;
@@ -421,7 +422,7 @@ function DatabasesManager(configuration, cpus, cluster_id) {
       // operations per second
       let ops = this.processed / interval;
 
-      // seconds per opertion
+      // seconds per operation
       let s = 1 / ops;
       // log(ops.toFixed(2) + " op/sec -> " + s.toFixed(3) + " sec/op");
       this.processed = 0;
@@ -433,6 +434,12 @@ function DatabasesManager(configuration, cpus, cluster_id) {
     for (let d in databases) {
       this.databases[databases[d]].save();
     }
+
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve()
+      }, 5000)
+    })
     /*
     if (this._io_status !== null) {
       this._io_status.emit('status', this.prepareStreamingData());
@@ -482,15 +489,19 @@ function DatabasesManager(configuration, cpus, cluster_id) {
     return false;
   };
 
-    // init databases
-  this.loadDatabases().then(function () {
+  // init databases
+  this.loadDatabases().then(() => {
     logger.warn("cluster " + cluster_id + " => database manager ready in " + ((new Date().getTime() - _this.initOn) / 1000) + " secs");
-    Interval.run(function () {
-      queue.pushJob(function () {
-        _this.save().then(function () {
+    Interval.run(() => {
+      if (!this.shuttingDown) {
+        queue.pushJob(() => {
+          if (!this.shuttingDown) {
+            this.save().then(() => {
 
+            })
+          }
         })
-      })
+      }
     }, interval * 1000);
   });
 

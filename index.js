@@ -1,12 +1,12 @@
-const forever = require('forever-monitor');
 const logjs = require('logjsx');
 const setIn = require('set-in');
+const pm2 = require('pm2');
 const RecursiveIterator = require('recursive-iterator');
 const TClient = require('./component/client');
 const fs = require('fs');
 const path = require('path');
 const logger = new logjs();
-const { exec } = require('child_process');
+const {exec} = require('child_process');
 const DEFAULT_CONFIG = {
   "server": {
     "databases": [
@@ -47,8 +47,11 @@ logger.init({
 
 function Turbine(config) {
 
-  this.turbine_process = null;
+  this.turbine_process = "turbine";
 
+  /**
+   * Merges the default configuration with the defined in the launcher
+   */
   this.mergeConfig = () => {
     this.config = DEFAULT_CONFIG;
     for (let {parent, node, key, path, deep} of new RecursiveIterator(config)) {
@@ -65,48 +68,58 @@ function Turbine(config) {
    * Initializes Turbine process
    */
   this.server = () => {
-    if (!this.config.server.active) {
-      return;
-    }
-    let process = "server";
-    let turbine_config = {
-      silent: false,
-      uid: process,
-      pidFile: "./" + process + ".pid",
-      max: 10,
-      killTree: true,
-      minUptime: 2000,
-      spinSleepTime: 1000,
-      sourceDir: __dirname,
-      args: ['CONFIG=' + JSON.stringify(this.config)],
-      watch: false,
-      watchIgnoreDotFiles: null,
-      watchIgnorePatterns: null,
-      watchDirectory: null,
-      logFile: this.config.server.log_dir + process + "/logFile.log",
-      outFile: this.config.server.log_dir + process + "/outFile.log",
-      errFile: this.config.server.log_dir + process + "/errFile.log"
-    };
+    pm2.connect((err) => {
+      if (err) {
+        console.error(err);
+        process.exit(2);
+      }
 
-    let c = this.config.app;
-    c.ip = this.config.server.ip;
-    c.port = this.config.server.port;
+      if (!this.config.server.active) {
+        return;
+      }
+      let process = "server";
 
-    this.prepareConfigFiles(c, () => {
-      exec('export NODE_OPTIONS=--max_old_space_size=' + this.config.server.memory, (err, stdout, stderr) => {
-        if (err) {
-          logger.error("Error defining " + '--max_old_space_size=' + this.config.server.memory);
-          return;
-        }
-        this.createDir(this.config.server.log_dir + process + "/").then(() => {
-          this.turbine_process = forever.start('./turbine.js', turbine_config);
+      let c = this.config.app;
+      c.ip = this.config.server.ip;
+      c.port = this.config.server.port;
+
+      this.prepareConfigFiles(c, () => {
+        exec('export NODE_OPTIONS=--max_old_space_size=' + this.config.server.memory, (err, stdout, stderr) => {
+          if (err) {
+            logger.error("Error defining " + '--max_old_space_size=' + this.config.server.memory);
+            return;
+          }
+          this.createDir(this.config.server.log_dir + process + "/").then(() => {
+            pm2.start({
+              script: this.turbine_process + '.js',         // Script to be run
+              minUptime: 2000,
+              kill_timeout : 20000,
+              pid: "./" + process + ".pid",
+              output: this.config.server.log_dir + process + "/logFile.log",
+              error: this.config.server.log_dir + process + "/errFile.err",
+              max_memory_restart: '2048M',   // Optional: Restarts your app if it reaches 100Mo
+              args: ['CONFIG=' + JSON.stringify(this.config)]
+            }, (err, apps) => {
+              pm2.disconnect();   // Disconnects from PM2
+              if (err) throw err
+            });
+          });
         });
       });
     });
   };
 
   this.stopServer = () => {
-    this.turbine_process.stop();
+    pm2.connect((err) => {
+      if (err) {
+        console.error(err);
+        process.exit(2);
+      }
+      pm2.stop(this.turbine_process, (err, apps) => {
+        pm2.disconnect();   // Disconnects from PM2
+        if (err) throw err
+      })
+    });
   };
 
   this.prepareConfigFiles = (config, callback) => {

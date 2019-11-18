@@ -44,11 +44,12 @@ import {FormsModule} from "@angular/forms";
 import {AppConfigService} from "./services/app-config/app.config.service";
 import {APP_BASE_HREF} from "@angular/common";
 import {NgModule} from "@angular/core";
-import {SOCKET_CONFIG_TOKEN, SocketFactory, SocketIoModule} from "ngx-socket-io/src/socket-io.module";
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import {WrappedSocket} from "ngx-socket-io/src/socket-io.service";
 import {SocketService} from "./services/socket/socket.service";
 import {DataService} from "./services/data/data.service";
 import {SessionService} from "./services/session/session.service";
+import {SOCKET_CONFIG_TOKEN, SocketFactory} from "ngx-socket-io/src/socket-io.module";
 
 
 export function initializeApp(appConfig: AppConfigService) {
@@ -128,16 +129,6 @@ export function ioConfig(appConfig: AppConfigService) {
     {
       provide: APP_BASE_HREF,
       useValue: '/app'
-    },
-    {
-      provide: SOCKET_CONFIG_TOKEN,
-      deps: [AppConfigService],
-      useFactory: ioConfig
-    },
-    {
-      provide: WrappedSocket,
-      deps: [SOCKET_CONFIG_TOKEN],
-      useFactory: SocketFactory
     },
     GoogleAuthService,
     RouterService,
