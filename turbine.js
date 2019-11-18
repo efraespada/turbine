@@ -13,6 +13,7 @@ const AccessManager = require('./component/access_manager.js');
 const ApplicationProfile = require('./component/app_profile.js');
 const logjs = require('logjsx');
 
+JSON.stringifyAligned = require('json-align');
 String.prototype.replaceAll = function (search, replacement) {
   let target = this;
   return target.replace(new RegExp(search, 'g'), replacement);
@@ -151,6 +152,7 @@ if (cluster.isMaster) {
   });
 
   app.use('/database', router);
+
   if (env_config.app.production) {
     app.use('/app/', express.static(path.join(__dirname, 'dist/turbine-app/')));
     app.all('/app/*', function (req, res, next) {
@@ -161,12 +163,11 @@ if (cluster.isMaster) {
       }
     });
   } else {
-    logger.debug("Run ng serve --port " + (env_config.server.port + 1) + " --base-href=/app/ --deploy-url=/app/ ")
+    logger.debug(`* env_config.app.production = ${env_config.app.production} ; Run ng serve --port ${env_config.server.port + 1} --base-href=/app/ --deploy-url=/app/ `)
   }
 
   const server = require('http').createServer(app);
   const io = require('socket.io')(server);
-
   server.listen(env_config.server.port, function () {
     logger.info("Turbine database started (" + env_config.server.port + ")");
   });
@@ -205,17 +206,26 @@ if (cluster.isMaster) {
 
   // config.databaseManager.ioStatus(status);
 
+  setInterval(async () => {
+    let response = await eventBus.eventAll({
+      method: "status"
+    });
+    // console.log(JSON.stringify(response));
+    if (response.error) {
+      logger.error(`error retrieving status from cluster ${response.cluster_id}`);
+      for (const element of response.error_messages) {
+        logger.error(element);
+      }
+    }
+    for (const element of response.responses) {
+      logger.debug(JSON.stringifyAligned(element))
+    }
+  }, 10000);
+
   process.on('SIGINT', async () => {
     shuttingDown = true;
-    logger.debug(`asking for shutting down clusters`);
-    let response = await eventBus.eventAll({
-      method: "shutdown"
-    });
-    logger.debug(`error shutting down: ${response.error}`);
-    for (let err in response.error_messages) {
-      logger.error(response.error_messages[err]);
-    }
-    process.exit(response.error ? 1 : 0);
+    logger.debug(`shutting down master`);
+    process.exit(0);
   });
 
 } else {
@@ -223,7 +233,7 @@ if (cluster.isMaster) {
     databaseManager: new DatabasesManager(env_config.server, numCPUs, cluster.worker.id)
   };
 
-  eventBus.prepareWorker(cluster, (params) => {
+  eventBus.prepareWorker(cluster, async (params) => {
       if (params.method !== undefined && params.path !== undefined && params.database !== undefined) {
         if (params.method === "get") {
           let _interface = params.mask || {};
@@ -245,15 +255,6 @@ if (cluster.isMaster) {
               response: object,
               error: false
             }
-          }
-        } else if (params.method === "shutdown") {
-          logger.debug(`shutting down cluster ${cluster.worker.id}`);
-          config.databaseManager.shuttingDown = true;
-          return {
-            machine: machineName,
-            worker_id: `worker_${cluster.worker.id}`,
-            response: {},
-            error: false
           }
         } else if (params.method === "query" && params.query !== undefined) {
           let _interface = params.mask || {};
@@ -316,7 +317,8 @@ if (cluster.isMaster) {
             }
           });
         } else if (params.method === "create_database" && params.name !== undefined) {
-          if (config.databaseManager.createDatabase(params.name)) {
+          let success = await config.databaseManager.createDatabase(params.name);
+          if (success) {
             let data = config.databaseManager.getDatabasesInfo();
             return {
               machine: machineName,
@@ -336,6 +338,16 @@ if (cluster.isMaster) {
             }
           }
         }
+      } else if (params.method === "status") {
+        logger.debug("returning data");
+        let response = {
+          machine: machineName,
+          worker_id: `worker_${cluster.worker.id}`,
+          response: config.databaseManager.status(),
+          error: false
+        };
+        logger.debug(JSON.stringifyAligned(response));
+        return response;
       }
 
       // default response
@@ -351,13 +363,11 @@ if (cluster.isMaster) {
     }
   );
 
-  process.on('SIGINT', async () => {
-    logger.debug(`[SIGINT] shutting down cluster ${cluster.worker.id}`);
+  process.on('SIGINT', () => {
+    logger.warn(`[SIGINT] shutting down cluster ${cluster.worker.id}`);
     config.databaseManager.shuttingDown = true;
-    config.databaseManager.save().then(() => {
-      logger.debug(`exit ${cluster.worker.id}`);
-      process.exit(0);
-    });
+    config.databaseManager.save();
+    process.exit(0);
   });
 
 }

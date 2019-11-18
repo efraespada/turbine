@@ -7,6 +7,10 @@ const fs = require('fs');
 const path = require('path');
 const logger = new logjs();
 const {exec} = require('child_process');
+
+// needs runningInDocker
+// pm2-runtime
+// https://stackoverflow.com/questions/50607260/node-js-getting-sigint-from-pm2
 const DEFAULT_CONFIG = {
   "server": {
     "databases": [
@@ -93,11 +97,14 @@ function Turbine(config) {
             pm2.start({
               script: this.turbine_process + '.js',         // Script to be run
               minUptime: 2000,
-              kill_timeout : 20000,
+              killTimeout : 20000,
+              cwd: __dirname,
+              execMode : 'cluster',        // Allows your app to be clustered
+              instances : 8,                // Optional: Scales your app by 4
               pid: "./" + process + ".pid",
               output: this.config.server.log_dir + process + "/logFile.log",
               error: this.config.server.log_dir + process + "/errFile.err",
-              max_memory_restart: '2048M',   // Optional: Restarts your app if it reaches 100Mo
+              maxMemoryRestart: '2048M',   // Optional: Restarts your app if it reaches 100Mo
               args: ['CONFIG=' + JSON.stringify(this.config)]
             }, (err, apps) => {
               pm2.disconnect();   // Disconnects from PM2

@@ -38,6 +38,12 @@ function DatabasesManager(configuration, cpus, cluster_id) {
   this.configuration = configuration;
   this._socket_client = null;
 
+  this.ops = 0;
+  this.spo = 0;
+  this.time_delay_saving = 0;
+  this.time_last_saving = 0;
+  this.cluster_id = cluster_id;
+
   this.createDir = async function (dirPath) {
     if (!await fs.existsSync(dirPath)) {
       try {
@@ -417,29 +423,27 @@ function DatabasesManager(configuration, cpus, cluster_id) {
     }
   };
 
-  this.save = async function () {
+  this.save = function () {
+    this.time_last_saving = new Date();
     if (this.processed > 0) {
       // operations per second
-      let ops = this.processed / interval;
-
+      this.ops = (this.processed / interval).toFixed(2);
       // seconds per operation
-      let s = 1 / ops;
-      // log(ops.toFixed(2) + " op/sec -> " + s.toFixed(3) + " sec/op");
+      this.spo = (1 / this.ops).toFixed(2);
+      // reset
       this.processed = 0;
     } else {
-      // log("0 op/sec");
+      this.ops = "0";
+      this.spc = "0";
     }
 
     let databases = Object.keys(this.databases);
     for (let d in databases) {
       this.databases[databases[d]].save();
     }
+    this.time_delay_saving = new Date().getMilliseconds() - this.time_last_saving.getMilliseconds();
+    logger.debug(`databases saved in cluster ${cluster_id} in ${this.time_delay_saving} milliseconds`);
 
-    await new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve()
-      }, 5000)
-    })
     /*
     if (this._io_status !== null) {
       this._io_status.emit('status', this.prepareStreamingData());
@@ -478,7 +482,7 @@ function DatabasesManager(configuration, cpus, cluster_id) {
     return data;
   };
 
-  this.createDatabase = async function (name) {
+  this.createDatabase = async (name) => {
     if (this.configuration.databases.indexOf(name) == -1) {
       this.configuration.databases.push(name);
       await this.loadSingleDatabase(name);
@@ -489,6 +493,17 @@ function DatabasesManager(configuration, cpus, cluster_id) {
     return false;
   };
 
+  this.status = () => {
+    return {
+      ops: this.ops,
+      spo: this.spo,
+      time_last_saving: this.time_last_saving,
+      time_delay_saving: this.time_delay_saving,
+      cluster_id: cluster_id,
+      databases: this.getDatabasesInfo()
+    }
+  };
+
   // init databases
   this.loadDatabases().then(() => {
     logger.warn("cluster " + cluster_id + " => database manager ready in " + ((new Date().getTime() - _this.initOn) / 1000) + " secs");
@@ -496,14 +511,13 @@ function DatabasesManager(configuration, cpus, cluster_id) {
       if (!this.shuttingDown) {
         queue.pushJob(() => {
           if (!this.shuttingDown) {
-            this.save().then(() => {
-
-            })
+            this.save();
           }
         })
       }
     }, interval * 1000);
   });
+
 
   this.socket_client = (socket_client_instance) => {
     this._socket_client = socket_client_instance;
