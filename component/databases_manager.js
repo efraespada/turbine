@@ -441,7 +441,8 @@ function DatabasesManager(configuration, cpus, cluster_id) {
     for (let d in databases) {
       this.databases[databases[d]].save();
     }
-    this.time_delay_saving = new Date().getMilliseconds() - this.time_last_saving.getMilliseconds();
+
+    this.time_delay_saving = new Date().getTime() - this.time_last_saving.getTime();
     logger.debug(`databases saved in cluster ${cluster_id} in ${this.time_delay_saving} milliseconds`);
 
     /*

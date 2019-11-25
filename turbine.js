@@ -11,6 +11,7 @@ const EventBus = require('cluster-eventbus');
 const DatabasesManager = require('./component/databases_manager.js');
 const AccessManager = require('./component/access_manager.js');
 const ApplicationProfile = require('./component/app_profile.js');
+const PrintUtils = require('./component/print_utils.js');
 const logjs = require('logjsx');
 
 JSON.stringifyAligned = require('json-align');
@@ -60,7 +61,8 @@ if (cluster.isMaster) {
 
   let config = {
     access: new AccessManager(env_config.server),
-    app_profile: new ApplicationProfile(env_config.app)
+    app_profile: new ApplicationProfile(env_config.app),
+    print_utils: new PrintUtils()
   };
 
   // access manager
@@ -217,9 +219,7 @@ if (cluster.isMaster) {
         logger.error(element);
       }
     }
-    for (const element of response.responses) {
-      logger.debug(JSON.stringifyAligned(element))
-    }
+    logger.debug(config.print_utils.getClusterPrintableInfo(response));
   }, 10000);
 
   process.on('SIGINT', async () => {
@@ -364,9 +364,9 @@ if (cluster.isMaster) {
   );
 
   process.on('SIGINT', () => {
-    logger.warn(`[SIGINT] shutting down cluster ${cluster.worker.id}`);
     config.databaseManager.shuttingDown = true;
     config.databaseManager.save();
+    logger.warn(`shutting down cluster ${cluster.worker.id}`);
     process.exit(0);
   });
 
